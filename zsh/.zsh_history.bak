@@ -1,0 +1,2583 @@
+: 1704907884:0;zplug check
+: 1704907884:0;zplug install
+: 1704907884:0;zplug clean
+: 1704907884:0;ls
+: 1704907884:0;ls variables.zsh
+: 1704907884:0;pwd
+: 1704907884:0;ll
+: 1704907884:0;l
+: 1704907884:0;cat variables.zsh 
+: 1704907884:0;ll .
+: 1704907884:0;lla .
+: 1704907884:0;lls -a .
+: 1704907884:0;zsh
+: 1704907884:0;cat  /Users/abelchalier/.config/zsh/.zplug/log/trace.log 
+: 1704907884:0;cat  /Users/abelchalier/.config/zsh/.zplug/log/install.log 
+: 1704907884:0;ls
+: 1704907884:0;pwd
+: 1704907884:0;ls
+: 1704907884:0;ls
+: 1704907884:0;zsh
+: 1704907884:0;zsh
+: 1704907884:0;rm /Users/abelchalier/.config/zsh/.zplug/log/trace.log
+: 1704907884:0;zsh
+: 1704907884:0;ls
+: 1704907884:0;/opt/homebrew/bin/brew shellenv
+: 1704907884:0;ls .z
+: 1704907884:0;cat ~/.profile
+: 1704907884:0;"$HOME/.cargo/env"
+: 1704907884:0;cat $HOME/.cargo/env
+: 1704907884:0;echo $HOME/.cargo/env
+: 1704907884:0;macro
+: 1704907884:0;mi
+: 1704907884:0;ls
+: 1704907884:0;zsh
+: 1704907884:0;ls
+: 1704907884:0;zsh
+: 1704907884:0;ls
+: 1704907884:0;zplug clear
+: 1704907884:0;zplug load --verbose
+: 1704907884:0;pwd
+: 1704907884:0;ll
+: 1704907884:0;zplug clear
+: 1704907884:0;zplug load --verbose
+: 1704907884:0;zplug load --verbose
+: 1704907884:0;ls
+: 1704907884:0;ai
+: 1704907884:0;zplug load --verbose
+: 1704907884:0;ls
+: 1704907884:0;find *
+: 1704907884:0;ls
+: 1704907884:0;ls
+: 1704907884:0;cp old-zsh-config/.zsh_history .config/zsh/.zsh_history__
+: 1704907884:0;cd .config/zsh/
+: 1704907884:0;ls
+: 1704907884:0;ls -la
+: 1704907884:0;cat .zsh_history >> .zsh_history__
+: 1704907884:0;swap .zsh_history .zsh_history__
+: 1704907884:0;ls
+: 1704907884:0;cat .zsh_history
+: 1704907884:0;ccat .zsh_history
+: 1704907884:0;ls
+: 1704907884:0;cat .zsh_history
+: 1704907884:0;ls
+: 1704907884:0;find ~/.
+: 1704907884:0;find ~/. -d 1
+: 1704907884:0;ccat .
+: 1704907884:0;ccat .z
+: 1704907884:0;ccat .zsh
+: 1704907884:0;ccat .zsh_history
+: 1704907884:0;find ~/. -d 1
+: 1704907884:0;node
+: 1704907884:0;cd ~
+: 1704907884:0;find .  -maxdepth 1 -type f -exec dx {} \;
+: 1704907884:0;find "fzf"  -maxdepth 1 -type f -exec dx {} \;
+: 1704907884:0;find -maxdepth 2
+: 1704907884:0;find fzf -maxdepth 2
+: 1704907884:0;find  . fzf -maxdepth 2
+: 1704907884:0;rg
+: 1704907884:0;rg -h
+: 1704907884:0;rg 
+: 1704907884:0;cat .zsh_history
+: 1704907884:0;cat .zsh_history|grep rg
+: 1704907884:0;cat .zsh_history
+: 1704907884:0;ll
+: 1704907884:0;rm .zsh_history
+: 1704907884:0;ls
+: 1704907884:0;ls
+: 1704907884:0;cat old-zsh-config
+: 1704907884:0;cat old-zsh-config/.zsh_history|grep fzf
+: 1704907884:0;cat old-zsh-config/.zsh_history|grep rg
+: 1704907884:0;cat old-zsh-config/.zsh_history|grep rg
+: 1704907884:0;cat old-zsh-config/.zsh_history|grep qsddsqqds
+: 1704907884:0;cat old-zsh-config/.zsh_history|grep rg
+: 1704907884:0;cat old-zsh-config/.zsh_history|grep "rg"
+: 1704907884:0;cat old-zsh-config/.zsh_history|grep "rg" --color
+: 1704907884:0;cat old-zsh-config/.zsh_history|grep "^rg" --color
+: 1704907884:0;tldr rg
+: 1704907884:0;rg fzf 
+: 1704907884:0;rg -h
+: 1704907884:0;rg fzf -d 1
+: 1704907884:0;rg fzf -d 2
+: 1704907884:0;rg fzf -d 2 -H
+: 1704907884:0;rg fzf -d 2 --hidden
+: 1704907884:0;rg fzf -d 1 --hidden
+: 1704907884:0;cat .fzf.zsh
+: 1704907884:0;cat /opt/homebrew/opt/fzf/shell/completion.zsh
+: 1704907884:0;ll
+: 1704907884:0;
+: 1704907884:0;zplug clean
+: 1704907884:0;zsh
+: 1704907884:0;zplug  list
+: 1704907884:0;yazi  ~/.config/zsh/.zplug/repos/romkatv/powerlevel10k/
+: 1704907884:0;ls
+: 1704907884:0;ls -lR
+: 1704907884:0;ls -lR /
+: 1704907884:0;ls
+: 1704907884:0;zsh
+: 1704907884:0;zsh
+: 1704907884:0;ls
+: 1704907884:0;y ~/old-zsh-config
+: 1704907884:0;zsh
+: 1704907884:0;ls iterm
+: 1704907884:0;zplug list
+: 1704907884:0;cd .zplug/repos/robbyrussell
+: 1704907884:0;ls
+: 1704907884:0;ls
+: 1704907884:0;cat oh-my-zsh
+: 1704907884:0;ls
+: 1704907884:0;ls
+: 1704907884:0;y
+: 1704907884:0;zsh
+: 1704907884:0;zsh
+: 1704907884:0;zsh
+: 1704907884:0;zsh
+: 1704907884:0;zsh
+: 1704907884:0;ll
+: 1704907884:0;find
+: 1704907884:0;find |fzf
+: 1704907884:0;ZSH
+: 1704907884:0;ZSH
+: 1704907884:0;ZSH
+: 1704907884:0;ZSH
+: 1704907884:0;ZSH
+: 1704907884:0;ZSH
+: 1704907884:0;ls
+: 1704907884:0;zsh
+: 1704907884:0;cd ~/.config/zsh/.zplug
+: 1704907884:0;ls
+: 1704907884:0;ll
+: 1704907884:0;ls
+: 1704907884:0;cd ..
+: 1704907884:0;ls
+: 1704907884:0;mkdir fzf
+: 1704907884:0;ls
+: 1704907884:0;cp ~/Downloads/fzf-preview.sh ./fzf
+: 1704907884:0;cp ~/Downloads/fzf-preview.sh ./fzf
+: 1704907884:0;ls ./fzf
+: 1704907884:0;cp ~/Downloads/fzf-tmux.txt ./fzf
+: 1704907884:0;ls fzf
+: 1704907884:0;y
+: 1704907884:0;ls
+: 1704907884:0;zsh
+: 1704907884:0;ll
+: 1704907884:0;cat .DS_Store .git .gitignore .p10k.zsh .z .zcompdump .zcompdump-Abelâ€ƒ¹s\ MacBook\ Pro\ \(2\)-5.9 .zplug .zsh_history .zsh_history__ .zshrc 
+: 1704907884:0;ccat .DS_Store .git .gitignore .p10k.zsh .z .zcompdump .zcompdump-Abelâ€ƒ¹s\ MacBook\ Pro\ \(2\)-5.9 .zplug .zsh_history .zsh_history__ .zshrc 
+: 1704907884:0;ccat .DS_Store .git .gitignore .p10k.zsh .z .zcompdump .zcompdump-Abelâ€ƒ¹s\ MacBook\ Pro\ \(2\)-5.9 .zplug .zsh_history .zsh_history__ .zshrc |grep fzf
+: 1704907884:0;rg fzf ~/old-zsh-config
+: 1704907884:0;rg "fzf" ~/old-zsh-config
+: 1704907884:0;rg "fzf" ~/old-zsh-config/p10k-abelchalier
+: 1704907884:0;rg "fzf" -H  ~/old-zsh-config
+: 1704907884:0;rg
+: 1704907884:0;rg -h
+: 1704907884:0;tldr rg
+: 1704907884:0;rg  --no-ignore --hidden "f" -H  ~/old-zsh-config
+: 1704907884:0;rg  --no-ignore --hidden "f"  ~/old-zsh-config
+: 1704907884:0;rg  --no-ignore --hidden "fzf"  ~/old-zsh-config
+: 1704907884:0;zsh
+: 1704907884:0;ls
+: 1704907884:0;zplug list
+: 1704907884:0;zplug list
+: 1704907884:0;zplug 
+: 1704907884:0;zsh
+: 1704907884:0;zsh
+: 1704907884:0;zsh
+: 1704907884:0;ls
+: 1704907884:0;zsh
+: 1704907884:0;ls
+: 1704907884:0;ll
+: 1704907884:0;zsh
+: 1704907884:0;ls
+: 1704907884:0;ls
+: 1704907884:0;zsh
+: 1704907884:0;zsh
+: 1704907884:0;ls
+: 1704907884:0;ppwd
+: 1704907884:0;ls
+: 1704907884:0;zsh
+: 1704907884:0;ls
+: 1704907884:0;zplug load
+: 1704907884:0;find .
+: 1704907884:0;zsh
+: 1704907884:0;ls variables.zsh
+: 1704907884:0;ll
+: 1704907884:0;pwd
+: 1704907884:0;ll ll
+: 1704907884:0;ls
+: 1704907884:0;zsh
+: 1704907884:0;zplug
+: 1704907884:0;zplug list
+: 1704907884:0;zplug list junegunn/fzf
+: 1704907884:0;zplug junegunn/fzf list
+: 1704907884:0;zplug junegunn/fzf
+: 1704907884:0;zplug junegunn/fzf ls
+: 1704907884:0;zsh
+: 1704907884:0;ls
+: 1704907884:0;zplug list
+: 1704907884:0;zsh
+: 1704907884:0;ls
+: 1704907884:0;zsh
+: 1704907884:0;ls
+: 1704907884:0;zsh
+: 1704907884:0;zplug list --installed
+: 1704907884:0;zplug list --select
+: 1704907884:0;zplug list junegunn/fzf
+: 1704907884:0;zplug list "junegunn/fzf"
+: 1704907884:0;zsh
+: 1704907884:0;ls
+: 1704907884:0;zsh
+: 1704907884:0;ls
+: 1704907884:0;ls
+: 1704907884:0;zsh
+: 1704907884:0;zsh
+: 1704907884:0;ls
+: 1704907884:0;zsh
+: 1704907884:0;ls functions.zsh
+: 1704907884:0;cd ..
+: 1704907884:0;ls
+: 1704907884:0;clear
+: 1704907884:0;lll
+: 1704907884:0;ll
+: 1704907884:0;lla
+: 1704907884:0;which lla
+: 1704907884:0;zsh
+: 1704907884:0;ls gatsby
+: 1704907884:0;ll
+: 1704907884:0;which ll
+: 1704907884:0;lls
+: 1704907884:0;lld
+: 1704907884:0;zsh
+: 1704907884:0;lla
+: 1704907884:0;pwd
+: 1704907884:0;ll
+: 1704907884:0;ls -l
+: 1704907884:0;ll
+: 1704907884:0;clear
+: 1704907884:0;ls
+: 1704907884:0;cat nicotine
+: 1704907884:0;zsh
+: 1704907884:0;ll
+: 1704907884:0;ls -T
+: 1704907884:0;ls
+: 1704907884:0;s
+: 1704907884:0;ss
+: 1704907884:0;lla
+: 1704907884:0;cd ~/dev
+: 1704907884:0;ghclone https://github.com/folke/tokyonight.nvim/tree/main/extras/iterm
+: 1704907884:0;cd iterm
+: 1704907884:0;ls
+: 1704907884:0;ai
+: 1704907884:0;g3
+: 1704907884:0;zsh
+: 1704907884:0;ls
+: 1704907884:0;cd zsh
+: 1704907884:0;ls
+: 1704907884:0;rm iterm
+: 1704907884:0;ls
+: 1704907884:0;cat functions.zsh
+: 1704907884:0;ls
+: 1704907884:0;cat .zsh_history
+: 1704907884:0;cat .zsh_history|wc l-
+: 1704907884:0;cat .zsh_history|wc -l
+: 1704907884:0;ll -a
+: 1704907884:0;ll ~/old-zsh-config/p10k-abelchalier
+: 1704907884:0;ll ~/old-zsh-config/ -a
+: 1704907884:0;ll .zsh_history
+: 1704907884:0;ccat .zsh_history
+: 1704907884:0;ccat .zsh_history|wc-l
+: 1704907884:0;ccat .zsh_history|wc -l
+: 1704907884:0;ccat .zsh_history__|wc -l
+: 1704907884:0;ln -s /Users/abelchalier/.config  /Users/abelchalier/config
+: 1704907884:0;ls ~/config
+: 1704907884:0;ls ~/config/
+: 1704907884:0;cd ~
+: 1704907884:0;mkdir iterm2/colors
+: 1704907884:0;cp /opt/d/iterm/tokyonight_*  config/iterm2/colors
+: 1704907884:0;ls config/iterm2/colors
+: 1704907884:0;ls
+: 1704907884:0;ls config/broot
+: 1704907884:0;ls config/zsh
+: 1704907884:0;ls config
+: 1704907884:0;ls .config
+: 1704907884:0;cd config/broot
+: 1704907884:0;ls
+: 1704907884:0;pwd
+: 1704907884:0;ls
+: 1704907884:0;pwd
+: 1704907884:0;ls
+: 1704907884:0;ll
+: 1704907884:0;;s
+: 1704907884:0;ls
+: 1704907884:0;clear
+: 1704907884:0;ls
+: 1704907884:0;pwd
+: 1704907884:0;ls
+: 1704907884:0;ls flipper
+: 1704907884:0;z
+: 1704907884:0;zoxide
+: 1704907884:0;z
+: 1704907884:0;ls
+: 1704907884:0;cd ..
+: 1704907884:0;lld
+: 1704907884:0;lld dev
+: 1704907884:0;lld folder-size/
+: 1704907884:0;lld dev/folder-size/
+: 1704907884:0;lld dev/folder-size/aevt_decompile
+: 1704907884:0;lld dev/folder-size/aevt_decompile -a
+: 1704907884:0;lld dev/folder-size/
+: 1704907884:0;lld dev/folder-
+: 1704907884:0;lld dev/
+: 1704907884:0;lld install-history/
+: 1704907884:0;lld dev/install-history/
+: 1704907884:0;x
+: 1704907884:0;ai
+: 1704907884:0;ll
+: 1704907884:0;#     ____      ____\
+#    / __/___  / __/\
+#   / /_/_  / / /_\
+#  / __/ / /_/ __/\
+# /_/   /___/_/ key-bindings.zsh\
+#\
+# - $FZF_TMUX_OPTS\
+# - $FZF_CTRL_T_COMMAND\
+# - $FZF_CTRL_T_OPTS\
+# - $FZF_CTRL_R_OPTS\
+# - $FZF_ALT_C_COMMAND\
+# - $FZF_ALT_C_OPTS\
+
+: 1704907884:0;cd Desktop/dev-tools.txt 
+: 1704907884:0;ls
+: 1704907884:0;zsh
+: 1704907884:0;ls
+: 1704907884:0;zsh
+: 1704907884:0;mv ~/.lazyshell.zsh .
+: 1704907884:0;cp ~/.fzf.zsh .
+: 1704907884:0;cat .fzf.zsh
+: 1704907884:0;ls
+: 1704907884:0;ll
+: 1704907884:0;ll -la
+: 1704907884:0;cat .zprofile
+: 1704907884:0;cat .zprofile.macports-saved_2024-01-03_at_15:08:31
+: 1704907884:0;ls
+: 1704907884:0;cat ~/.fzf.bash
+: 1704907884:0;cat .zshrc
+: 1704907884:0;code .zshrc
+: 1704907884:0;ls
+: 1704907884:0;ls
+: 1704907884:0;zsh
+: 1704907884:0;cat ~/old-zsh-config/.fzf.zsh
+: 1704907884:0;cat ~/old-zsh-config/p10k-abelchalier
+: 1704907884:0;cat ~/old-zsh-config/p10k-abelchalier/*
+: 1704907884:0;ls  .zplug/repos/robbyrussell/oh-my-zsh/oh-my-zsh.sh
+: 1704907884:0;zcompdump
+: 1704907884:0;echo $ZSH_COMPDUMP
+: 1704907884:0;brew update; brew upgrade fzf
+: 1704907884:0;ls
+: 1704907884:0;find . fzf 
+: 1704907884:0;fd / fzf 
+: 1704907884:0;which fd
+: 1704907884:0;/opt/homebrew/bin//fd
+: 1704907884:0;/opt/homebrew/bin//fd / "fzf"
+: 1704907884:0;/opt/homebrew/bin//fd "fzf" ~/
+: 1704907884:0;ls
+: 1704907884:0;cd fzf
+: 1704907884:0;ls
+: 1704907884:0;wget https://github.com/junegunn/fzf/raw/master/shell/completion.zsh
+: 1704907884:0;ls
+: 1704907884:0;ll
+: 1704907884:0;cd ..
+: 1704907884:0;rm fzf/completion.zsh
+: 1704907884:0;cd /Users/abelchalier/.config/zsh/.zplug/repos/junegunn/fzf/
+: 1704907884:0;ls
+: 1704907884:0;make 
+: 1704907884:0;cat BUILD.md
+: 1704907884:0;ls
+: 1704907884:0;git status
+: 1704907884:0;pwd
+: 1704907884:0;code /Users/abelchalier/.config/zsh/.zplug/repos/junegunn/fzf/shell/key-bindings.zsh
+: 1704907884:0;code ../../../README.md
+: 1704907884:0;ls
+: 1704907884:0;cd ../../robbyrussell
+: 1704907884:0;ls
+: 1704907884:0;cd oh-my-zsh
+: 1704907884:0;ls
+: 1704907884:0;ls plugins
+: 1704907884:0;ls plugins/fzf/README.md
+: 1704907884:0;cat  plugins/fzf/README.md
+: 1704907884:0;rm .gitignore
+: 1704907884:0;which fzf
+: 1704907884:0;g3
+: 1704907884:0;ls
+: 1704907884:0;$(uname)
+: 1704907884:0;uname
+: 1704907884:0;ll
+: 1704907884:0;ll
+: 1704907884:0;zsh
+: 1704907884:0;ls
+: 1704907884:0;zsh
+: 1704907884:0;ls
+: 1704907884:0;ll
+: 1704907884:0;ai
+: 1704907884:0;zsh
+: 1704907884:0;zsh
+: 1704907884:0;ls
+: 1704907884:0;ls IMovies
+: 1704907884:0;ls
+: 1704907884:0;
+: 1704907884:0;zsh
+: 1704907884:0;ls
+: 1704907884:0;ai
+: 1704907884:0;system_profiler SPUSBDataType
+: 1704907884:0;cat ~/Desktop/.\#sales-machine
+: 1704907884:0;cat ~/Desktop/.\#dev-tools\ 2.txt
+: 1704907884:0;ls
+: 1704907884:0;ll
+: 1704907884:0;cd dev
+: 1704907884:0;ll
+: 1704907884:0;bzip2
+: 1704907884:0;rg -h
+: 1704907884:0;ls
+: 1704907884:0;cd d22
+: 1704907884:0;alias ripgrep=rg
+: 1704907884:0;ll
+: 1704907884:0;pwd
+: 1704907884:0;ls
+: 1704907884:0;ll
+: 1704907884:0;ls
+: 1704907884:0;ll
+: 1704907884:0;cat x.out
+: 1704907884:0;ll
+: 1704907884:0;ls -l
+: 1704907884:0;cat f.m
+: 1704907884:0;ll
+: 1704907884:0;cat g.m 
+: 1704907884:0;clear
+: 1704907884:0;ls
+: 1704907884:0;cat as-test.py
+: 1704907884:0;cat -v
+: 1704907884:0;cat 
+: 1704907884:0;cat  -- -v
+: 1704907884:0;ccat  -- -v
+: 1704907884:0;ccat -v
+: 1704907884:0;ls
+: 1704907884:0;compaudit
+: 1704907884:0;compaudit -v
+: 1704907884:0;compaudit -g
+: 1704907884:0;compaudit -h
+: 1704907884:0;autoload -U compaudit
+: 1704907884:0;man compaudit
+: 1704907884:0;man ls
+: 1704907884:0;man compaudit
+: 1704907884:0;ls
+: 1704907884:0;zsh
+: 1704907884:0;ls
+: 1704907884:0;cd ~
+: 1704907884:0;ls
+: 1704907884:0;cd config/zsh/fzf
+: 1704907884:0;ls
+: 1704907884:0;ls -la
+: 1704907884:0;fzf-tmux -h
+: 1704907884:0;fzf 
+: 1704907884:0;which fzf 
+: 1704907884:0;which fzf-tmux
+: 1704907884:0;ls /Users/abelchalier/.config/zsh/.zplug/bin/fzf-preview.sh
+: 1704907884:0;ls /Users/abelchalier/.config/zsh/.zplug/bin/fzf-preview.sh 
+: 1704907884:0;ls /Users/abelchalier/.config/zsh/.zplug/bin/fzf-preview.sh  lq
+: 1704907884:0;ls /Users/abelchalier/.config/zsh/.zplug/bin/fzf-preview.sh  ls
+: 1704907884:0;ls /Users/abelchalier/.config/zsh/.zplug/bin/fzf-preview.sh
+: 1704907884:0;/Users/abelchalier/.config/zsh/.zplug/bin/fzf-preview.sh
+: 1704907884:0;/Users/abelchalier/.config/zsh/.zplug/bin/fzf-preview.sh .zplug
+: 1704907884:0;/Users/abelchalier/.config/zsh/.zplug/bin/fzf-preview.sh variables.zsh
+: 1704907884:0;ls
+: 1704907884:0;cat aliases.zsh
+: 1704907884:0;cat functions.zsh
+: 1704907884:0;__fzf_extract_command
+: 1704907884:0;cd 
+: 1704907884:0;ls
+: 1704907884:0;code /opt/d/install-history/notes.txt
+: 1704907884:0;tldr -h
+: 1704907884:0;clear
+: 1704907884:0;sl
+: 1704907884:0;ll
+: 1704907884:0;ls
+: 1704907884:0;tldr -h
+: 1704907884:0;zsh
+: 1704907884:0;clear
+: 1704907884:0;ls
+: 1704907884:0;code .zplug/repos/robbyrussell/oh-my-zsh/
+: 1704907884:0;ll
+: 1704907884:0;cat explorer.zsh
+: 1704907884:0;clear
+: 1704907884:0;ls
+: 1704907884:0;ls -l
+: 1704907884:0;cd ../
+: 1704907884:0;cat .zsh_history
+: 1704907884:0;cat .zcompdump
+: 1704907884:0;cat .z
+: 1704907884:0;cat .zcompdump-Abelâ€ƒ¹s\ MacBook\ Pro\ \(2\)-5.9 
+: 1704907884:0;_vi
+: 1704907884:0;ls
+: 1704907884:0;cat .zcompdump-Abelâ€ƒ¹s\ MacBook\ Pro\ \(2\)-5.9 
+: 1704907884:0;cd ~/dev
+: 1704907884:0;git clone https://gitlab.com/gamliel1/toklock-banckend
+: 1704907884:0;gitlab
+: 1704907884:0;brew install gitlab
+: 1704907884:0;brew install glab
+: 1704907884:0;glab
+: 1704907884:0;glab login
+: 1704907884:0;glab auth
+: 1704907884:0;glab auth login
+: 1704907884:0;__zplug::sources::gitlab::
+: 1704907884:0;__zplug::sources::gitlab::A:
+: 1704907884:0;zsh
+: 1704907884:0;gitlab
+: 1704907884:0;glab
+: 1704907884:0;glab repo gamliel1/toklock-banckend
+: 1704907884:0;glab repo clone gamliel1/toklock-banckend 
+: 1704907884:0;glab auth logout
+: 1704907884:0;glab auth login
+: 1704907884:0;glab repo clone gamliel1/toklock-banckend 
+: 1704907884:0;glab
+: 1704907884:0;glab repo gamliel1/toklock-banckend 
+: 1704907884:0;glab repo gamliel1/toklock-banckend  view
+: 1704907884:0;glab repo view gamliel1/toklock-banckend 
+: 1704907884:0;glab repo list gamliel1/toklock-banckend 
+: 1704907884:0;glab repo list gamliel1/toklock-banckend  q
+: 1704907884:0;glab repo list gamliel1/toklock-banckend  qsq
+: 1704907884:0;glab repo list 
+: 1704907884:0;ls
+: 1704907884:0;zsh
+: 1704907884:0;ls
+: 1704907884:0;ln -s .zplug zplug
+: 1704907884:0;ls zplug
+: 1704907884:0;ls zplug/LICENSE 
+: 1704907884:0;n-aliases
+: 1704907884:0;vared aliases\[-\]
+: 1704907884:0;cd -
+: 1704907884:0;n-aliases
+: 1704907884:0;n-aliases -h
+: 1704907884:0;n-aliases run-help
+: 1704907884:0;n-aliases
+: 1704907884:0;n-aliases -h
+: 1704907884:0;n-aliases
+: 1704907884:0;n-cd
+: 1704907884:0;cd -
+: 1704907884:0;n-help
+: 1704907884:0;zsh
+: 1704907884:0;zoxide
+: 1704907884:0;echo $_ZO_MAXAGE
+: 1704907884:0;zoxide edit
+: 1704907884:0;ls
+: 1704907884:0;cat ~/.z
+: 1704907884:0;cat ~/old-zsh-config/.z
+: 1704907884:0;zoxide import --from=z "~/old-zsh-config/.z"
+: 1704907884:0;zoxide import --from=z ../../old-zsh-config/.z
+: 1704907884:0;zoxide -h
+: 1704907884:0;zsh
+: 1704907884:0;zoxide
+: 1704907884:0;zoxide edit
+: 1704907884:0;ls
+: 1704907884:0;cat zplug/LICENSE 
+: 1704907884:0;z
+: 1704907884:0;cd -
+: 1704907884:0;zoxide
+: 1704907884:0;zsh
+: 1704907884:0;cd ..
+: 1704907884:0;ls
+: 1704907884:0;echo $ZSH_ARGZERO
+: 1704907884:0;echo $ZLAST_COMMANDS
+: 1704907884:0;echo $ZSH_CUSTOM
+: 1704907884:0;ai
+: 1704907884:0;ls
+: 1704907884:0;cat .zsh_history|wc -l
+: 1704907884:0;cat .zsh_history__|wc -l
+: 1704907884:0;ll
+: 1704907884:0;cat ~/old-zsh-config/.zprofile.pysave
+: 1704907884:0;echo $ZLAST_COMMANDS
+: 1704907884:0;zsh
+: 1704907884:0;z
+: 1704907884:0;z -h
+: 1704907884:0;zoxide
+: 1704907884:0;cd ..
+: 1704907884:0;ls
+: 1704907884:0;which z
+: 1704907884:0;zoxide
+: 1704907884:0;zoxide init
+: 1704907884:0;zoxide init zsh
+: 1704907884:0;eval "$(zoxide init zsh)"
+: 1704907884:0;which z
+: 1704907884:0;__zoxide_z
+: 1704907884:0;zoxide
+: 1704907884:0;git clone https://github.com/riccardonarda/toklockBackend
+: 1704907884:0;gh repo clone https://github.com/riccardonarda/toklockBackend
+: 1704907884:0;ls
+: 1704907884:0;cat size-script.sh
+: 1704907884:0;cat output.log
+: 1704907884:0;cat output.log|yank
+: 1704907884:0;ping 0.0.0.0
+: 1704907884:0;ping 8.8.8.8
+: 1704907884:0;how to connect to a hotspot  to lyca mobile in france with ios and osx
+: 1704907884:0;clear
+: 1704907884:0;ls
+: 1704907884:0;cat old-zsh-config
+: 1704907884:0;cat old-zsh-config.zip
+: 1704907884:0;gcat old-zsh-config.zip
+: 1704907884:0;ls
+: 1704907884:0;git clone https://github.com/riccardonarda/toklockBackend
+: 1704907884:0;cd toklockBackend
+: 1704907884:0;ls
+: 1704907884:0;cat package
+: 1704907884:0;cat package.json
+: 1704907884:0;ls
+: 1704907884:0;l
+: 1704907884:0;git log
+: 1704907884:0;cat .gitlab-ci.yml
+: 1704907884:0;gitleaks
+: 1704907884:0;ls
+: 1704907884:0;ai
+: 1704907884:0;g3
+: 1704907884:0;which g3
+: 1704907884:0;g3
+: 1704907884:0;ls
+: 1704907884:0;cd sel
+: 1704907884:0;ls
+: 1704907884:0;cd selency
+: 1704907884:0;ls
+: 1704907884:0;cd helm-charts-
+: 1704907884:0;cd helm-charts-prod
+: 1704907884:0;gitleaks
+: 1704907884:0;gitleaks .
+: 1704907884:0;gitleaks detect 
+: 1704907884:0;gitleaks detect  --verbose
+: 1704907884:0;ll
+: 1704907884:0;cp ~/dev/sel/selency/helm-charts-prod /tmp
+: 1704907884:0;cd /tmp
+: 1704907884:0;ls
+: 1704907884:0;cd ~/dev
+: 1704907884:0;git clone https://github.com/riccardonarda/toklockBackend
+: 1704907884:0;cd toklockBackend
+: 1704907884:0;ls
+: 1704907884:0;gitleaks detect  --verbose
+: 1704907884:0;cd /tmp/helm-charts-prod
+: 1704907884:0;gitleaks detect  --verbose
+: 1704907884:0;cd ..
+: 1704907884:0;ls
+: 1704907884:0;which z
+: 1704907884:0;ls
+: 1704907884:0;cat fsh-dbg
+: 1704907884:0;cat reply
+: 1704907884:0;ls
+: 1704907884:0;clear
+: 1704907884:0;ls
+: 1704907884:0;ll
+: 1704907884:0;lua
+: 1704907884:0;brew search lua
+: 1704907884:0;brew install lua@5.3
+: 1704907884:0;lua
+: 1704907884:0;brew remove lua@5.3
+: 1704907884:0;brew install lua
+: 1704907884:0;echo /Applications/Visual\ Studio\ Code\ -\ Insiders.app
+: 1704907884:0;ls
+: 1704907884:0;zoxide 
+: 1704907884:0;zoxide query
+: 1704907884:0;zoxide query de
+: 1704907884:0;zoxide query al
+: 1704907884:0;echo $ZSH_PATH
+: 1704907884:0;zsh
+: 1704907884:0;fzf-cdq
+: 1704907884:0;fzf-cd
+: 1704907884:0;ls
+: 1704907884:0;fzf-cd-to-file
+: 1704907884:0;ECHO $ZPLUG_HOME/
+: 1704907884:0;echo $ZSH_HOME
+: 1704907884:0;zsh
+: 1704907884:0;fzf-aliases-functions
+: 1704907884:0;zsh
+: 1704907884:0;cd -
+: 1704907884:0;cd --
+: 1704907884:0;cd ---
+: 1704907884:0;ls
+: 1704907884:0;fzf-aliases-functions
+: 1704907884:0;ls
+: 1704907884:0;pwd
+: 1704907884:0;zsh
+: 1704907884:0;ls
+: 1704907884:0;fzf-awesome-list
+: 1704907884:0;ls
+: 1704907884:0;pwd
+: 1704907884:0;fzf-awesome-list
+: 1704907884:0;ls
+: 1704907884:0;pwd
+: 1704907884:0;ls
+: 1704907884:0;fzf
+: 1704907884:0;ls
+: 1704907884:0;fzf-down
+: 1704907884:0;cd  dev/d22
+: 1704907884:0;ls
+: 1704907884:0;fzf-file-widget
+: 1704907884:0;fzf-eval
+: 1704907884:0;fzf-fc
+: 1704907884:0;fzf-awesome-list
+: 1704907884:0;zsh
+: 1704907884:0;gnuls
+: 1704907884:0;zsh
+: 1704907884:0;ls
+: 1704907884:0;cat Finder.sdef
+: 1704907884:0;ag
+: 1704907884:0;ag toto
+: 1704907884:0;ag lost
+: 1704907884:0;ag liv
+: 1704907884:0;zsh
+: 1704907884:0;zoxide 
+: 1704907884:0;zoxide |fzf
+: 1704907884:0;zoxide
+: 1704907884:0;zoxidequery
+: 1704907884:0;zoxide query
+: 1704907884:0;ls
+: 1704907884:0;pwd
+: 1704907884:0;aliases
+: 1704907884:0;aliases[chrome]
+: 1704907884:0;aliases[ls]
+: 1704907884:0;aliases -h
+: 1704907884:0;zle
+: 1704907884:0;zle -h
+: 1704907884:0;zle help
+: 1704907884:0;bindkey
+: 1704907884:0;ls
+: 1704907884:0;find
+: 1704907884:0;find .
+: 1704907884:0;zle -la
+: 1704907884:0;ls
+: 1704907884:0;curl -L https://iterm2.com/shell_integration/install_shell_integration.sh
+: 1704907884:0;curl -L https://iterm2.com/shell_integration/install_shell_integration.sh |cat
+: 1704907884:0;g3
+: 1704907884:0;bindkey -h
+: 1704907884:0;bindkey help
+: 1704907884:0;ls
+: 1704907884:0;zsh
+: 1704907884:0;g3
+: 1704907884:0;ideviceinfo
+: 1704907884:0;ideviceinfo 
+: 1704907884:0;ideviceinfo > id1
+: 1704907884:0;ideviceinfo > id0
+: 1704907884:0;diff id1 id2
+: 1704907884:0;diff id1 id0
+: 1704907884:0;PasswordProtected
+: 1704907884:0;cat ~/.zsh_extended_history
+: 1704907884:0;ls 
+: 1704907884:0;fzf
+: 1704907884:0;fzf -h
+: 1704907884:0;ls
+: 1704907884:0;clear
+: 1704907884:0;ls
+: 1704907884:0;cat f2.applescript
+: 1704907884:0;cat r.out
+: 1704907884:0;ls
+: 1704907884:0;code .
+: 1704907884:0;src
+: 1704907884:0;curl src search "my search query"\
+\
+\
+\
+
+: 1704907884:0;src search "my search query"\
+
+: 1704907884:0;brew install sourcegraph/src-cli/src-cli\
+
+: 1704907884:0;ll
+: 1704907884:0;src
+: 1704907884:0;zsh
+: 1704907884:0;src -g
+: 1704907884:0;src -h
+: 1704907884:0;src login
+: 1704907884:0;src login https://sourcegraph.com\
+\
+
+: 1704907884:0;watchman
+: 1704907884:0;watchman -h
+: 1704907884:0;tldr watchman
+: 1704907884:0;watchexec
+: 1704907884:0;brew install watchexec
+: 1704907884:0;watchexec
+: 1704907884:0;watchexec --help
+: 1704907884:0;omz reload\
+
+: 1704907884:0;omz
+: 1704907884:0;watchexec -h
+: 1704907884:0;tldr watchexec
+: 1704907884:0;watchexec -h
+: 1704907884:0;ls
+: 1704907884:0;cd ~/config/zsh/fzf
+: 1704907884:0;ls
+: 1704907884:0;which ls
+: 1704907884:0;pwd
+: 1704907884:0;zsh
+: 1704907884:0;ls
+: 1704907884:0;zsh
+: 1704907884:0;ls
+: 1704907884:0;zsh
+: 1704907884:0;ks
+: 1704907884:0;ls
+: 1704907884:0;cd -
+: 1704907884:0;cd ../../../
+: 1704907884:0;ls
+: 1704907884:0;cd ..
+: 1704907884:0;ls -la
+: 1704907884:0;
+: 1704907884:0;ls
+: 1704907884:0;pwd
+: 1704907884:0;ll
+: 1704907884:0;ls
+: 1704907884:0;zsh
+: 1704907884:0;ls
+: 1704907884:0;ls -l
+: 1704907884:0;ls
+: 1704907884:0;pwd
+: 1704907884:0;ls
+: 1704907884:0;zsh
+: 1704907884:0;ls
+: 1704907884:0;zsh
+: 1704907884:0;ls
+: 1704907884:0;mkdir bunsh
+: 1704907884:0;ls
+: 1704907884:0;cd ..
+: 1704907884:0;ls
+: 1704907884:0;cd -
+: 1704907884:0;ls
+: 1704907884:0;ls -la
+: 1704907884:0;pwd
+: 1704907884:0;zsh
+: 1704907884:0;ls
+: 1704907884:0;which ls
+: 1704907884:0;/bin/ls
+: 1704907884:0;ls
+: 1704907884:0;ll
+: 1704907884:0;ls -la
+: 1704907884:0;rm .zcompdump-Abelâ€ƒ¹s\ MacBook\ Pro\ \(2\)-5.9
+: 1704907884:0;ls
+: 1704907884:0;zsh
+: 1704907884:0;ls
+: 1704907884:0;ls -lRa
+: 1704907884:0;lq
+: 1704907884:0;ls
+: 1704907884:0;lld
+: 1704907884:0;lld -a
+: 1704907884:0;rm .git/
+: 1704907884:0;ks
+: 1704907884:0;ls
+: 1704907884:0;owd
+: 1704907884:0;pwd
+: 1704907884:0;ls
+: 1704907884:0;ll
+: 1704907884:0;ls
+: 1704907884:0;
+: 1704907884:0;src
+: 1704907884:0;zsh
+: 1704907884:0;setals
+: 1704907884:0;zsh
+: 1704907884:0;ls
+: 1704907884:0;pwd
+: 1704907884:0;ls
+: 1704907884:0;fzf
+: 1704907884:0;ls
+: 1704907884:0;ZSH
+: 1704907884:0;ll
+: 1704907884:0;ls
+: 1704907884:0;cat ~/.zsh_extended_history
+: 1704907884:0;fzf
+: 1704907884:0;fzf --hidden
+: 1704907884:0;fzf --ignore
+: 1704907884:0;fzf -h
+: 1704907884:0;zsh
+: 1704907884:0;zqh
+: 1704907884:0;zsh
+: 1704907884:0;ls ~/.zsh_extended_history 
+: 1704907884:0;cat ~/.zsh_extended_history 
+: 1704907884:0;cd -
+: 1704907884:0;ls -la ~/.Trash
+: 1704907884:0;ipme
+: 1704907884:0;pi
+: 1704907884:0;ip
+: 1704907884:0;ls
+: 1704907884:0;ll
+: 1704907884:0;ll 
+: 1704907884:0;lz
+: 1704907884:0;fzf /
+: 1704907884:0;fzf .
+: 1704907884:0;fzf 
+: 1704907884:0;zsh
+: 1704907884:0;lld .zsh_history
+: 1704907884:0;cat .zsh_history
+: 1704907884:0;zsh
+: 1704907884:0;ls
+: 1704907884:0;ll
+: 1704907884:0;zsh
+: 1704907884:0;ls
+: 1704907884:0;zsh
+: 1704907884:0;
+: 1704907884:0;ls
+: 1704907884:0;pwd
+: 1704907884:0;ls aliases.zsh
+: 1704907884:0;ls 
+: 1704907884:0;clear
+: 1704907884:0;ls
+: 1704907884:0;pwd
+: 1704907884:0;ls
+: 1704907884:0;ll
+: 1704907884:0;clear
+: 1704907884:0;zsh
+: 1704907884:0;pwd
+: 1704907884:0;ll
+: 1704907884:0;pwd
+: 1704907884:0;zsh
+: 1704907884:0;ll
+: 1704907884:0;ls
+: 1704907884:0;src
+: 1704907884:0;src -h
+: 1704907884:0;src search
+: 1704907884:0;ls
+: 1704907884:0;cat .zsh_history
+: 1704907884:0;ll
+: 1704907884:0;ll fzfz
+: 1704907884:0;ll fzf
+: 1704907884:0;ll
+: 1704907884:0;ls
+: 1704907884:0;cat .zsh_history
+: 1704907884:0;cat .zsh_history|jh 
+: 1704907884:0;cat .zsh_history|jh --map "e" --filter="e"
+: 1704907884:0;cat .zsh_history|jh --map "e" --filter "e"
+: 1704907884:0;cat .zsh_history|jshell --map "e" --filter "e"
+: 1704907884:0;jshell
+: 1704907884:0;jshell -h
+: 1704907884:0;cat .zsh_history
+: 1704907884:0;cat .zsh_history|jq .
+: 1704907884:0;cat .zsh_history|jq 
+: 1704907884:0;g3
+: 1704907884:0;zsh
+: 1704907884:0;_zsh_highlight
+: 1704907884:0;1234567890-^\:q
+: 1704907884:0;fzf-awesome-list
+: 1704907884:0;ls
+: 1704907884:0;ls -l
+: 1704907884:0;q
+: 1704907884:0;xclip -h
+: 1704907884:0;_xclip
+: 1704907884:0;_xclip help
+: 1704907884:0;zsh
+: 1704907884:0;ls
+: 1704907884:0;pwd
+: 1704907884:0;ls
+: 1704907884:0;bindkey
+: 1704907884:0;bindkey -h
+: 1704907884:0;bindkey help
+: 1704907884:0;bindkey -N
+: 1704907884:0;tldrbindkey
+: 1704907884:0;tldr bindkey
+: 1704907884:0;bindkey -M main
+: 1704907884:0;zsh
+: 1704907884:0;fzf-cd-widget
+: 1704907884:0;fzf-file-widget
+: 1704907884:0;brew install watchexec
+: 1704907884:0;zsg
+: 1704907884:0;zshg
+: 1704907884:0;zsh
+: 1704907884:0;ls
+: 1704907884:0;installer: The install was successful.
+: 1704907884:0;ls
+: 1704907884:0;zsh
+: 1704907884:0;CDPATH
+: 1704907884:0;zsh
+: 1704907884:0;ls
+: 1704907884:0;pwd
+: 1704907884:0;ls
+: 1704907884:0;zsh
+: 1704907884:0;_fzf_compgen_dir
+: 1704907884:0;_fzf_compgen_dir -o
+: 1704907884:0;ls
+: 1704907884:0;mv zplug/.git zplug/___git
+: 1704907884:0;ls
+: 1704907884:0;zsh
+: 1704907884:0;num
+: 1704907884:0;zsh
+: 1704907884:0;ll
+: 1704907884:0;pwd
+: 1704907884:0;zsh
+: 1704907884:0;ll
+: 1704907884:0;g3
+: 1704907884:0;brew remove x
+: 1704907884:0;brew removeXquartz 
+: 1704907884:0;brew remove Xquartz 
+: 1704907884:0;ll
+: 1704907884:0;ls
+: 1704907884:0;mi keyid.py
+: 1704907884:0;python keyid.py
+: 1704907884:0;mi keyid.py
+: 1704907884:0;code keyid.py
+: 1704907884:0;python keyid.py
+: 1704907884:0;pip install pynput
+: 1704907884:0;ll .zsh_ -
+: 1704907884:0;ll .zsh_ 
+: 1704907884:0;ll .zsh_* 
+: 1704907884:0;python keyid.py
+: 1704907884:0;ls
+: 1704907884:0;ll
+: 1704907884:0;ls
+: 1704907884:0;pwd
+: 1704907884:0;ls
+: 1704907884:0;_zle
+: 1704907884:0;ls
+: 1704907884:0;zsh
+: 1704907884:0;ls
+: 1704907884:0;cat .zsh_extended_history
+: 1704907884:0;ll .zsh_extended_history
+: 1704907884:0;cat .zsh_extended_history
+: 1704907884:0;ls
+: 1704907884:0;pwd
+: 1704907884:0;ll
+: 1704907884:0;ls ~/Library/ApplicationSupport/Google/Chrome/Default/History 
+: 1704907884:0;CAT ~/Library/ApplicationSupport/Google/Chrome/Default/History 
+: 1704907884:0;history
+: 1704907884:0;cat ~/.zsh_extended_history
+: 1704907884:0;sqlite3 ~/Library/ApplicationSupport/Google/Chrome/Default/History 
+: 1704907884:0;g3
+: 1704907884:0;src
+: 1704907884:0;src search 
+: 1704907884:0;tldr src
+: 1704907884:0;brew install datasette\
+
+: 1704907884:0;sqlite3 ~/Library/ApplicationSupport/Google/Chrome/Default/History
+: 1704907884:0;sqlite3 ~/Library/ApplicationSupport/Google/Chrome/Default/History --nolock
+: 1704907884:0;sqlite3 -h
+: 1704907884:0;sqlite3 -help
+: 1704907884:0;datasette 
+: 1704907884:0;datasette -h
+: 1704907884:0;datasette --help
+: 1704907884:0;datasette ~/Library/ApplicationSupport/Google/Chrome/Default/History --nolock
+: 1704907884:0;ls  ~/Library/ApplicationSupport/Google/Chrome/Default/History-journal 
+: 1704907884:0;ll  ~/Library/ApplicationSupport/Google/Chrome/Default/History-journal 
+: 1704907884:0;ai 
+: 1704907884:0;file
+: 1704907884:0;tldr file
+: 1704907884:0;file  ~/Library/ApplicationSupport/Google/Chrome/Default/History-journal 
+: 1704907884:0;ll  ~/Library/ApplicationSupport/Google/Chrome/Default/ 
+: 1704907884:0;sqlite3 ~/Library/ApplicationSupport/Google/Chrome/Default/History
+: 1704907884:0;g3
+: 1704907884:0;sqlite3 ~/Library/ApplicationSupport/Google/Chrome/Default/History
+: 1704907884:0;pip install browserexport
+: 1704907884:0;browserslist
+: 1704907884:0;zsh
+: 1704907884:0;browserexport
+: 1704907884:0;browserexport -h
+: 1704907884:0;browserexport inspect
+: 1704907884:0;browserexport inspect ~/Library/ApplicationSupport/Google/Chrome/Default/History
+: 1704907884:0;python3 -m pip install IPython
+: 1704907884:0;browserexport inspect ~/Library/ApplicationSupport/Google/Chrome/Default/History
+: 1704907884:0;browserexport -h
+: 1704907884:0;datasette ~/Library/ApplicationSupport/Google/Chrome/Default/History --nolock
+: 1704907884:0;browserexport -h
+: 1704907884:0;datasette
+: 1704907884:0;datasette -h
+: 1704907884:0;datasette --help
+: 1704907884:0;cp ~/Library/ApplicationSupport/Google/Chrome/Default/History /tmp/chistory
+: 1704907884:0;sqlite3  /tmp/chistory
+: 1704907884:0;ll ~/Library/ApplicationSupport/Google/Chrome/Default/History
+: 1704907884:0;sqlite3 -h
+: 1704907884:0;sqlite3 --help
+: 1704907884:0;sqlite3 ~/Library/ApplicationSupport/Google/Chrome/Default/History -readonly
+: 1704907884:0;sqlite3 --help
+: 1704907884:0;sqlite3 -readonly ~/Library/ApplicationSupport/Google/Chrome/Default/History
+: 1704907884:0;sqlite3 -unsafe-testing  ~/Library/ApplicationSupport/Google/Chrome/Default/History
+: 1704907884:0;ls ~/Library/Application\ Support/Google/Chrome/*/History
+: 1704907884:0;ll "/Users/abelchalier/Library/Application Support/Google/Chrome/Profile 3/History"
+: 1704907884:0;ll "/Users/abelchalier/Library/Application Support/Google/Chrome/*/History"
+: 1704907884:0;ll /Users/abelchalier/Library/ApplicationSupport/Google/Chrome/*/Histort
+: 1704907884:0;ll /Users/abelchalier/Library/ApplicationSupport/Google/Chrome/*/History
+: 1704907884:0;ls '/Users/abelchalier/Library/ApplicationSupport/Google/Chrome/Profile 3'/History
+: 1704907884:0;ls '/Users/abelchalier/Library/ApplicationSupport/Google/Chrome/Profile 3/History
+: 1704907884:0;ls '/Users/abelchalier/Library/ApplicationSupport/Google/Chrome/Profile 3/History'
+: 1704907884:0;ll '/Users/abelchalier/Library/ApplicationSupport/Google/Chrome/Profile 3/History'
+: 1704907884:0;ll /Users/abelchalier/Library/ApplicationSupport/Google/Chrome/Default
+: 1704907884:0;lls /Users/abelchalier/Library/ApplicationSupport/Google/Chrome/Default
+: 1704907884:0;lld /Users/abelchalier/Library/ApplicationSupport/Google/Chrome/Default
+: 1704907884:0;datasette ~/Library/ApplicationSupport/Google/Chrome/Default/History --nolock
+: 1704907884:0;man fzf
+: 1704907884:0;fzf -h
+: 1704907884:0;ls
+: 1704907884:0;code zplug/repos/ls
+: 1704907884:0;ls bunsh
+: 1704907884:0;cd bunsh
+: 1704907884:0;ls
+: 1704907884:0;bun init
+: 1704907884:0;ls
+: 1704907884:0;cp ~/.config/zsh ~/dev/zdump
+: 1704907884:0;ll
+: 1704907884:0;code index.ts
+: 1704907884:0;run index.ts
+: 1704907884:0;cd ..
+: 1704907884:0;sqlite-utils
+: 1704907884:0;sqlite-utils -h
+: 1704907884:0;tldr sqlite-utils
+: 1704907884:0;sqlite-utils tables ~/Library/ApplicationSupport/Google/Chrome/Default/History
+: 1704907884:0;g3
+: 1704907884:0;echo "PRAGMA journal_mode=WAL;" |sqlite-utils tables ~/Library/ApplicationSupport/Google/Chrome/Default/History
+: 1704907884:0;echo "PRAGMA journal_mode=WAL;" |sqlite-utils tables ~/Library/ApplicationSupport/Google/Chrome/Default/History -
+: 1704907884:0;echo "PRAGMA journal_mode=WAL;" |sqlite-utils query ~/Library/ApplicationSupport/Google/Chrome/Default/History-
+: 1704907884:0;echo "PRAGMA journal_mode=WAL;" |sqlite-utils query ~/Library/ApplicationSupport/Google/Chrome/Default/History -
+: 1704907884:0;cd bunsh
+: 1704907884:0;ls
+: 1704907884:0;bun add sqlite sqlite3
+: 1704907884:0;run index.ts
+: 1704907884:0;sqlite --version
+: 1704907884:0;sqlite3 --version
+: 1704907884:0;brew update sqlite3
+: 1704907884:0;brew upgrade sqlite3
+: 1704907884:0;datasette ~/Library/ApplicationSupport/Google/Chrome/Default/History --nolock
+: 1704907884:0;run index.ts
+: 1704907884:0;datasette ~/Library/ApplicationSupport/Google/Chrome/Default/History --nolock
+: 1704907884:0;datasette -h
+: 1704907884:0;datasette --help
+: 1704907884:0;datasette plugins
+: 1704907884:0;ai
+: 1704907884:0;ls
+: 1704907884:0;sqlite-utils tables ~/Library/ApplicationSupport/Google/Chrome/System/History
+: 1704907884:0;sqlite-utils tables ~/Library/ApplicationSupport/Google/Chrome/Guest\ Profile/History
+: 1704907884:0;sqlite-utils -h
+: 1704907884:0;datasette -h
+: 1704907884:0;datasette --help
+: 1704907884:0;datasette ~/Library/ApplicationSupport/Google/Chrome/Default/History --nolock
+: 1704907884:0;datasette ~/Library/ApplicationSupport/Google/Chrome/Default/History
+: 1704907884:0;datasette --nolock ~/Library/ApplicationSupport/Google/Chrome/Default/History
+: 1704907884:0;datasette --nolock ~/Library/ApplicationSupport/Google/Chrome/Default/History inspect
+: 1704907884:0;sqlite3  ~/Library/ApplicationSupport/Google/Chrome/Default/History
+: 1704907884:0;sqlite-utils tables ~/Library/ApplicationSupport/Google/Chrome/Guest\ Profile/History
+: 1704907884:0;sqlite-utils tables ~/Library/ApplicationSupport/Google/Chrome/Default/History
+: 1704907884:0;sqlite-utils tables 'file:~/Library/ApplicationSupport/Google/Chrome/Default/History?mode=ro&nolock=1'
+: 1704907884:0;sqlite3 "file:~/Library/ApplicationSupport/Google/Chrome/Default/History?mode=ro&nolock=1"
+: 1704907884:0;sqlite3 "file:/Users/abelchalier/Library/ApplicationSupport/Google/Chrome/Default/History?mode=ro&nolock=1"
+: 1704907884:0;ll
+: 1704907884:0;ls
+: 1704907884:0;cd dev
+: 1704907884:0;ll **
+: 1704907884:0;sqlite3 -h
+: 1704907884:0;sqlite3 --help
+: 1704907884:0;ls
+: 1704907884:0;fzf
+: 1704907884:0;fzf -h
+: 1704907884:0;fzf --preview {}
+: 1704907884:0;echo $FZF_DEFAULT_OPTS
+: 1704907884:0;ZSH
+: 1704907884:0;fzf
+: 1704907884:0;ll
+: 1704907884:0;zsh
+: 1704907884:0;ls
+: 1704907884:0;zsh
+: 1704907884:0;fzf
+: 1704907884:0;g3
+: 1704907884:0;ll
+: 1704907884:0;fzf -h
+: 1704907884:0;fzf
+: 1704907884:0;ls
+: 1704907884:0;cat README.md|fzf
+: 1704907884:0;ls
+: 1704907884:0;fzf
+: 1704907884:0;echo $FZF_DEFAULT_COMMAND
+: 1704907884:0;zsh
+: 1704907884:0;fzf
+: 1704907884:0;zsh
+: 1704907884:0;fzf
+: 1704907884:0;zsh
+: 1704907884:0;fzf
+: 1704907884:0;ls
+: 1704907884:0;s**
+: 1704907884:0;cd ..
+: 1704907884:0;sh switch.sh
+: 1704907884:0;fzf
+: 1704907884:0;zsh
+: 1704907884:0;sh ~/config/zsh/switch.sh
+: 1704907884:0;fzf -h
+: 1704907884:0;fzf -v
+: 1704907884:0;fzf --version
+: 1704907884:0;which fzf
+: 1704907884:0;fzf -h
+: 1704907884:0;man fzfz
+: 1704907884:0;man fzf
+: 1704907884:0;cat zdump/zplug/repos/junegunn/fzf/man/man1/fzf.1
+: 1704907884:0;ccat zdump/zplug/repos/junegunn/fzf/man/man1/fzf.1
+: 1704907884:0;cat zdump/zplug/repos/junegunn/fzf/man/man1/fzf.1
+: 1704907884:0;which fzf
+: 1704907884:0;brew upgrade fzf
+: 1704907884:0;man fzf
+: 1704907884:0;fzf
+: 1704907884:0;fzf --info
+: 1704907884:0;fzf --info right
+: 1704907884:0;cd d22
+: 1704907884:0;fzf
+: 1704907884:0;fzf --info=right
+: 1704907884:0;bash
+: 1704907884:0;gh search code "fzf --info"
+: 1704907884:0;fzf --color=16 --header=fzf --info=inline --preview='echo {}; file -b {}; echo =-=-=-=-=-=-=-=-=-=-=-=-=-=; if [ -d '{}' ]; then ls -A {}; else head -$LINES {}; fi'
+: 1704907884:0;ls
+: 1704907884:0;fzf --color=16 --header=fzf --info=inline --preview='echo {}; file -b {}; echo =-=-=-=-=-=-=-=-=-=-=-=-=-=; if [ -d '{}' ]; then ls -A {}; else head -$LINES {}; fi'
+: 1704907884:0;FZF_DEFAULT_OPTS
+: 1704907884:0;ECHO	$FZF_DEFAULT_OPTS
+: 1704907884:0;echo	$FZF_DEFAULT_OPTS
+: 1704907884:0;ls
+: 1704907884:0;cd config/zsh/fzf
+: 1704907884:0;ls
+: 1704907884:0;ls /Users/abelchalier/.config/zsh/switch.sh
+: 1704907884:0;ls
+: 1704907884:0;cd ~/.config/zsh/fzf
+: 1704907884:0;ls
+: 1704907884:0;cat /Users/abelchalier/.config/zsh/switch.sh
+: 1704907884:0;zsh
+: 1704907884:0;ls
+: 1704907884:0;cd /
+: 1704907884:0;cd ~/.config/zsh/fzf
+: 1704907884:0;ls
+: 1704907884:0;ll -la
+: 1704907884:0;cd ..
+: 1704907884:0;ls
+: 1704907884:0;sh switch.sh
+: 1704907884:0;gh search code "# âƒ¶ƒ¨âƒ¶ƒ¤âƒ¶€â€ƒ£âƒ¶ƒ¨âƒ¶€âƒ¶€â€ƒ£âƒ¶ƒ¨âƒ¶ƒ¤âƒ¶ƒ¨â€ƒ£âƒ¶ƒ¨âƒ¶€âƒ¶ƒ¤âƒ¶€âƒ¶ƒ¨â€ƒ£âƒ¶ƒ¤âƒ¶€âƒ¶ƒ¨â€ƒ£âƒ¶ƒ¨âƒ¶€âƒ¶ƒ¨â€ƒ£âƒ¶ƒ¨âƒ¶€"
+: 1704907884:0;gh search code "if (( ${+terminfo[smkx]} && ${+terminfo[rmkx]} )); then"
+: 1704907884:0;gh search code "Downside: when a CLI / TUI doesn't use application mode, some keys won't work."
+: 1704907884:0;gh search code "Downside when a CLI  TUI doesnt use application mode some keys wont work"
+: 1704907884:0;gh search code "Downside when a CLI  TUI doesnt use application mode "
+: 1704907884:0;gh search code "Downside when a CLI  TUI  "
+: 1704907884:0;fzf
+: 1704907884:0;_fzf_complete
+: 1704907884:0;fzf-history-widget
+: 1704907884:0;fzf-cd-widget
+: 1704907884:0;fzf-tmux
+: 1704907884:0;ls
+: 1704907884:0;zsh
+: 1704907884:0;fzf
+: 1704907884:0;fzf-cd-widget
+: 1704907884:0;which fzf-cd-widget
+: 1704907884:0;fzf
+: 1704907884:0;rg  --no-ignore --hidden "fzf-cd-widget" .
+: 1704907884:0;code ./.zplug/repos/junegunn/fzf/shell/key-bindings.zsh
+: 1704907884:0;code ./.zplug/repos/junegunn/fzf/shell/completion.zsh
+: 1704907884:0;ls
+: 1704907884:0;__fzf_comprun
+: 1704907884:0;find zplug/repos/junegunn/fzf/shell 
+: 1704907884:0;find zplug/repos/junegunn/fzf/shell/ 
+: 1704907884:0;find zplug/repos/junegunn/fzf/shell 
+: 1704907884:0;cp zplug/repos/junegunn/fzf/shell ./fzf
+: 1704907884:0;ls
+: 1704907884:0;ls fzf
+: 1704907884:0;zsh
+: 1704907884:0;fzf
+: 1704907884:0;ls
+: 1704907884:0;zsh
+: 1704907884:0;ls
+: 1704907884:0;lsof |fzf
+: 1704907884:0;fzf __fzf_generic_path_completion
+: 1704907884:0;__fzf_generic_path_completion
+: 1704907884:0;zsh
+: 1704907884:0;g3
+: 1704907884:0;history|grep key
+: 1704907884:0;python keyid.py
+: 1704907884:0;g3
+: 1704907884:0;ls
+: 1704907884:0;zsh
+: 1704907884:0;cat bunsh/bun.lockb 
+: 1704907884:0;ls
+: 1704907884:0;zsh
+: 1704907884:0;ls
+: 1704907884:0;ls
+: 1704907884:0;zsh
+: 1704907884:0;history
+: 1704907884:0;cat .zsh_history
+: 1704907884:0;cat .zsh_history|grep searcg
+: 1704907884:0;cat .zsh_history|grep search
+: 1704907884:0;gh search code "FZF_COMPLETION_OPTS="
+: 1704907884:0;gh search code "FZF_COMPLETION_OPTS=" -h
+: 1704907884:0;gh search code "FZF_COMPLETION_OPTS="
+: 1704907884:0;gh search code "FZF_COMPLETION_OPTS="|zfz
+: 1704907884:0;gh search code "FZF_COMPLETION_OPTS="|fzf
+: 1704907884:0;gh search code "FZF_COMPLETION_OPTS="
+: 1704907884:0;gh search code "FZF_COMPLETION_OPTS node_modules"
+: 1704907884:0;gh search code "FZF_COMPLETION_OPTS*node_modules"
+: 1704907884:0;zsh
+: 1704907884:0;ls
+: 1704907884:0;fzf -h
+: 1704907884:0;fzf -h
+: 1704907884:0;builtin cd -- bunsh/node_modules/humanize-ms
+: 1704907884:0;lw
+: 1704907884:0;ls
+: 1704907884:0;cd -
+: 1704907884:0;zsh
+: 1704907884:0;ls
+: 1704907884:0;zsh
+: 1704907884:0;ls
+: 1704907884:0;zsh
+: 1704907884:0;zsh
+: 1704907884:0;ls
+: 1704907884:0;cd ..
+: 1704907884:0;zsh
+: 1704907884:0;zsh
+: 1704907884:0;ls
+: 1704907884:0;fzf-cd
+: 1704907884:0;zsh
+: 1704907884:0;fzf-cd
+: 1704907884:0;fzf-env-vars
+: 1704907884:0;zsh
+: 1704907884:0;ls
+: 1704907884:0;zsh
+: 1704907884:0;fzf --multi --bind 'enter:become(cat {+})'
+: 1704907884:0;fzf -h
+: 1704907884:0;fzf --multi --bind 'enter:become(cat {+})'
+: 1704907884:0;fzf --multi --bind 'enter:become(echo {+})'
+: 1704907884:0;fzf --height 40% --layout reverse --info inline --border \\
+    --preview 'file {}' --preview-window up,1,border-horizontal \\
+    --bind 'ctrl-/:change-preview-window(50%|hidden|)' \\
+    --color 'fg:#bbccdd,fg+:#ddeeff,bg:#334455,preview-bg:#223344,border:#778899'
+: 1704907884:0;sqlite-utils tables 'file:~/Library/ApplicationSupport/Google/Chrome/Default/History?mode=ro&nolock=1'
+: 1704907884:0;sqlite-utils tables 'file:/Users/abelchalier/Library/ApplicationSupport/Google/Chrome/Default/History?mode=ro&nolock=1'
+: 1704907884:0;sqlite-utils tables '/Users/abelchalier/Library/ApplicationSupport/Google/Chrome/Default/History?mode=ro&nolock=1'
+: 1704907884:0;sqlite-utils tables "file:/Users/abelchalier/Library/ApplicationSupport/Google/Chrome/Default/History?mode=ro&nolock=1"
+: 1704907884:0;ls . g.m as-test.py Finder.h c.m .DS_Store u.m 
+: 1704907884:0;ls
+: 1704907884:0;ps
+: 1704907884:0;cd ..
+: 1704907884:0;lld
+: 1704907884:0;ghs 
+: 1704907884:0;cd -
+: 1704907884:0;cd toklockBackend
+: 1704907884:0;code .
+: 1704907884:0;ll
+: 1704907884:0;lld
+: 1704907884:0;lld -R
+: 1704907884:0;ls
+: 1704907884:0;ai
+: 1704907884:0;g3
+: 1704907884:0;find ./ -type f -exec stat -f "%N,%z,%Sa,%Sm,%Sc" {}
+: 1704907884:0;find ./ -type f -exec stat -f "%N,%z,%Sa,%Sm,%Sc" {} \ 
+: 1704907884:0;find ./ -type f -exec stat -f "%N,%z,%Sa,%Sm,%Sc" {} \\
+ls
+: 1704907884:0;find ./ -type f -exec stat -f "%N,%z,%Sa,%Sm,%Sc" {} \;\
+ls
+: 1704907884:0;ls
+: 1704907884:0;fd
+: 1704907884:0;fz
+: 1704907884:0;g3
+: 1704907884:0;ls -lT
+: 1704907884:0;micro test.js
+: 1704907884:0;ls
+: 1704907884:0;fd
+: 1704907884:0;find
+: 1704907884:0;find .
+: 1704907884:0;fd
+: 1704907884:0;fdh
+: 1704907884:0;fd -h
+: 1704907884:0;ls
+: 1704907884:0;echo "node_modules" >> .gitignore
+: 1704907884:0;fd
+: 1704907884:0;echo 'public/assets/packages/' >> .gitignore
+: 1704907884:0;fd
+: 1704907884:0;ls
+: 1704907884:0;find 
+: 1704907884:0;find .
+: 1704907884:0;fd
+: 1704907884:0;code ~/config/zsh/.zshrc
+: 1704907884:0;code ~/config/zsh/
+: 1704907884:0;cat $ZSH_HOME/.zshrc
+: 1704907884:0;zsh
+: 1704907884:0;ls
+: 1704907884:0;compgen
+: 1704907884:0;tldr find
+: 1704907884:0;fd 
+: 1704907884:0;fd -h
+: 1704907884:0;fd -l
+: 1704907884:0;fd 
+: 1704907884:0;micro dump-date.js
+: 1704907884:0;g3
+: 1704907884:0;ai
+: 1704907884:0;gstat -h
+: 1704907884:0;tldr gstat 
+: 1704907884:0;tldr stat 
+: 1704907884:0;stat -f "Access (atime): %Sa%nModify (mtime): %Sm%nChange (ctime): %Sc%nBirth (Btime): %S" ./README.md
+: 1704907884:0;stat -f "Access (atime): %SaModify (mtime): %SmChange (ctime): %ScBirth (Btime): %S" ./README.md
+: 1704907884:0;stat -f "Access (atime): %SaModify (mtime): %SmChange (ctime): %ScBirth (Btime): %Sc" ./README.md
+: 1704907884:0;stat -f "Access (atime): %SaModify (mtime): %SmChange (ctime): %ScBirth (Btime): %Sd" ./README.md
+: 1704907884:0;ll
+: 1704907884:0;g3
+: 1704907884:0;mdls
+: 1704907884:0;mdls -h
+: 1704907884:0;tldr mdls
+: 1704907884:0;mdls -name kMDItemFSContentChangeDate -name kMDItemFSCreationDate -name kMDItemDateAdded\
+ ./README.md | awk '{if(NR%3==1) printf "%s ", $3"-"$4"-"$5; else printf\
+ "%s\n",$3"-"$4"-"$5}'
+: 1704907884:0;mdls -name kMDItemFSContentChangeDate -name kMDItemFSCreationDate -name kMDItemDateAdded ./README.md
+: 1704907884:0;mdls README.md
+: 1704907884:0;mdls -name kMDItemFSContentChangeDate -name kMDItemFSCreationDate -name kMDItemDateAdded ./README.md | awk '{if(NR%3!=0) printf "%s ", $3"-"$4"-"$5; else printf\
+ "%s\n",$3"-"$4"-"$5}'
+: 1704907884:0;mdls -name kMDItemFSContentChangeDate -name kMDItemFSCreationDate 
+: 1704907884:0;mdls -name kMDItemFSContentChangeDate -name kMDItemFSCreationDate  README.md
+: 1704907884:0;mdls -name kMDItemFSContentChangeDate -name kMDItemFSCreationDate  README.md | plog "e => e.split("\n")"
+: 1704907884:0;mdls -name kMDItemFSContentChangeDate -name kMDItemFSCreationDate  README.md | plog "e => e.split('\n')"
+: 1704907884:0;mdls -name kMDItemFSContentChangeDate -name kMDItemFSCreationDate  README.md | ~/abin/f "e => e.split('\n')"
+: 1704907884:0;mdls -name kMDItemFSContentChangeDate -name kMDItemFSCreationDate  README.md | ~/abin/f "e => e.split('\n').join('::')"
+: 1704907884:0;mdls -name kMDItemFSContentChangeDate -name kMDItemFSCreationDate  README.md 
+: 1704907884:0;mdls -name kMDItemFSContentChangeDate -name kMDItemFSCreationDate  README.md | plog
+: 1704907884:0;plog
+: 1704907884:0;which plig
+: 1704907884:0;which plog
+: 1704907884:0;bun add pipe-log
+: 1704907884:0;bun add plog
+: 1704907884:0;plog
+: 1704907884:0;ls
+: 1704907884:0;rm node_modules
+: 1704907884:0;npm global add plog-cli
+: 1704907884:0;bun add plog-cli --global
+: 1704907884:0;plog
+: 1704907884:0;mdls -name kMDItemFSContentChangeDate -name kMDItemFSCreationDate  README.md | plog
+: 1704907884:0;mdls -name kMDItemFSContentChangeDate -name kMDItemFSCreationDate  README.md | plog "e => e"
+: 1704907884:0;mdls -name kMDItemFSContentChangeDate -name kMDItemFSCreationDate  README.md | plog "e => e.split('\n')"
+: 1704907884:0;mdls -name kMDItemFSContentChangeDate -name kMDItemFSCreationDate  README.md | plog "e => e.split('\n').map(z => z.split('= ')[1])"
+: 1704907884:0;mdls -name kMDItemFSContentChangeDate -name kMDItemFSCreationDate  README.md | plog "e => e.split('\n').map(z => z.split('= ')[1].slice(0, 10))"
+: 1704907884:0;mdls -name kMDItemFSContentChangeDate -name kMDItemFSCreationDate  README.md | plog "e => e.split('\n').map(z => z.split('= ')[1].slice(0, 10)).join(' - ')"
+: 1704907884:0;fd 
+: 1704907884:0;fd |rargs echo {}
+: 1704907884:0;fd |rargs mdls -name kMDItemFSContentChangeDate -name kMDItemFSCreationDate {} | plog "e => e.split('\n').map(z => z.split('= ')[1].slice(0, 10)).join('   -     ')"
+: 1704907884:0;fd |rargs mdls -name kMDItemFSContentChangeDate -name kMDItemFSCreationDate {} 
+: 1704907884:0;open .
+: 1704907884:0;git log
+: 1704907884:0;glab repo view gamliel1/toklock-banckend 
+: 1704907884:0;glab repo dsq gamliel1/toklock-banckend 
+: 1704907884:0;ls
+: 1704907884:0;g3
+: 1704907884:0;node
+: 1704907884:0;mkdir testdb
+: 1704907884:0;cd testdb
+: 1704907884:0;bun init
+: 1704907884:0;code index.ts
+: 1704907884:0;bun add firebase admin
+: 1704907884:0;bun add firebase-admin
+: 1704907884:0;run index.ts 
+: 1704907884:0;ls
+: 1704907884:0;cat index.ts
+: 1704907884:0;run index.ts 
+: 1704907884:0;firebase
+: 1704907884:0;brew install firebase-cli
+: 1704907884:0;ll
+: 1704907884:0;zsh
+: 1704907884:0;firebase 
+: 1704907884:0;cd ..
+: 1704907884:0;firebase init
+: 1704907884:0;firebase login
+: 1704907884:0;brew remove firebase-cli
+: 1704907884:0;npm install -g firebase-tools
+: 1704907884:0;firebase 
+: 1704907884:0;zsh
+: 1704907884:0;firebase
+: 1704907884:0;firebase init\
+\
+\
+\
+
+: 1704907884:0;zsh
+: 1704907884:0;firebase login -h
+: 1704907884:0;firebase login --reauth
+: 1704907884:0;firebase  login:add
+: 1704907884:0;cp toklock-bo-firebase-adminsdk-bdbfy-287b797a9a.json firebase.json
+: 1704907884:0;firebase init
+: 1704907884:0;firebase login
+: 1704907884:0;firebase -
+: 1704907884:0;firebase -sqd
+: 1704907884:0;firebase -h
+: 1704907884:0;firebase use firebase.json
+: 1704907884:0;jwt 
+: 1704907884:0;jwt  decode "eyJhbGciOiJSUzI1NiIsImtpZCI6ImVhNWY2NDYxMjA4Y2ZmMGVlYzgwZDFkYmI1MjgyZTkyMDY0MjAyNWEiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL3NlY3VyZXRva2VuLmdvb2dsZS5jb20vdG9rbG9jay1ibyIsImF1ZCI6InRva2xvY2stYm8iLCJhdXRoX3RpbWUiOjE2NTc3NzY5ODEsInVzZXJfaWQiOiJjUXRzTnJXZVRMVEttTVhOUVlFcnBUdEl5azkyIiwic3ViIjoiY1F0c05yV2VUTFRLbU1YTlFZRXJwVHRJeWs5MiIsImlhdCI6MTY1Nzc3Njk4MSwiZXhwIjoxNjU3NzgwNTgxLCJwaG9uZV9udW1iZXIiOiIrMzgwOTU0MjcwNzg1IiwiZmlyZWJhc2UiOnsiaWRlbnRpdGllcyI6eyJwaG9uZSI6WyIrMzgwOTU0MjcwNzg1Il19LCJzaWduX2luX3Byb3ZpZGVyIjoicGhvbmUifX0.GrfqrgjLbihQqXPca09K6uBsjAXeBiJRtCreffB2mLMr9YIBcBh7Sul3n3a-BxzvH7szstCrv_5Ng35p-nb3Vr6AXvhvDHdLYoUtPg0ZRu-tptj_P1jhu_c1ltg7igREOSTkAZd5bTVcSi6xWqFAFGwlkyWsof3yQZbzufnBi1fj2te6BxdUdVsKKUfeWIVfFJtoyTobia3LIENJ0KAeFLD01E3CgfHJ5i7wG2sejI4PbXyuC2wEites2YxTXaXAmNtg5k5FjXFs9f4lpcG0RplkDlCvK1jKx78Xgpzrrm-2wjO0Mni64_yW3wvUqIg0KyuE3_ucGghNSOd1_7dhgg"
+: 1704907884:0;node
+: 1704907884:0;curl access.toklock.com
+: 1704907884:0;one4all toklock.com
+: 1704907884:0;one4all  --domain toklock.com
+: 1704907884:0;cat $ZSH_HOME
+: 1704907884:0;cat $ZSH_HOME/.zsh_history__
+: 1704907884:0;cat $ZSH_HOME/.zsh_history__|grep one4
+: 1704907884:0;cat $ZSH_HOME/.zsh_history__|grep one
+: 1704907884:0;cat $ZSH_HOME/.zsh_history|grep one
+: 1704907884:0;cat $ZSH_HOME/.zsh_sessions/E1D2FC3C-A815-4BD1-AAE8-7E4B25E1615C.session
+: 1704907884:0;ls
+: 1704907884:0;cat ~/old-zsh-config/*history
+: 1704907884:0;cat ~/old-zsh-config/*history*
+: 1704907884:0;cat ~/old-zsh-config/.zsh_history.backup|grep one4
+: 1704907884:0;cat ~/old-zsh-config/.zsh_history.backup|grep one
+: 1704907884:0;cat ~/old-zsh-config/.zsh_history.backup|grep one4
+: 1704907884:0;cat ~/old-zsh-config/.zsh_history|grep one4
+: 1704907884:0;cat ~/old-zsh-config/.zsh_history.bak|grep one4
+: 1704907884:0;one4all --target toklock.com run
+: 1704907884:0;whoid toklock.com
+: 1704907884:0;whois toklock.com
+: 1704907884:0;digg access.toklock.com
+: 1704907884:0;dig access.toklock.com
+: 1704907884:0;vd -p  /Users/abelchalier/abin/OneForAll/results/toklock.com.csv
+: 1704907884:0;ls
+: 1704907884:0;cd -
+: 1704907884:0;cd testdb
+: 1704907884:0;ls
+: 1704907884:0;run int
+: 1704907884:0;run index.ts
+: 1704907884:0;bun add twilio
+: 1704907884:0;run index.ts
+: 1704907884:0;node index.ts
+: 1704907884:0;ts index.ts
+: 1704907884:0;tsx index.ts
+: 1704907884:0;yarn global add esno
+: 1704907884:0;esno index.ts
+: 1704907884:0;zsh
+: 1704907884:0;esno
+: 1704907884:0;yarn -h
+: 1704907884:0;yarn global list
+: 1704907884:0;yarn exec esno
+: 1704907884:0;yarn exec esno index.ts
+: 1704907884:0;yarn exec esno
+: 1704907884:0;yarn exec esno index.ts
+: 1704907884:0;twillio
+: 1704907884:0;yarn exec esno index.ts
+: 1704907884:0;ai
+: 1704907884:0;npm info
+: 1704907884:0;cd ..
+: 1704907884:0;npm info
+: 1704907884:0;npm -h
+: 1704907884:0;npm outdated
+: 1704907884:0;npm show @sendgrid/mail@7.7.0
+: 1704907884:0;npm show @sendgrid/mail@7.7.0|grep published
+: 1704907884:0;npm show @sendgrid/client@7.7.0 |grep published\
+npm show @sendgrid/mail@7.7.0 |grep published\
+npm show apn@2.2.0 |grep published\
+npm show axios@0.27. |grep published\
+npm show express@4.18. |grep published\
+npm show firebase-admin@10.3. |grep published\
+npm show firebase-messaging@1.0.6 |grep published\
+npm show nodemailer@6.9.8 |grep published\
+npm show onscan.js@1.5.2 |grep published\
+npm show plog@0.3.0 |grep published\
+npm show qrcode@1.5.3 |grep published\
+npm show sendgrid@5.2.3 |grep published\
+npm show twilio@4.20. |grep published\
+npm show ws@8.16. |grep published
+: 1704907884:0;npm show @sendgrid/client@7.7.0  |grep published\
+npm show @sendgrid/mail@7.7.0  |grep published\
+npm show apn@2.2.0  |grep published\
+npm show axios@0.27.2 |grep published\
+npm show express@4.18.2 |grep published\
+npm show firebase-admin@10.3.0 |grep published\
+npm show firebase-messaging@1.0.6  |grep published\
+npm show nodemailer@6.9.8  |grep published\
+npm show onscan.js@1.5.2  |grep published\
+npm show plog@0.3.0  |grep published\
+npm show qrcode@1.5.3  |grep published\
+npm show sendgrid@5.2.3  |grep published\
+npm show twilio@4.20.0 |grep published\
+npm show ws@8.16.0 |grep published
+: 1704907884:0;git checkout package.json node_modules/
+: 1704907884:0;ls
+: 1704907884:0;git status
+: 1704907884:0;npm show ws@8.16.0 |grep published
+: 1704907884:0;npm show ws@8.16.0 
+: 1704907884:0;npm show ws@8.16.0 |grep -E 'published|versions'
+: 1704907884:0;npm show @sendgrid/client@7.7.0  |grep -E 'published|versions'\
+npm show @sendgrid/mail@7.7.0  |grep -E 'published|versions'\
+npm show apn@2.2.0  |grep -E 'published|versions'\
+npm show axios@0.27.2 |grep -E 'published|versions'\
+npm show express@4.18.2 |grep -E 'published|versions'\
+npm show firebase-admin@10.3.0 |grep -E 'published|versions'\
+npm show firebase-messaging@1.0.6  |grep -E 'published|versions'\
+npm show nodemailer@6.9.8  |grep -E 'published|versions'\
+npm show onscan.js@1.5.2  |grep -E 'published|versions'\
+npm show plog@0.3.0  |grep -E 'published|versions'\
+npm show qrcode@1.5.3  |grep -E 'published|versions'\
+npm show sendgrid@5.2.3  |grep -E 'published|versions'\
+npm show twilio@4.20.0 |grep -E 'published|versions'\
+npm show ws@8.16.0 |grep -E 'published|versions'
+: 1704907884:0;ls
+: 1704907884:0;cd public/ll
+: 1704907884:0;cd public
+: 1704907884:0;ll
+: 1704907884:0;cat version.json
+: 1704907884:0;find .
+: 1704907884:0;find .|grep date
+: 1704907884:0;rg . "202"
+: 1704907884:0;rg ./ "202"
+: 1704907884:0;rg  "202" .
+: 1704907884:0;rg  "2023" .
+: 1704907884:0;tldr rg
+: 1704907884:0;rg  "2023" . --files-with-matches
+: 1704907884:0;rg  "2023" .
+: 1704907884:0;rg  "2023-" .
+: 1704907884:0;rg  "2024-" .
+: 1704907884:0;rg  "2023" .
+: 1704907884:0;cat ~/.yarnrc
+: 1704907884:0;code ~/.yarnrc
+: 1704907884:0;find .
+: 1704907884:0;find -name ".*"
+: 1704907884:0;find . -name ".*"
+: 1704907884:0;cat ./web/.last_build_id
+: 1704907884:0;cat ./web1/.well-known
+: 1704907884:0;cat ./web1/.well-known/assetlinks.json
+: 1704907884:0;httpie
+: 1704907884:0;httpie -h
+: 1704907884:0;httpie cli
+: 1704907884:0;httpie cli help
+: 1704907884:0;httpie help
+: 1704907884:0;http
+: 1704907884:0;https --help
+: 1704907884:0;curl -X POST https://access.toklock.com/getUserData
+: 1704907884:0;curl -X POST https://access.toklock.com/getUserData --data '{ "pwd": "lol", "phone":"0612321232" }'
+: 1704907884:0;curl -X POST https://access.toklock.com/getUsersWeb --data '{ "pwd": "lol", "phone":"0612321232" }'
+: 1704907884:0;curl -X POST https://access.toklock.com/getUsersWeb --data '{ "pwd": "lol", "phone":"0612321232" }' > users
+: 1704907884:0;curl -X POST https://access.toklock.com/getUsersWeb --data '{ "pwd": "lol", "phone":"0612321232" }' > users.json
+: 1704907884:0;ll
+: 1704907884:0;vd -p public/users.json
+: 1704907884:0;cat public/users.json|plog 
+: 1704907884:0;cat public/users.json|plog "e => e"
+: 1704907884:0;jwt decode "eyJhbGciOiJSUzI1NiIsImtpZCI6IjlhNTE5MDc0NmU5M2JhZTI0OWIyYWE3YzJhYTRlMzA2M2UzNDFlYzciLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL3NlY3VyZXRva2VuLmdvb2dsZS5jb20vdG9rbG9jay1ibyIsImF1ZCI6InRva2xvY2stYm8iLCJhdXRoX3RpbWUiOjE2OTYxODIwODgsInVzZXJfaWQiOiJoMHBVeHhOS0FyUEVwU083c1hDRmdpY3ppakEyIiwic3ViIjoiaDBwVXh4TktBclBFcFNPN3NYQ0ZnaWN6aWpBMiIsImlhdCI6MTY5NjE4MjA4OSwiZXhwIjoxNjk2MTg1Njg5LCJwaG9uZV9udW1iZXIiOiIrMzM2Nzk3ODA5NzMiLCJmaXJlYmFzZSI6eyJpZGVudGl0aWVzIjp7InBob25lIjpbIiszMzY3OTc4MDk3MyJdfSwic2lnbl9pbl9wcm92aWRlciI6InBob25lIn19.KgGfTZsu8uhdzb24YuSRr4yWihO0ddSAGvgplgf3-SRmIrKsKA0M3R6Ag7RG31ApAbSd3eNNdbk7JIf3O4Bj7qWeAOdN-6wMoa_sW4k_KVwq3vpoW81clLcN7AJMwJvNG5JcZiGdWzCp5vTuxlYbgCzJ0bKgJjFTumi14HZMLqAGkgC0Nc9nU0xVQNmZPlyuFXCvLEkrd4YLgEXXWimybguAT_rFm4hpAYIl0AvUvOc4n_8Nb87_tbXJDNpQXe0PIpxWyi-FpHH_PZ0q9YaudWb2l6rWxAhXaO8AzqmM_qLxeM8BcZOeU8M4UZ0EkNqCs3cWPjlhYpHVoA7i3N84wA"
+: 1704907884:0;cat public/users.json|plog "e => e.map(z => ({...z, createdAt: new Date(z.CreatedAt)}))"
+: 1704907884:0;cat public/users.json|plog "e => e.map(z => ({...z, createdAt: new Date(z.CreatedAt)}).toISOString().slice(0, 10))"
+: 1704907884:0;cat public/users.json|plog "e => e.map(z => ({...z, createdAt: new Date(z.CreatedAt).toISOString().slice(0, 10)}))"
+: 1704907884:0;cat public/users.json|plog "e => e.map(z => ({...z, createdAt: new Date(z.CreatedAt||0).toISOString().slice(0, 10)}))"
+: 1704907884:0;cat public/users.json|plog "e => JSON.stringify(e.map(z => ({...z, createdAt: new Date(z.CreatedAt||0).toISOString().slice(0, 10)})), null, 2)" > public/users2.json
+: 1704907884:0;vd -p public/users2.json
+: 1704907884:0;git log
+: 1704907884:0;g3
+: 1704907884:0;firebase
+: 1704907884:0;which firebase
+: 1704907884:0;npm remove --global firebase
+: 1704907884:0;bun add firebase
+: 1704907884:0;bun add --global firebase
+: 1704907884:0;firebase
+: 1704907884:0;firebase login
+: 1704907884:0;ls -la
+: 1704907884:0;lld
+: 1704907884:0;cd ..
+: 1704907884:0;lld
+: 1704907884:0;lld public
+: 1704907884:0;firebase init
+: 1704907884:0;lld public
+: 1704907884:0;firebase init
+: 1704907884:0;ll
+: 1704907884:0;cat package-lock.json
+: 1704907884:0;cat app.js 
+: 1704907884:0;vd -p public/users2.json
+: 1704907884:0;clear
+: 1704907884:0;ls
+: 1704907884:0;cat package
+: 1704907884:0;cat package.json
+: 1704907884:0;ls
+: 1704907884:0;cat config/starship.toml
+: 1704907884:0;ls
+: 1704907884:0;cd dev/toklockBackend
+: 1704907884:0;ls
+: 1704907884:0;code .
+: 1704907884:0;rg "CrÃ©ez" .
+: 1704907884:0;rg "mot de passe" .
+: 1704907884:0;rg "mot" .
+: 1704907884:0;rg "mot\s" .
+: 1704907884:0;rg "mot de passw" .
+: 1704907884:0;rg "mot de pass" .
+: 1704907884:0;ll
+: 1704907884:0;cat ~/old-zsh-config/.zsh_history|grep mysql
+: 1704907884:0;/opt/homebrew/opt/mysql@5.7/bin/mysqld_safe --datadir\=/opt/homebrew/var/mysql
+: 1704907884:0;ls
+: 1704907884:0;cat ~/.aws/config
+: 1704907884:0;cat ~/.aws/credentials
+: 1704907884:0;ncftp
+: 1704907884:0;tldr ncftp 
+: 1704907884:0;ncftp -h
+: 1704907884:0;ncftp -u "ftp3372-6664" -p "0:3:xspScS01DfLTdx5a5K6rMCTY0cJj4ZVeZn5L6ljzQR9BkcOvEC9YUQ=="  ftp1.sli-systems.com  
+: 1704907884:0;ncftp -u "ftp3372-6664" -p 0:3:xspScS01DfLTdx5a5K6rMCTY0cJj4ZVeZn5L6ljzQR9BkcOvEC9YUQ==  ftp1.sli-systems.com  
+: 1704907884:0;ls
+: 1704907884:0;cat firebase.json
+: 1704907884:0;cat firebase.json|json_pp
+: 1704907884:0;ncftp -u "ftp.shopzilla.com" -p "317598_GfvTWWJ"  ftp.shopzilla.com 
+: 1704907884:0;ls
+: 1704907884:0;clear
+: 1704907884:0;ls
+: 1704907884:0;cat package.json
+: 1704907884:0;cat app.js
+: 1704907884:0;jwt decode "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6ImE3YTZkMzY0OTA1Y2UwNjM1OGY5MjY4ZWM4Y2Q3YTc3ZWE4NjBmMTY4MjczNzkyM2ZiNmEwYTY4NDUyNjBmYjUxYWMyYmI4ZmE0N2I3MTRlIn0.eyJhdWQiOiIzIiwianRpIjoiYTdhNmQzNjQ5MDVjZTA2MzU4ZjkyNjhlYzhjZDdhNzdlYTg2MGYxNjgyNzM3OTIzZmI2YTBhNjg0NTI2MGZiNTFhYzJiYjhmYTQ3YjcxNGUiLCJpYXQiOjE2OTU2NDAyNDksIm5iZiI6MTY5NTY0MDI0OSwiZXhwIjoxNzI3MjYyNjQ5LCJzdWIiOiIyMSIsInNjb3BlcyI6W119.vhDI1sRoarOI42Qxq700syKdvZ9T8OMnPBzCDtqhCWusjEcc527JQ5nR-HyEJ1eon61-1gUz71LT6jtbbAe49OIrOAwGLlw2ZGCJKl0EP4PR0YJVJkSYgkKKKF0Z_7pP2Vn7dA4iGLV0i0BQpNaiPov_A_lXscaPXTGd4TmJRxW4_TsEfEt3FiJx8bhpM1WtINT0i0qgykN0WUFVaJIyzm8C0c4z4f3O6bBkZ8l99-Krb0n3738jhvyEzHurmTdzwq7-hkeSyjVkgXyROx2AJTKC-EyDV7WXkDM0Vnw5SU4a-i4pSDrF5UDGrsEEL6VEZOeMFliu9AHyLd6pJ2g5-hGsNv8KVHXx5BkeZJx2VkM1NiJbjCzpvnmt0OMuEb2oDHII0EvzvPawLjbAb12UYxjDnUhtTE3BqTUGPQB9wAbHDIDgnjPUjBwLq7XNj2NxKXYS8iyg6fK7opcc5TZXv3YlbqITEJbfKjc9pQPNy3X1WK38dPDTrFBNDC3_7UE7x-wlo0DXw6IVH7MiUWR3xwChW25UZQM7LbFCqBQV5tCITUbP5Sr8D0cCAGDa1sNWrDektFuim87uBlNIcDpftiZBXIHKfuSkZ1JCZZv5DSMQqN5jBBvHTpae4y7SDVfWW91Q1f4WKJeIm3BYjA-dEDBQW_WOmoaooofSS-f8K-Q"
+: 1704907884:0;node
+: 1704907884:0;ls
+: 1704907884:0;cat ~/.zsh_extended_history
+: 1704907884:0;ccat ~/.zsh_extended_history
+: 1704907884:0;ls
+: 1704907884:0;history|grep mysql
+: 1704907884:0;cat ~/old-zsh-config/.zsh_history|grep mysql
+: 1704907884:0;cd ~
+: 1704907884:0;cat ./.mysql_history
+: 1704907884:0;g3
+: 1704907884:0;node
+: 1704907884:0;ls
+: 1704907884:0;cd dev/ghs
+: 1704907884:0;ls
+: 1704907884:0;ll
+: 1704907884:0;zcat repo_metadata.json.gz
+: 1704907884:0;ll
+: 1704907884:0;3
+: 1704907884:0;g3
+: 1704907884:0;rc
+: 1704907884:0;zsh
+: 1704907884:0;rc
+: 1704907884:0;which zsh
+: 1704907884:0;code $ZSH_HOME/
+: 1704907884:0;zsh
+: 1704907884:0;ls
+: 1704907884:0;ln -s /Users/abelchalier/.config  /Users/abelchalier/config
+: 1704907884:0;ls
+: 1704907884:0;ll ~/.config
+: 1704907884:0;ll -d ~/.config
+: 1704907884:0;ll -d ~/config
+: 1704907884:0;ln -s .zplug/repos/robbyrussell/oh-my-zsh ~/.config/zsh/oh-my-zsh
+: 1704907884:0;omz
+: 1704907884:0;omz help
+: 1704907884:0;omz -h
+: 1704907884:0;_omz::plugin
+: 1704907884:0;omz
+: 1704907884:0;_omz::plugin::list
+: 1704907884:0;zsh
+: 1704907884:0;fd
+: 1704907884:0;zsh
+: 1704907884:0;fd 
+: 1704907884:0;fd -h
+: 1704907884:0;ls
+: 1704907884:0;cd $ZSH_HOME
+: 1704907884:0;LS
+: 1704907884:0;zsh
+: 1704907884:0;ls $ZSH_CACHE_DIR/completions
+: 1704907884:0;ls $ZSH_CACHE_DIR/completions -la
+: 1704907884:0;ls -la $ZSH_CACHE_DIR/completions
+: 1704907884:0;ls $ZSH_HOME
+: 1704907884:0;ls $ZSH_HOME/.zcompdump
+: 1704907884:0;ll $ZSH_HOME/.zcompdump
+: 1704907884:0;cat /Users/abelchalier/.config/zsh/.zcompdump
+: 1704907884:0;echo $fpath
+: 1704907884:0;echo $fpath |cat
+: 1704907884:0;echo $fpath |less
+: 1704907884:0;g3
+: 1704907884:0;g3 --model qsd
+: 1704907884:0;echo $fpath |  awk '{print}' 
+: 1704907884:0;echo $fpath |   sed -n 'p'
+: 1704907884:0;echo $fpath | tr ' ' '\n'
+: 1704907884:0;zsh
+: 1704907884:0;echo $fpath | plines
+: 1704907884:0;echo "toto adda" | plines
+: 1704907884:0;ai
+: 1704907884:0;ai
+: 1704907884:0;zsh
+: 1704907884:0;echo "toto adda" | plines
+: 1704907884:0;echo "toto adda" | plines
+: 1704907884:0;echo "toto adda" | plines
+: 1704907884:0;echo "toto adda" | plines|awk NF
+: 1704907884:0;tldr awk
+: 1704907884:0;tldr tr
+: 1704907884:0;echo "toto adda" | plines
+: 1704907884:0;echo "toto adda" | plines|cat
+: 1704907884:0;echo "toto adda" | plines|cat
+: 1704907884:0;echo "toto adda" | plines
+: 1704907884:0;which plines
+: 1704907884:0;echo "toto adda" | tr ' ' '\n'
+: 1704907884:0;echo "toto adda" | tr ' ' '\n'|cat
+: 1704907884:0;bun install --global wat
+: 1704907884:0;wat
+: 1704907884:0;wat sh
+: 1704907884:0;ls
+: 1704907884:0;ls
+: 1704907884:0;ls
+: 1704907884:0;echo $ZSH_CACHE_DIR
+: 1704907884:0;ls /Users/abelchalier/.cache/oh-my-zsh/completions
+: 1704907884:0;ls /Users/abelchalier/.cache/oh-my-zsh/completions/
+: 1704907884:0;ls /Users/abelchalier/.cache/oh-my-zsh/completions/ -l
+: 1704907884:0;ls -la /Users/abelchalier/.cache/oh-my-zsh/completions/ 
+: 1704907884:0;ls -la /Users/abelchalier/.cache/oh-my-zsh/
+: 1704907884:0;ll
+: 1704907884:0;echo ZSH_CACHE_DIR
+: 1704907884:0;echo $ZSH_CACHE_DIR
+: 1704907884:0;ls
+: 1704907884:0;ls -l
+: 1704907884:0;zsh
+: 1704907884:0;zsh
+: 1704907884:0;zsh
+: 1704907884:0;ls -l
+: 1704907884:0;ls -l
+: 1704907884:0;ll
+: 1704907884:0;echo $ZSH_COMPDUMP
+: 1704907884:0;zsh
+: 1704907884:0;zsh
+: 1704907884:0;zsh
+: 1704907884:0;zsh
+: 1704907884:0;zsh
+: 1704907884:0;zsh
+: 1704907884:0;zsh
+: 1704907884:0;zsh
+: 1704907884:0;zsh
+: 1704907884:0;echo $ZSH
+: 1704907884:0;zsh
+: 1704907884:0;ls
+: 1704907884:0;pwd
+: 1704907884:0;ls
+: 1704907884:0;ll
+: 1704907884:0;zsh
+: 1704907884:0;zsh
+: 1704907884:0;cd $ZSH_HOME/
+: 1704907884:0;ls
+: 1704907884:0;ls
+: 1704907884:0;find oh-my-zsh/lib/
+: 1704907884:0;zsh
+: 1704907884:0;ls
+: 1704907884:0;ll
+: 1704907884:0;ls -l
+: 1704907884:0;compgen
+: 1704907884:0;ls
+: 1704907884:0;zsh
+: 1704907884:0;history
+: 1704907884:0;ls
+: 1704907884:0;ll
+: 1704907884:0;cat .zsh_history
+: 1704907884:0;ccat .zsh_history
+: 1704907884:0;ccat .zsh_history|wc -l
+: 1704907884:0;ll
+: 1704907884:0;ccat .zsh_history|wc -l
+: 1704907884:0;ccat .zsh_history
+: 1704907884:0;ls
+: 1704907884:0;zsh
+: 1704907884:0;ll
+: 1704907884:0;pwd toto
+: 1704907884:0;cat .zsh_history
+: 1704907884:0;tail .zsh_history
+: 1704907884:0;compdef _function foobar
+: 1704907884:0;compdef ls foobar
+: 1704907884:0;flutter
+: 1704907884:0;sqlite-utils tables "file:/Users/abelchalier/Library/ApplicationSupport/Google/Chrome/Default/History?mode=ro&nolock=1"
+: 1704907884:0;sqlite3 "file:/Users/abelchalier/Library/ApplicationSupport/Google/Chrome/Default/History?mode=ro&nolock=1"
+: 1704907884:0;ls
+: 1704907884:0;lsof 
+: 1704907884:0;lsof |grep Clip
+: 1704907884:0;lsof |grep Clip
+: 1704907905:0;lsof |grep Clip
+: 1704907957:0;lsof |grep Clip|grep sql
+: 1704907968:0;sqlite3 /Users/abelchalier/Library/HTTPStorages/com.clipy-app.Clipy/httpstorages.sqlite
+: 1704907990:0;ll /Users/abelchalier/Library/HTTPStorages/com.clipy-app.Clipy/
+: 1704908002:0;cat  /Users/abelchalier/Library/HTTPStorages/com.clipy-app.Clipy/httpstorages.sqlite-wal
+: 1704908008:0;sqlite3  /Users/abelchalier/Library/HTTPStorages/com.clipy-app.Clipy/httpstorages.sqlite-wal
+: 1704908042:0;g3
+: 1704908070:0;sqlite3  /Users/abelchalier/Library/HTTPStorages/com.clipy-app.Clipy/httpstorages.sqlite
+: 1704908172:0;datasette --nolock /Users/abelchalier/Library/HTTPStorages/com.clipy-app.Clipy/httpstorages.sqlite inspect
+: 1704908181:0;datasette --nolock /Users/abelchalier/Library/HTTPStorages/com.clipy-app.Clipy/httpstorages.sqlite inspect
+: 1704908192:0;datasette /Users/abelchalier/Library/HTTPStorages/com.clipy-app.Clipy/httpstorages.sqlite
+: 1704908208:0;lsof |grep Clip|grep sql
+: 1704908213:0;lsof |grep Clip
+: 1704908216:0;lsof |grep Clipy
+: 1704908226:0;lsof |grep Clipy
+: 1704908245:0;lsof |grep Clipy` | tr '$HOME' ''
+: 1704908248:0;lsof |grep Clipy | tr '$HOME' ''
+: 1704908250:0;lsof |grep Clipy | tr '$HOME' ' '
+: 1704908257:0;lsof |grep Clipy
+: 1704908259:0;lsof |grep Clipy
+: 1704908329:0;ll /Users/abelchalier/Library/Application\ Support/com.clipy-app.Clipy/default.realm
+: 1704908333:0;file /Users/abelchalier/Library/Application\ Support/com.clipy-app.Clipy/default.realm
+: 1704908335:0;file /Users/abelchalier/Library/Application\ Support/com.clipy-app.Clipy/default.realm
+: 1704908346:0;g3
+: 1704908384:0;bun install realm-cli --global
+: 1704908393:0;zsh
+: 1704908396:0;realm-cli
+: 1704908398:0;realm-cli
+: 1704908424:0;realm-cli convert /Users/abelchalier/Library/Application\ Support/com.clipy-app.Clipy/default.realm --output ./pastedump.json
+: 1704908426:0;ll
+: 1704908434:0;g3
+: 1704908463:0;ll  /Users/abelchalier/Library/Application\ Support/com.clipy-app.Clipy/default.realm
+: 1704908467:0;ll  /Users/abelchalier/Library/Application\ Support/com.clipy-app.Clipy/
+: 1704908483:0;realm-cli explore  /Users/abelchalier/Library/Application\ Support/com.clipy-app.Clipy/default.realm
+: 1704908486:0;realm-cli explore  /Users/abelchalier/Library/Application\ Support/com.clipy-app.Clipy/default.realm 
+: 1704908494:0;realm-cli explore  /Users/abelchalier/Library/Application\ Support/com.clipy-app.Clipy/default.realm 
+: 1704908495:0;realm-cli explore  /Users/abelchalier/Library/Application\ Support/com.clipy-app.Clipy/default.realm 
+: 1704908502:0;realm-cli explore  /Users/abelchalier/Library/Application\ Support/com.clipy-app.Clipy/
+: 1704908511:0;bun uninstall realm-cli
+: 1704908514:0;bun uninstall realm-cli --global
+: 1704908546:0;npm install -g atlas-app-services-cli\
+\
+
+: 1704908584:0;realm-cli
+: 1704908593:0;npm install --global realm-cli
+: 1704908605:0;realm-cli explore  /Users/abelchalier/Library/Application\ Support/com.clipy-app.Clipy/
+: 1704908609:0;realm-cli explore  /Users/abelchalier/Library/Application\ Support/com.clipy-app.Clipy/ -v
+: 1704908611:0;realm-cli -v explore  /Users/abelchalier/Library/Application\ Support/com.clipy-app.Clipy/ -v
+: 1704908613:0;realm-cli
+: 1704908686:0;npm install -g atlas-app-services-cli\
+\
+
+: 1704908731:0;zsh
+: 1704908734:0;atlas 
+: 1704908771:0;g3
+: 1704908814:0;realm-cli
+: 1704908818:0;realm-cli go
+: 1704908824:0;realm-cli -h
+: 1704908976:0;ls
+: 1704909111:0;ll  /Users/abelchalier/Library/Application\ Support/com.clipy-app.Clipy/
+: 1704909319:0;ll  /Users/abelchalier/Library/Application\ Support/com.clipy-app.Clipy/
+: 1704909330:0;open /Users/abelchalier/Library/Application\ Support/
+: 1704909457:0;cd ~/abin
+: 1704909457:0;ls
+: 1704909467:0;micro realm-dump.ts
+: 1704909472:0;bun add realm
+: 1704909494:0;code .
+: 1704909578:0;cd ~/abin
+: 1704909582:0;run index.ts
+: 1704909587:0;run realm-dump.ts
+: 1704909636:0;ts realm-dump.ts
+: 1704909640:0;esno realm-dump.ts
+: 1704909642:0;esno
+: 1704909666:0;which tsx
+: 1704909670:0;which ts
+: 1704909691:0;npm install tsx --global
+: 1704909698:0;tsx realm-dump.ts
+: 1704909736:0;tsx realm-dump.ts
+: 1704909750:0;ts realm-dump.ts
+: 1704909763:0;ts realm-dump.ts
+: 1704909780:0;ts realm-dump.ts
+: 1704909844:0;ts realm-dump.ts
+: 1704909859:0;ts realm-dump.ts
+: 1704909881:0;ts realm-dump.ts
+: 1704909889:0;ts realm-dump.ts
+: 1704909899:0;ts realm-dump.ts
+: 1704909924:0;ts realm-dump.ts
+: 1704909932:0;ts realm-dump.ts
+: 1704910097:0;ts realm-dump.ts
+: 1704910111:0;ts realm-dump.ts
+: 1704910118:0;ts realm-dump.ts
+: 1704910133:0;ts realm-dump.ts
+: 1704910158:0;ts realm-dump.ts
+: 1704910266:0;ts realm-dump.ts
+: 1704910279:0;ts realm-dump.ts
+: 1704910293:0;ts realm-dump.ts
+: 1704910301:0;ts realm-dump.ts
+: 1704910312:0;ts realm-dump.ts
+: 1704910339:0;ts realm-dump.ts
+: 1704910371:0;fzf-tmux 
+: 1704910378:0;ts realm-dump.ts|fzf
+: 1704910386:0;ts realm-dump.ts|fzf-tmux
+: 1704910393:0;fzf -h
+: 1704910409:0;fzf -h
+: 1704910511:0;ls 	/Users/abelchalier/Library/Application Support/com.clipy-app.Clipy/.DS_Store
+: 1704910513:0;ls 	/Users/abelchalier/Library/Application Support/com.clipy-app.Clipy/
+: 1704910516:0;ll	/Users/abelchalier/Library/Application Support/com.clipy-app.Clipy/
+: 1704910527:0;rm	/Users/abelchalier/Library/ApplicationSupport/com.clipy-app.Clipy/.DS_Store
+: 1704910551:0;fkill
+: 1704910592:0;yarn -h
+: 1704910603:0;yarn bin
+: 1704910622:0;yarn list 
+: 1704910624:0;yarn list  global
+: 1704910629:0;yarn global
+: 1704910633:0;yarn global dir
+: 1704910651:0;yarn global list
+: 1704910682:0;ll /opt/a/.yarn
+: 1704910687:0;ll ~/.yarn
+: 1704910707:0;l ~/.yarn
+: 1704910709:0;ls ~/.yarn
+: 1704910755:0;bun add --global fkill
+: 1704910759:0;fkill
+: 1704910776:0;yarn global list
+: 1704910785:0;yarn global 
+: 1704910790:0;yarn global  ls
+: 1704910792:0;yarn global  list
+: 1704910807:0;yarn global  bin
+: 1704910820:0;cd ..
+: 1704910823:0;yarn global  bin
+: 1704910858:0;fd 'yarn/bin'
+: 1704910896:0;yarn global dir
+: 1704910902:0;ls -la /opt/a/.yarn
+: 1704910918:0;yarn global install
+: 1704910923:0;yarn global upgrade
+: 1704910936:0;which fkill
+: 1704910945:0;bun install --global fkill
+: 1704910948:0;fkill
+: 1704910969:0;bun install --global fkill-cli
+: 1704910973:0;fkill
+: 1704911041:0;zsh
+: 1704911045:0;ts realm-dump.ts
+: 1704911057:0;ll  /Users/abelchalier/Library/Application\ Support/com.clipy-app.Clipy/
+: 1704911100:0;ts realm-dump.ts > ~/dev/backup-dotfiles/clipdump.txt
+: 1704911102:0;ll  /Users/abelchalier/Library/Application\ Support/com.clipy-app.Clipy/
+: 1704911120:0;cat  /Users/abelchalier/Library/Application\ Support/com.clipy-app.Clipy/default.realm.lock
+: 1704911122:0;ccat  /Users/abelchalier/Library/Application\ Support/com.clipy-app.Clipy/default.realm.lock
+: 1704911131:0;g3
+: 1704911183:0;code .
+: 1704911228:0;cp  /Users/abelchalier/Library/Application\ Support/com.clipy-app.Clipy/ ~/dev/backup-dotfiles/
+: 1704911236:0;ts realm-dump.ts 
+: 1704911240:0;cd abin
+: 1704911242:0;ts realm-dump.ts 
+: 1704911266:0;ts realm-dump.ts 
+: 1704911304:0;ll  /Users/abelchalier/Library/Application\ Support/com.clipy-app.Clipy/
+: 1704911320:0;g3
+: 1704911371:0;ls
+: 1704911375:0;ll  /Users/abelchalier/Library/Application\ Support/com.clipy-app.Clipy/
+: 1704911388:0;rm  /Users/abelchalier/Library/Application\ Support/com.clipy-app.Clipy/default.realm.lock
+: 1704911403:0;ll  /Users/abelchalier/Library/Application\ Support/com.clipy-app.Clipy/
+: 1704911437:0;rm  /Users/abelchalier/Library/Application\ Support/com.clipy-app.Clipy/default.realm.lock
+: 1704911438:0;ll  /Users/abelchalier/Library/Application\ Support/com.clipy-app.Clipy/
+: 1704911440:0;ll  /Users/abelchalier/Library/Application\ Support/com.clipy-app.Clipy/
+: 1704911452:0;ll  /Users/abelchalier/Library/Application\ Support/com.clipy-app.Clipy/
+: 1704911454:0;ll  /Users/abelchalier/Library/Application\ Support/com.clipy-app.Clipy/
+: 1704911474:0;/Applications/Clipy.app/Contents/MacOS/Clipy 
+: 1704911683:0;cd /Users/abelchalier/Library/Application\ Support/com.clipy-app.Clipy/
+: 1704911684:0;ls
+: 1704911709:0;mv default.realm old.default.realm
+: 1704911710:0;ls
+: 1704911722:0;cp default.v9.backup.realm default.realm
+: 1704911723:0;ll
+: 1704911736:0;rm default.realm.lock
+: 1704911740:0;/Applications/Clipy.app/Contents/MacOS/Clipy 
+: 1704911796:0;ll  /Users/abelchalier/Library/Application\ Support/com.clipy-app.Clipy/
+: 1704911869:0;ts realm-dump.ts 
+: 1704911874:0;cd -
+: 1704911876:0;ts realm-dump.ts 
+: 1704911984:0;ts realm-dump.ts 
+: 1704912034:0;ts realm-dump.ts 
+: 1704912117:0;ts realm-dump.ts 
+: 1704912164:0;ts realm-dump.ts 
+: 1704912182:0;ts realm-dump.ts 
+: 1704912185:0;ts realm-dump.ts |fzf
+: 1704912212:0;fzf -h
+: 1704912221:0;ts realm-dump.ts |fzf  --no-sort   
+: 1704912237:0;ts realm-dump.ts |FZF_DEFAULT_OPTS= fzf  --no-sort   
+: 1704912242:0;ts realm-dump.ts |FZF_DEFAULT_OPTS= fzf
+: 1704912272:0;ts realm-dump.ts |fzf  --tac  
+: 1704912290:0;ts realm-dump.ts |fzf  --tac  --print0 
+: 1704912312:0;ts realm-dump.ts |fzf  --tac  --print0 |pbcopy
+: 1704912326:0;ts realm-dump.ts |fzf  --tac  --print0 |pbcopy
+: 1704912330:0;inMemoryƒ 
+: 1704912334:0;ts realm-dump.ts |fzf  --tac  --print0
+: 1704912338:0;ts realm-dump.ts |fzf  --tac  --print0|cat
+: 1704912343:0;ts realm-dump.ts |fzf  --tac  --print0
+: 1704912365:0;ls
+: 1704912368:0;ls
+: 1704912372:0;echo "toto"|pbcopy
+: 1704912385:0;fzf --print0 |pbcopy
+: 1704912392:0;g3
+: 1704912450:0;fzf -h
+: 1704912472:0;g3
+: 1704912493:0;tr -h
+: 1704912497:0;tldr tr
+: 1704912528:0;ts realm-dump.ts |fzf  --tac  --print0 |tr -d '\0'
+: 1704912535:0;ts realm-dump.ts |fzf  --tac  --print0 |tr -d '\0' |pbcopy
+: 1704912549:0;ts realm-dump.ts |fzf  --tac  --print0 |pbcopy
+: 1704912561:0;ts realm-dump.ts |fzf  --tac  --print0 |tr -d '\0$' |pbcopy
+: 1704912594:0;mv realm-dump.ts dump-clipboard
+: 1704912614:0;which ts
+: 1704912618:0;which tsx
+: 1704912638:0;chmod 777 dump-clipboard
+: 1704912641:0;./dump-clipboard
+: 1704912643:0;./dump-clipboard
+: 1704913767:0;ccat /Users/abelchalier/Library/Mobile\ Documents/com~apple~CloudDocs/_FILESBACKUP/bordel/cc.csv
+: 1704913769:0;ccat /Users/abelchalier/Library/Mobile\ Documents/com~apple~CloudDocs/_FILESBACKUP/bordel/cc.csv|wc -l
+: 1704914100:0;ll
+: 1704914103:0;cat playfocus
+: 1704914105:0;ll
+: 1704914107:0;cat toto
+: 1704914109:0;cat yazy
+: 1704914111:0;cat tsconfig.json
+: 1704914184:0;ls
+: 1704914188:0;cd ~/dev/pentest/api-discovery
+: 1704914188:0;ls
+: 1704914190:0;ll success
+: 1704914278:0;cd success
+: 1704914279:0;fzf --preview 'bat --style=numbers --color=always --line-range :500 {}'\
+
+: 1704914891:0;cd ..
+: 1704914892:0;ls
+: 1704914896:0;cd ..
+: 1704914896:0;ls
+: 1704914897:0;ll
+: 1704914903:0;cd ../
+: 1704914903:0;ls
+: 1704914905:0;cd photoshot
+: 1704914911:0;ls
+: 1704914913:0;cd ..
+: 1704914958:0;find -depth 1
+: 1704914964:0;find -depth 2
+: 1704914966:0;find . -depth 2
+: 1704914979:0;find . -depth 2 -type d
+: 1704914991:0;find . -depth 2 -type d |fzf
+: 1704914999:0;find . -depth 2 -type d 
+: 1704915027:0;ls
+: 1704915028:0;cd ..
+: 1704915030:0;cd -
+: 1704915031:0;fzf
+: 1704915046:0;cd draftr/data/shotgun-scrapper.ts
+: 1704915052:0;fzf
+: 1704915062:0;cat draftr/data/shotgun-scrapper.ts
+: 1704915946:0;ll
+: 1704915953:0;cat zdump/aliases.zsh
+: 1704915955:0;ll
+: 1704915958:0;cat route-screen.applescript
+: 1704915959:0;clear
+: 1704915960:0;ls
+: 1704916451:0;one4all shotgun.live
+: 1704916463:0;rc
+: 1704916469:0;ls
+: 1704916472:0;cat functions.zsh
+: 1704916494:0;one4all --target shotgun.live run
+: 1704916721:0;vd -p  /Users/abelchalier/abin/OneForAll/results/shotgun.live.csv
+: 1704916947:0;cd pentest
+: 1704916951:0;mkdir shotgun-t
+: 1704916952:0;cd shotgun-t
+: 1704916952:0;ls
+: 1704916956:0;git clone https://github.com/shotgun-warehouse/react-native-bridgefy-sdk
+: 1704916959:0;cd react-native-bridgefy-sdk
+: 1704916959:0;ls
+: 1704916967:0;gitleaks . --verbose
+: 1704916972:0;gitleaks  --verbose
+: 1704916984:0;cat ~/old-zsh-config/.zsh_history|grep gitl
+: 1704917003:0;gitleaks  --verbose
+: 1704917014:0;gitleaks detect  --verbose
+: 1704917020:0;ls
+: 1704917021:0;cd -
+: 1704917022:0;ls
+: 1704917435:0;curl http://scan-api-v2.shotgun.live
+: 1704917439:0;curl http://scan-api-v2.shotgun.live -L
+: 1704917445:0;curl http://scan-api-v2.shotgun.live/users
+: 1704917449:0;curl http://scan-api-v2.shotgun.live/users -l -i
+: 1704917460:0;curl http:s//scan-api-v2.shotgun.live/users -l -i
+: 1704917465:0;curl https//scan-api-v2.shotgun.live/users -l -i
+: 1704917472:0;curl https//scan-api-v2.shotgun.live
+: 1704917479:0;curl https://scan-api-v2.shotgun.live
+: 1704917481:0;curl https://scan-api-v2.shotgun.live/users
+: 1704917483:0;curl https://scan-api-v2.shotgun.live/
+: 1704917486:0;curl https://scan-api-v2.shotgun.live/api
+: 1704917488:0;curl https://scan-api-v2.shotgun.live/scan
+: 1704917490:0;curl https://scan-api-v2.shotgun.live/q<
+: 1704917492:0;curl https://scan-api-v2.shotgun.live/kk
+: 1704917956:0;curl http://dashboard.shotgun.live
+: 1704918366:0;cat ~/old-zsh-config/.zsh_history|grep banner
+: 1704918401:0;ll pentest/api-discovery/success/
+: 1704918512:0;fzf
+: 1704918535:0;cat wavy/api/bannerbuzz-backup/21583473018.pdf
+: 1704918539:0;open wavy/api/bannerbuzz-backup/21583473018.pdf
+: 1704918724:0; one4all --target  nexusclub.fr run
+: 1704918769:0;curl pkl.nexusclub.fr
+: 1704918771:0;curl pkl.nexusclub.fr
+: 1704918822:0;vd -p /Users/abelchalier/abin/OneForAll/results/nexusclub.fr.csv
+: 1704919158:0;https://nexusclub.fr/index.php?rest_route=/|jless
+: 1704919165:0;https://nexusclub.fr/index.php?rest_route=/ > nx.json
+: 1704919173:0;curl "https://nexusclub.fr/index.php?rest_route=/"|jless
+: 1704919214:0;curl "https://nexusclub.fr/index.php?rest_route=/" > nx.json
+: 1704919220:0;vd -p nx.json
+: 1704919272:0;curl "https://nexusclub.fr/index.php?rest_route=/wp/v2/users/me" 
+: 1704919277:0;curl "https://nexusclub.fr/index.php?rest_route=/wp/v2/users/" 
+: 1704919284:0;curl "https://nexusclub.fr/index.php?rest_route=/wp/v2/users/" |json_pp
+: 1704919340:0;curl "https://nexusclub.fr/index.php?rest_route=/wp/v2/search" |json_pp
+: 1704919347:0;curl "https://nexusclub.fr/index.php?rest_route=/wp/v2/search" |json_pp
+: 1704919374:0;curl "https://nexusclub.fr/index.php?rest_route=/wp/v2/users/" |json_pp
+: 1704919382:0;curl "https://nexusclub.fr/index.php?rest_route=/wp/v2/users/nexus_admin" |json_pp
+: 1704919388:0;curl "https://nexusclub.fr/index.php?rest_route=/wp/v2/users?name=nexus_admin" |json_pp
+: 1704919416:0;curl "https://nexusclub.fr/index.php?rest_route=/wp/v2/users/nexus_admin/introspect" |json_pp
+: 1704919428:0;curl "https://nexusclub.fr/index.php?rest_route=/wp/v2/users/nexus_admin/application_passwords" |json_pp
+: 1704919434:0;curl "https://nexusclub.fr/index.php?rest_route=/wp/v2/users/nexus_admin/application-passwords" |json_pp
+: 1704919458:0;curl "https://nexusclub.fr/index.php?rest_route=/wp/v2/users/Pnexus_admin/application-passwords" |json_pp
+: 1704919544:0;curl "https://nexusclub.fr/index.php?rest_route=/wp/v2/users/" |json_pp
+: 1704919774:0;curl "https://nexusclub.fr/index.php?rest_route=/" |pbcopy
+: 1704920071:0;wpscan
+: 1704920078:0;wpscan --help
+: 1704920100:0;wpscan --url https://nexusclub.fr
+: 1704920143:0;cat ~/old-zsh-config/.zsh_history|grep wpscan
+: 1704920149:0;cat /Users/abelchalier/old-zsh-config/.zsh_history /Users/abelchalier/old-zsh-config/.zsh_history.backup /Users/abelchalier/old-zsh-config/.zsh_history.bak /Users/abelchalier/old-zsh-config/.zsh_sessions |grep wpscan
+: 1704920152:0;cat /Users/abelchalier/old-zsh-config/.zsh_history /Users/abelchalier/old-zsh-config/.zsh_history.backup /Users/abelchalier/old-zsh-config/.zsh_history.bak /Users/abelchalier/old-zsh-config/.zsh_sessions |grep wps
+: 1704920153:0;cat /Users/abelchalier/old-zsh-config/.zsh_history /Users/abelchalier/old-zsh-config/.zsh_history.backup /Users/abelchalier/old-zsh-config/.zsh_history.bak /Users/abelchalier/old-zsh-config/.zsh_sessions |grep wp
+: 1704920177:0;cat /Users/abelchalier/old-zsh-config/.zsh_history.backup  |grep wpscan
+: 1704920357:0;curl "https://nexusclub.fr/etc/apache"
+: 1704920363:0;curl -i "https://nexusclub.fr/etc/apache"
+: 1704920421:0;curl -i "https://nexusclub.fr/wp-config.php"
+: 1704920425:0;curl  "https://nexusclub.fr/wp-config.php"
+: 1704920459:0;curl  "https://nexusclub.fr/wp-json"
+: 1704920461:0;curl  "https://nexusclub.fr/wp-json/"
+: 1704921275:0;ll
+: 1704921986:0;lls
+: 1704921987:0;ll
+: 1704921991:0;lx
+: 1704921994:0;cd pentest
+: 1704921994:0;ls
+: 1704921999:0;ll
+: 1704922002:0;ls
+: 1704922003:0;ll
+: 1704922008:0;ll ver
+: 1704922009:0;ll vercel
+: 1704922097:0;ls
+: 1704922106:0;cat api-dev.lms.aiffel.io.html
+: 1704922116:0;ccat api-dev.lms.aiffel.io.html
+: 1704922157:0;ls
+: 1704922175:0;cd api-discovery/
+: 1704922176:0;lw
+: 1704922177:0;ls
+: 1704922188:0;tldr rg
+: 1704922192:0;rg '06'
+: 1704922211:0;rg '06[0-9]{8}'
+: 1704922228:0;rg '06[0-9]{8}'
+: 1704922238:0;cd pentest/api-discovery
+: 1704922239:0;ls
+: 1704922240:0;ls
+: 1704922248:0;cat /Users/abelchalier/old-zsh-config/.zsh_history.backup  |grep wpscan
+: 1704922250:0;cat /Users/abelchalier/old-zsh-config/.zsh_history.backup  |grep 
+: 1704922255:0;cat /Users/abelchalier/old-zsh-config/.zsh_history.backup  |grep rg
+: 1704922261:0;ll /Users/abelchalier/old-zsh-config/
+: 1704922263:0;ll /Users/abelchalier/old-zsh-config/p10k-abelchalier
+: 1704922267:0;ll /Users/abelchalier/old-zsh-config/ -a
+: 1704967495:0;sl
+: 1704967496:0;ls
+: 1704967841:0;code ../dev/toklockBackend
+: 1704968809:0;whois
+: 1704968810:0;whois toklock.com
+: 1704968845:0;whois toklock.fr
+: 1704969115:0;ll
+: 1704969117:0;lld
+: 1704969119:0;lls
+: 1704969130:0;ll success-vcl/api.appfluigservnac.com.json
+: 1704969133:0;cat success-vcl/api.appfluigservnac.com.json
+: 1704969142:0;y
+: 1704975324:0;echo 'hdiutil create -volname "VolumeName" -srcfolder /path/to/source/folder -ov -format UDZO /path/to/destination/YourImageName.dmg'
+: 1704975361:0;code $ZSH_HOME/
+: 1704975422:0;zsh
+: 1704975425:0;cra
+: 1704975431:0;rca
+: 1704975440:0;rcf
+: 1704975475:0;g3
+: 1704975851:0;ZSH
+: 1704975898:0;dmg ~/Downloads/SSD/
+: 1704975920:0;dmg ~/Downloads/SSD/
+: 1704975922:0;dmg ~/Downloads/SSD/
+: 1704975936:0;dmg ~/Downloads/SSD/
+: 1704975943:0;dmg ~/Downloads/SSD/
+: 1704975976:0;zsh
+: 1704975978:0;dmg ~/Downloads/SSD/
+: 1704975989:0;dmg ~/Downloads/SSD/ dqs
+: 1704975998:0;zsh
+: 1704975999:0;dmg ~/Downloads/SSD/ dqs
+: 1704976008:0;zsh
+: 1704976011:0;dmg ~/Downloads/SSD/ 
+: 1704976047:0;dmg ~/Downloads/SSD/ 
+: 1704976049:0;zsh
+: 1704976051:0;dmg ~/Downloads/SSD/ 
+: 1704976337:0;sqlite3 "file:/Users/abelchalier/Library/ApplicationSupport/Google/Chrome/Default/History?mode=ro&nolock=1"
+: 1704976374:0;dump-clipboard
+: 1704976381:0;dump-clipboard|fzf
+: 1704976412:0;rca
+: 1704976433:0;rca
+: 1704976436:0;rcf
+: 1704976453:0;rca
+: 1704976490:0;fclip
+: 1704976496:0;rca
+: 1704976503:0;fclip
+: 1704976533:0;fclip
+: 1704976545:0;fclip
+: 1704976573:0;micro ~/abin/dump-clipboard
+: 1704976591:0;rca
+: 1704976596:0;fclip
+: 1704976601:0;dump-clipboard
+: 1704976605:0;micro ~/abin/dump-clipboard
+: 1704976615:0;dump-clipboard
+: 1704976619:0;fclip
+: 1704976648:0;rc
+: 1704976656:0;g3
+: 1704976747:0;cp dump-clipboard dump-browser
+: 1704976834:0;run dump-browser
+: 1704976865:0;bun add sqlite3
+: 1704976868:0;run dump-browser
+: 1704976873:0;./dump-browser
+: 1704976877:0;./dump-browser
+: 1704976944:0;run dump-browser
+: 1704976987:0;run dump-browser
+: 1704977007:0;run dump-browser
+: 1704977116:0;run dump-browser
+: 1704977162:0;run dump-browser
+: 1704977174:0;run dump-browser
+: 1704977180:0;run dump-browser
+: 1704977187:0;run dump-browser
+: 1704977317:0;run dump-browser
+: 1704977327:0;run dump-browser
+: 1704977376:0;run dump-browser
+: 1704977415:0;zsh
+: 1704977420:0;fclip
+: 1704977518:0;run dump-browser
+: 1704977523:0;zsh
+: 1704977525:0;run dump-browser
+: 1704977528:0;which run
+: 1704977530:0;which rca
+: 1704977542:0;bun run dump-browser
+: 1704977664:0;bun run dump-browser
+: 1704977678:0;bun run dump-browser
+: 1704977708:0;bun run dump-browser
+: 1704977731:0;bun run dump-browser
+: 1704977800:0;bun run dump-browser
+: 1704977839:0;g3
+: 1704977898:0;bun run dump-browser
+: 1704977904:0;bun run dump-browser
+: 1704977926:0;bun run dump-browser
+: 1704977944:0;bun run dump-browser
+: 1704978005:0;bun run dump-browser
+: 1704978073:0;bun run dump-browser
+: 1704978082:0;bun run dump-browser|fzf
+: 1704978101:0;which fclip
+: 1704978118:0;bun run dump-browser|fzf  --tac  --print0 
+: 1704978184:0;bun run dump-browser
+: 1704978195:0;bun run dump-browser|fzf
+: 1704978205:0;bun run dump-browser|fzf
+: 1704978211:0;bun run dump-browser
+: 1704978216:0;bun run dump-browser|head
+: 1704978249:0;datasette /Users/abelchalier/Library/HTTPStorages/com.clipy-app.Clipy/httpstorages.sqlite
+: 1704978255:0;datasette --nolock ~/Library/ApplicationSupport/Google/Chrome/Default/History inspect
+: 1704978265:0;datasette --nolock ~/Library/ApplicationSupport/Google/Chrome/Default/History
+: 1704978340:0;ll /Users/abelchalier/Library/ApplicationSupport/Google/Chrome/Default
+: 1704978348:0;lls /Users/abelchalier/Library/ApplicationSupport/Google/Chrome/Default
+: 1704980346:0;find -Bnewer ~/Downloads
+: 1704980351:0;find  ~/Downloads
+: 1704980356:0;g3
+: 1704980374:0;ls -t | head -n1
+: 1704980377:0;ls -t | head -n1 ~/Downloads
+: 1704980388:0;ls -t ~/Downloads | head -n1 
+: 1704980394:0;ls -t ~/Downloads
+: 1704980404:0;ls -t ~/Downloads | head -n1 
+: 1704980412:0;g3
+: 1704980444:0;ls
+: 1704980461:0;rc
+: 1704980466:0;rca
+: 1704980504:0;echo lastdl
+: 1704980506:0;lastdl
+: 1704980513:0;ls lastdl
+: 1704980526:0;rca
+: 1704980543:0;g3
+: 1704980962:0;which lastdl
+: 1704980964:0;zsh
+: 1704980966:0;which lastdl
+: 1704980971:0;rc
+: 1704980974:0;rca
+: 1704980985:0;rca
+: 1704981252:0;zsh
+: 1704981404:0;compdef ls foobar
+: 1704981409:0;compgen
+: 1704981470:0;zsh
+: 1704981498:0;_last
+: 1704981558:0;cat ~/Downloads/Takeout/Chrome/History.json
+: 1704981563:0;cat ~/Downloads/Takeout/Chrome/History.json
+: 1704981573:0;ccat ~/Downloads/Takeout/Chrome/History.json
+: 1704981783:0;hash -d toto ~/Downloads
+: 1704981788:0;tldr hash
+: 1704981799:0;hash -h
+: 1704981801:0;hash --help
+: 1704981804:0;man hash 
+: 1704981820:0;which -a hash
+: 1704981829:0;hash
+: 1704981850:0;ls
+: 1704981858:0;cat rgx2.json
+: 1704981866:0;cat novorga.json
+: 1704981868:0;ls
+: 1704981868:0;ll
+: 1704981877:0;cat cap-technologie
+: 1704981882:0;cat  toplist-success.md
+: 1704982025:0;cat ~/Downloads/Takeout\ 2/My\ Activity/Chrome/MyActivity.html
+: 1704982030:0;ccat ~/Downloads/Takeout\ 2/My\ Activity/Chrome/MyActivity.html
+: 1704982036:0;ll
+: 1704982050:0;open ~/Downloads/Takeout\ 2/My\ Activity/Chrome/MyActivity.html
+: 1704982063:0;open -a /Applications/Google\ Chrome.app  ~/Downloads/Takeout\ 2/My\ Activity/Chrome/MyActivity.html
+: 1704982120:0;ll ~/Downloads/Takeout\ 2/My\ Activity/Chrome/MyActivity.html
+: 1704982123:0;tail ~/Downloads/Takeout\ 2/My\ Activity/Chrome/MyActivity.html
+: 1704982255:0;ccat ~/Downloads/Takeout\ 2/My\ Activity/Chrome/MyActivity.html|wc -l
+: 1704982270:0;ccat ~/Downloads/Takeout\ 2/My\ Activity/Chrome/MyActivity.html|head -n1
+: 1704982272:0;ccat ~/Downloads/Takeout\ 2/My\ Activity/Chrome/MyActivity.html|head -n2
+: 1704982273:0;ccat ~/Downloads/Takeout\ 2/My\ Activity/Chrome/MyActivity.html|head -n3
+: 1704982275:0;ccat ~/Downloads/Takeout\ 2/My\ Activity/Chrome/MyActivity.html|head -n4
+: 1704982276:0;ccat ~/Downloads/Takeout\ 2/My\ Activity/Chrome/MyActivity.html|head -n5
+: 1704982278:0;ccat ~/Downloads/Takeout\ 2/My\ Activity/Chrome/MyActivity.html|head -n6
+: 1704982280:0;ccat ~/Downloads/Takeout\ 2/My\ Activity/Chrome/MyActivity.html|head -n7
+: 1704982282:0;ccat ~/Downloads/Takeout\ 2/My\ Activity/Chrome/MyActivity.html|head -n8
+: 1704982284:0;ccat ~/Downloads/Takeout\ 2/My\ Activity/Chrome/MyActivity.html|head -n9
+: 1704982286:0;ccat ~/Downloads/Takeout\ 2/My\ Activity/Chrome/MyActivity.html|head -n10
+: 1704982288:0;ccat ~/Downloads/Takeout\ 2/My\ Activity/Chrome/MyActivity.html|head -n11
+: 1704982291:0;ccat ~/Downloads/Takeout\ 2/My\ Activity/Chrome/MyActivity.html|head -n110
+: 1704982293:0;ccat ~/Downloads/Takeout\ 2/My\ Activity/Chrome/MyActivity.html|head -n11
+: 1704982383:0;tidy
+: 1704982387:0;tidy -h
+: 1704982397:0;tldr tody
+: 1704982399:0;tldr tidy
+: 1704982410:0;tidy ~/Downloads/Takeout\ 2/My\ Activity/Chrome/MyActivity.html
+: 1704982422:0;tidy -g
+: 1704982424:0;tidy -h
+: 1704982444:0;cd ~/abin
+: 1704982444:0;ls
+: 1704982460:0;tidy ~/Downloads/Takeout\ 2/My\ Activity/Chrome/MyActivity.html -o google-activity.html
+: 1704982465:0;ls
+: 1704982478:0;cd /tmp
+: 1704982479:0;ls
+: 1704982487:0;tidy ~/Downloads/Takeout\ 2/My\ Activity/Chrome/MyActivity.html > google-activity.html
+: 1704982497:0;cat google-activity.html
+: 1704982574:0;tail google-activity.html
+: 1704982577:0;tail -n100 google-activity.html
+: 1704982591:0;head -n100 google-activity.html
+: 1704982597:0;ccat google-activity.html
+: 1704982770:0;ls
+: 1704982770:0;ls -l
+: 1704982773:0;ll
+: 1704982774:0;ls
+: 1704982843:0;ls
+: 1704982846:0;cat success
+: 1704982850:0;cat merge-cracked-pw.ts
+: 1704983003:0;ll
+: 1704983010:0;ll
+: 1704983375:0;ls
+: 1704983385:0;cat report-
+: 1704983389:0;clear
+: 1704983389:0;ls
+: 1704983391:0;cat domains
+: 1704983393:0;cat domains/ai-api.txt
+: 1704983398:0;cat domains/big-domain-p4.txt
+: 1704983610:0;cd $ZSH_HOME
+: 1704983610:0;ls
+: 1704983613:0;python keyid.py
+: 1704983623:0;python keyid.py
+: 1704983708:0;run-help ls
+: 1704983712:0;ls -f
+: 1704983713:0;run-help ls
+: 1704983716:0;run-help ls
+: 1704983720:0;run-help ls
+: 1704983725:0;run-help fd
+: 1704983754:0;run-help fd
+: 1704983759:0;fd -h
+: 1704983764:0;which -a fd
+: 1704983838:0;bindkey 
+: 1704983877:0;zsh
+: 1704983882:0;bindkey
+: 1704983884:0;bindkey|wc -l
+: 1704983887:0;bindkey |wc -l
+: 1704983912:0;zsh
+: 1704983915:0;bindkey |wc -l
+: 1704983916:0;bindkey 
+: 1704983923:0;g3
+: 1704984095:0;run-help sd
+: 1704984097:0;run-help sd
+: 1704984202:0;bindkey | sd "^[" "opt"
+: 1704984205:0;bindkey | sd "^\[" "opt"
+: 1704984210:0;bindkey | sd "\^\[" "opt"
+: 1704984213:0;bindkey | sd "\^\[" "opt-"
+: 1704984229:0;run-help ls
+: 1704984286:0;ls -ls QSQDQSfd
+: 1704984339:0;run-help sd
+: 1704984348:0;binkey | sed -e 's/\^\[/âƒ¬ƒ£[/g' -e 's/\^M/âƒ¯ƒ®/g' -e 's/\^I/âƒ§¥/g'
+: 1704984355:0;bindkey | sed -e 's/\^\[/âƒ¬ƒ£[/g' -e 's/\^M/âƒ¯ƒ®/g' -e 's/\^I/âƒ§¥/g'
+: 1704984394:0;pwd
+: 1704984428:0;ls -ls QSQDQSfd
+: 1704984438:0;bindkey
+: 1704984462:0;which -a fd
+: 1704984486:0;ls
+: 1704984585:0;ls 
+: 1704984650:0;find . -depth 2 -type d
+: 1704984782:0;[200~push-line~
+: 1704984825:0;zle -al\
+
+: 1704984828:0;zle -al\
+
+: 1704985824:0;cd ~/dev/install-history
+: 1704985824:0;ls
+: 1704985826:0;cod e.
+: 1704985827:0;code .
+: 1704985862:0;bindkey
+: 1704985875:0;ls README.md
+: 1704986011:0;zsh
+: 1704986088:0;ls
+: 1704986187:0;brew list
+: 1704986208:0;ls
+: 1704986236:0;cd $ZSH_HOME
+: 1704986237:0;ls
+: 1704986262:0;ll ~/old-zsh-config/.zsh_history
+: 1704986265:0;ll ~/old-zsh-config/.zsh_history*
+: 1704986285:0;ll ~/old-zsh-config/.zsh_history*
+: 1704986308:0;cat /Users/abelchalier/old-zsh-config/.zsh_history|wc -l
+: 1704986317:0;cat /Users/abelchalier/old-zsh-config/.zsh_history.backup|wc -l
+: 1704986322:0;cat /Users/abelchalier/old-zsh-config/.zsh_history.bak|wc -l
+: 1704986354:0;zsh
+: 1704986363:0;ll ~/old-zsh-config/.zsh_history*| cat
+: 1704986400:0;cat ~/old-zsh-config/.zsh_history
+: 1704986418:0;cat ~/old-zsh-config/.zsh_history|plog "e => e.split(";")"
+: 1704986420:0;cat ~/old-zsh-config/.zsh_history|plog "e => e.split(';')"
+: 1704986426:0;cat ~/old-zsh-config/.zsh_history
+: 1704986449:0;zle -al\
+
+: 1704986451:0;zle -al\
+
+: 1704986466:0;cat ~/old-zsh-config/.zsh_history
+: 1704986469:0;zle -al\
+
+: 1704986505:0;which-command zle
+: 1704986516:0;zle -al\
+
+: 1704986523:0;zle -al \
+
+: 1704986525:0;zle -al\
+
+: 1704986527:0;zle -al\
+
+: 1704986536:0;ls
+: 1704986538:0;cat ~/old-zsh-config/.zsh_history
+: 1704986549:0;ccat ~/old-zsh-config/.zsh_history
+: 1704986557:0;cat .zsh_g
+: 1704986559:0;cat .zsh_history
+: 1704986561:0;ccat .zsh_history
+: 1704986568:0;ccat ~/old-zsh-config/.zsh_history
+: 1704986639:0;ccat ~/old-zsh-config/.zsh_history|m "e.replace('17', '12')"
+: 1704986653:0;ccat ~/old-zsh-config/.zsh_history|m "e.replace(/17[0-9]+/, '12')"
+: 1704986666:0;ccat ~/old-zsh-config/.zsh_history|m "e.replace(/17[0-9]+/, e => ({e}))"
+: 1704986670:0;ccat ~/old-zsh-config/.zsh_history|m "e.replace(/17[0-9]+/, e => e)"
+: 1704986682:0;ccat ~/old-zsh-config/.zsh_history|m "e.replace(/17[0-9]+/, e => new Date(e).toISOString() )"
+: 1704986689:0;ccat ~/old-zsh-config/.zsh_history|m "e.replace(/17[0-9]+/, e => new Date(e[0]).toISOString() )"
+: 1704986712:0;ccat ~/old-zsh-config/.zsh_history|m "e.replace(/17[0-9]+/, e => 'X'+e[0]+'X' )"
+: 1704986715:0;ccat ~/old-zsh-config/.zsh_history|m "e.replace(/17[0-9]+/, e => 'X'+e+'X' )"
+: 1704986727:0;ccat ~/old-zsh-config/.zsh_history|m "e.replace(/17[0-9]+/, e => new Date(e) )"
+: 1704986737:0;ccat ~/old-zsh-config/.zsh_history|m "e.replace(/17[0-9]+/, e => new Date(Number(e)) )"
+: 1704986740:0;ccat ~/old-zsh-config/.zsh_history|m "e.replace(/17[0-9]+/, e => new Date(Number(e*1000)) )"
+: 1704986754:0;ccat ~/old-zsh-config/.zsh_history|m "e.replace(/17[0-9]+/, e => new Date(Number(e*1000)) ).toISOString().slice(0, 1Â°)"
+: 1704986756:0;ccat ~/old-zsh-config/.zsh_history|m "e.replace(/17[0-9]+/, e => new Date(Number(e*1000)) ).toISOString().slice(0, 10)"
+: 1704986764:0;ccat ~/old-zsh-config/.zsh_history|m "e.replace(/17[0-9]+/, e => new Date(Number(e*1000)) ).toISOString()"
+: 1704986769:0;ccat ~/old-zsh-config/.zsh_history|m "e.replace(/17[0-9]+/, e => new Date(Number(e*1000)) )"
+: 1704986780:0;ls
+: 1704986813:0;ccat ~/old-zsh-config/.zsh_history|m "e.replace(/17[0-9]+/, e => new Date(Number(e*1000)).toISOString())"
+: 1704986817:0;ccat ~/old-zsh-config/.zsh_history|m "e.replace(/17[0-9]+/, e => new Date(Number(e*1000)).toISOString().slice(0, 10))"
+: 1704986910:0;ccat ~/old-zsh-config/.zsh_history|m "e.replace(/17[0-9]+/, e => new Date(Number(e*1000)).toISOString().slice(0, 10)).filter((_, i) => i < 5 || i > e.length - 5)"
+: 1704986914:0;ccat ~/old-zsh-config/.zsh_history|m "e.replace(/17[0-9]+/, e => new Date(Number(e*1000)).toISOString().slice(0, 10))"
+: 1704986929:0;ccat ~/old-zsh-config/.zsh_history|m "e.replace(/17[0-9]+/, e => new Date(Number(e*1000)).toISOString().slice(0, 10))"
+: 1704986943:0;g3
+: 1704986992:0;ccat ~/old-zsh-config/.zsh_history|m "e.replace(/17[0-9]+/, e => new Date(Number(e*1000)).toISOString().slice(0, 10))"
+: 1704986999:0;ccat ~/old-zsh-config/.zsh_history|m "e.replace(/17[0-9]+/, e => new Date(Number(e*1000)).toISOString().slice(0, 10))" |f "e.filter((_, i) => i < 5 || i > e.length - 5)"
+: 1704987025:0;ccat ~/old-zsh-config/.zsh_history|m "e.replace(/17[0-9]+/, e => new Date(Number(e*1000)).toISOString().slice(0, 10))" |f "e => e"
+: 1704987028:0;ccat ~/old-zsh-config/.zsh_history|m "e.replace(/17[0-9]+/, e => new Date(Number(e*1000)).toISOString().slice(0, 10))" |f "(e) => e"
+: 1704987031:0;ccat ~/old-zsh-config/.zsh_history|m "e.replace(/17[0-9]+/, e => new Date(Number(e*1000)).toISOString().slice(0, 10))" |f "(e, i) => e"
+: 1704987034:0;ccat ~/old-zsh-config/.zsh_history|m "e.replace(/17[0-9]+/, e => new Date(Number(e*1000)).toISOString().slice(0, 10))" |f "(e, i) => i"
+: 1704987037:0;ccat ~/old-zsh-config/.zsh_history|m "e.replace(/17[0-9]+/, e => new Date(Number(e*1000)).toISOString().slice(0, 10))" |f "(e, i) => i < 10"
+: 1704987075:0;rcf
+: 1704987135:0;headtail  ~/old-zsh-config/.zsh_history
+: 1704987139:0;headtail  ~/old-zsh-config/.zsh_history -n 10
+: 1704987143:0;headtail  ~/old-zsh-config/.zsh_history -n10
+: 1704987151:0;headtail -n 10  ~/old-zsh-config/.zsh_history 
+: 1704987155:0;headtail -n 100  ~/old-zsh-config/.zsh_history 
+: 1704987157:0;headtail -n 10  ~/old-zsh-config/.zsh_history 
+: 1704987171:0;headtail -n 10 ~/old-zsh-config/.zsh_history|m "e.replace(/17[0-9]+/, e => new Date(Number(e*1000)).toISOString().slice(0, 10))"
+: 1704987185:0;headtail -n 10 ~/old-zsh-config/.zsh_history.backup|m "e.replace(/17[0-9]+/, e => new Date(Number(e*1000)).toISOString().slice(0, 10))"
+: 1704987199:0;headtail -n 10 ~/old-zsh-config/.zsh_history.backup|m "e.replace(/1[0-9]+/, e => new Date(Number(e*1000)).toISOString().slice(0, 10))"
+: 1704987206:0;headtail -n 20 ~/old-zsh-config/.zsh_history.backup|m "e.replace(/1[0-9]+/, e => new Date(Number(e*1000)).toISOString().slice(0, 10))"
+: 1704987248:0;cat ~/old-zsh-config/.zsh_history.backup > zsh_history_mix
+: 1704987255:0;cat ~/old-zsh-config/.zsh_history >> zsh_history_mix
+: 1704987265:0;cat .zsh_history >> zsh_history_mix
+: 1704987265:0;ll
+: 1704987286:0;cat zsh_history_mix
+: 1704987308:0;ccat zsh_history_mix|f "e => e.length > 100"
+: 1704987313:0;ccat zsh_history_mix|f "e => e.length > 100"|wc -l
+: 1704987317:0;ccat zsh_history_mix|f "e => e.length > 10"|wc -l
+: 1704987319:0;ccat zsh_history_mix|f "e => e.length > 1000"|wc -l
+: 1704987322:0;ccat zsh_history_mix|f "e => e.length > 10000"|wc -l
+: 1704987324:0;ccat zsh_history_mix|f "e => e.length > 10000"
+: 1704987329:0;ccat zsh_history_mix|m "e => e.length > 10000"
+: 1704987335:0;ccat zsh_history_mix|m "e.length > 10000"
+: 1704987337:0;ccat zsh_history_mix|f "e.length > 10000"
+: 1704987338:0;ccat zsh_history_mix|f "e.length > 1000"
+: 1704987347:0;ccat zsh_history_mix|f "e.length > 100"
+: 1704987352:0;ccat zsh_history_mix|f "e.length > 500"
+: 1704987359:0;ccat zsh_history_mix|f "e.length > 200"
+: 1704987375:0;bak .zsh_history
