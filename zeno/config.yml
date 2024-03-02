@@ -1,0 +1,186 @@
+snippets:
+  - name: git status
+    keyword: gs
+    snippet: git status --short --branch
+
+
+  - name: bun global add 
+    keyword: bung
+    snippet: bun add --global 
+
+  - name: git status
+    keyword: gf
+    snippet: git status --short --branch
+
+  # snippet with placeholder
+  - name: git commit message
+    keyword: gcim
+    snippet: git commit -m '{{commit_message}}'
+
+  - name: "reexec last command"
+    keyword: "_"
+    snippet: "`!!`"
+    # auto expand condition
+    # If not defined, it is only valid at the beginning of a line.
+    context:
+      # buffer: ''
+      lbuffer: '.+\s'
+      # rbuffer: ''
+
+  - name: "null"
+    keyword: "null"
+    snippet: ">/dev/null 2>&1"
+    # auto expand condition
+    # If not defined, it is only valid at the beginning of a line.
+    context:
+      # buffer: ''
+      lbuffer: '.+\s'
+      # rbuffer: ''
+
+  - name: "lastdl"
+    keyword: "lastdl"
+    snippet: last-downloaded
+    context:
+      lbuffer: '.+\s+'
+    evaluate: true # eval snippet
+
+  - name: "dev"
+    keyword: "d"
+    snippet: ~/dev/
+    context:
+      lbuffer: '.+\s+'
+      # rbuffer: ''
+    evaluate: false # eval snippet
+
+  - name: "zi"
+    keyword: "cd"
+    snippet: zi
+    context:
+      lbuffer: '.+\s+'
+    evaluate: true # eval snippet
+
+  - name: "dol0"
+    keyword: ".0"
+    snippet: awk '{ print $0 }'
+    context:
+      lbuffer: '.+\s+'
+    evaluate: false # eval snippet
+
+  - name: "dol1"
+    keyword: ".1"
+    snippet: awk '{ print $1 }'
+    context:
+      lbuffer: '.+\s+'
+    evaluate: false # eval snippet
+
+  - name: "dol2"
+    keyword: ".2"
+    snippet: awk '{ print $2 }'
+    context:
+      lbuffer: '.+\s+'
+    evaluate: false # eval snippet
+
+  - name: "zh"
+    keyword: "zh"
+    snippet: echo $ZSH_HOME
+    context:
+      lbuffer: '.+\s+'
+    evaluate: true # eval snippet
+
+  - name: branch
+    keyword: B
+    snippet: git symbolic-ref --short HEAD
+    context:
+      lbuffer: '^git\s+checkout\s+'
+    evaluate: true # eval snippet
+
+
+.default-options: &default-options
+  --exit-0: true
+  --select-1: true
+  --tiebreak: begin,index
+  --height: 60%
+  --cycle: true
+  --preview-window: right:50%
+  --exact: true
+
+.multi-options: &multi-options
+  <<: *default-options
+  --multi: true
+
+.format-options: &format-options
+  <<: *default-options
+  --nth: "3"
+
+completions:
+
+  - name: env
+    patterns:
+      - ^.*(\$)$
+    sourceCommand: env
+    options:
+      <<: *default-options
+      # --preview: zat {}
+    callback: awk -F= '{ print $1 }'
+
+  # - name: file
+  #   patterns:
+  #     - ^\s*(mi|bat|cat|delta|diff|e|grep|head|hexdump|hexyl|less|nvim|sed|tail|vim|vi)(\s+\S+)*\s+$
+  #   sourceCommand: fd --color=always --hidden --type=f
+  #   options:
+  #     <<: *multi-options
+  #     --preview: zat {}
+  #   callback: sed 's/ /\\ /g' | paste -s -d ' ' -
+
+  # - name: file or directory
+  #   patterns:
+  #     - ^\s*(code|cp|ln|mv|rm|subl)(\s+\S+)*\s+$
+  #   sourceCommand: fd --color=always --hidden
+  #   options:
+  #     <<: *default-options
+  #     --preview: zat {}
+  #   callback: sed 's/ /\\ /g'
+
+  # - name: directory
+  #   patterns:
+  #     - ^\s*(cd|la|ll|ls|tree)(\s+\S+)*\s+$
+  #   sourceCommand: fd --color=always --hidden --type=d
+  #   options:
+  #     <<: *default-options
+  #     --preview: fzf-preview-directory {}
+  #   callback: sed -E 's/ /\\ /g; s,/?$,/,'
+
+
+  # simple sourceCommand, no callback
+  # - name: kill signal
+  #   patterns:
+  #     - "^kill -s $"
+  #   sourceCommand: "kill -l | tr ' ' '\\n'"
+  #   options:
+  #     --prompt: "'Kill Signal> '"
+
+  # # use excludePatterns and callback
+  # - name: kill pid
+  #   patterns:
+  #     - "^kill( .*)? $"
+  #   excludePatterns:
+  #     # -l, -n or -s is followed by SIGNAL instead of PID
+  #     - " -[lns] $"
+  #   sourceCommand: "LANG=C ps -ef | sed 1d"
+  #   options:
+  #     --multi: true
+  #     --prompt: "'Kill Process> '"
+  #   callback: "awk '{print $2}'"
+
+  # # Use null (\0) termination Input / Output
+  # - name: chdir
+  #   patterns:
+  #     - "^cd $"
+  #   sourceCommand: "find . -path '*/.git' -prune -o -maxdepth 5 -type d -print0"
+  #   options:
+  #     # Added --read0 if null termination is used in `sourceCommand` output.
+  #     --read0: true
+  #     --prompt: "'Chdir> '"
+  #     --preview: "cd {} && ls -a | sed '/^[.]*$/d'"
+  #   callback: "cut -z -c 3-"
+  #   callbackZero: true # null termination is used in `callback` I/O
