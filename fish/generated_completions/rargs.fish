@@ -1,0 +1,10 @@
+complete -c rargs -s e -l dry-run -d 'Print the commands to be executed without actually execute'
+complete -c rargs -s h -l help -d 'Prints help information'
+complete -c rargs -s 0 -l read0 -d Read\ input\ delimited\ by\ ASCII\ NUL\(\\0\)\ characters
+complete -c rargs -n __fish_no_arguments -s V -l version -d 'Prints version information'
+complete -c rargs -s d -l delimiter -d '<delimiter>    regex pattern used as delimiter (conflict with pattern)'
+complete -c rargs -s p -l pattern -d '<pattern>        regex pattern that captures the input'
+complete -c rargs -s s -l separator -d '<separator>    separator for ranged fields [default:  ]'
+complete -c rargs -s n -l startnum -d '<startnum>      start value for line number [default: 1]'
+complete -c rargs -s j -l threads -d '<threads>        Number of threads to be used [default: 1]'
+complete -c rargs -s w -l worker -d '<worker>          Deprecated. Number of threads to be used (same as --threads) [default: 1]'
