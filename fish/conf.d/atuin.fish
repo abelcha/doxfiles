@@ -35,31 +35,20 @@ function _atuin_search
     commandline -f repaint
 end
 
-function _atuin_bind_up
-    # Fallback to fish's builtin up-or-search if we're in search or paging mode
-    if commandline --search-mode; or commandline --paging-mode
-        up-or-search
-        return
-    end
+# function _atuin_bind_up
+#     # Fallback to fish's builtin up-or-search if we're in search or paging mode
+#     if commandline --search-mode; or commandline --paging-mode
+#         up-or-search
+#         return
+#     end
 
-    # Only invoke atuin if we're on the top line of the command
-    set -l lineno (commandline --line)
+#     # Only invoke atuin if we're on the top line of the command
+#     set -l lineno (commandline --line)
 
-    switch $lineno
-        case 1
-            _atuin_search --shell-up-key-binding
-        case '*'
-            up-or-search
-    end
-end
-
-bind \cr _atuin_search
-bind -k up _atuin_bind_up
-bind \eOA _atuin_bind_up
-bind \e\[A _atuin_bind_up
-if bind -M insert > /dev/null 2>&1
-bind -M insert \cr _atuin_search
-bind -M insert -k up _atuin_bind_up
-bind -M insert \eOA _atuin_bind_up
-bind -M insert \e\[A _atuin_bind_up
-end
+#     switch $lineno
+#         case 1
+#             _atuin_search --shell-up-key-binding
+#         case '*'
+#             up-or-search
+#     end
+# end

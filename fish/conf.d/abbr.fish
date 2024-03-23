@@ -101,6 +101,8 @@ abbr -a --set-cursor f 'fd . % | fzf'
 
 
 # dict dmap
+abbr -a gs git status
+abbr --add dotdot --regex '^\.\.+$' --function multicd
 
 
 function parse_key
@@ -150,14 +152,14 @@ function git_add_mono
     echo "~/dev/toklore/monorepo/$argv"
 end
 
-
 abbr -a gitmonoadd --position anywhere --regex "apps/native/[\w\/\.\_\-]*" --function git_add_mono
+
+
 function last_history_cached
     echo $history[1] ' | %'
     # echo "lol"
 end
 abbr -a --set-cursor !c --position anywhere --function last_history_exec
-
 
 function last_history_exec
     set -l position (commandline -C)
@@ -186,13 +188,9 @@ end
 abbr --add dotdot --regex '^\.\.+$' --function multicd
 
 
+
 function escape_url_arg
     echo "'$argv[1]'"
 end
+
 abbr -a url_safe --position anywhere --regex "http.+[\&\?].+" --function escape_url_arg
-
-function ecx
-    echo lol
-end
-
-#abbr -a gsm --position anywhere status --function ecx
