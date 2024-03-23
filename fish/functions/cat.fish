@@ -2,29 +2,29 @@
 
 set -g ExtMap
 set -g zat_exts (zat --list-extensions)
-echo $zat_exts
+# echo $zat_exts
 for ext in (string split ' ' $zat_exts)
     dict ExtMap set $ext OK
-    echo '==>' $ext (dict ExtMap get $ext)
+    # echo '==>' $ext (dict ExtMap get $ext)
 end
 
 
 function cat -d "Use bat instead of cat unless it's a Markdown file, then use mdless" --wraps zat
-    echo "use cat"
+    # echo "use cat"
     set -l ext (get_ext $argv)
     set -l lookup (dict ExtMap get "$ext")
-    echo "xxx $ext xxx $lookup KOOLUIP"
+    # echo "xxx $ext xxx $lookup KOOLUIP"
     if [ $ext = md ]
-        echo MDLESS
+        # echo MDLESS
         mdless -P $argv
-        echo VAT
+        # echo VAT
         # command zat $argv
     else if test -n $lookup
-        echo "NORMAL V"
+        # echo "NORMAL V"
         command zat $argv
         # else if test (get_ext $argv) = md
     else
-        command bat --style plain --theme OneHalfDark $argv
+        command bat --force-colorization --style plain --theme OneHalfDark $argv
     end
     # echo NOTFOUND
     return 1
