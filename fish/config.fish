@@ -19,7 +19,7 @@ rbenv init - | source
 fish_add_path $ANDROID_HOME/emulator
 fish_add_path $ANDROID_HOME/platform-tools
 fish_add_path /Applications/Transporter.app/Contents/itms/bin/
-fish_add_path /Users/abelchalier/.rbenv/versions/3.3.0/bin/
+fish_add_path ~/.rbenv/versions/3.3.0/bin/
 
 
 fish_add_path ~/.cargo/bin
