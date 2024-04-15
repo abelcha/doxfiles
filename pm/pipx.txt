@@ -1,0 +1,44 @@
+venvs are in /Users/abelchalier/.local/pipx/venvs
+apps are exposed on your $PATH at /Users/abelchalier/.local/bin
+manual pages are exposed at /Users/abelchalier/.local/share/man
+   package 2to3 1.0, installed using Python 3.12.2
+    - 2to3
+   package aider-chat 0.27.0, installed using Python 3.12.2
+    - aider
+   package bak 0.4.3, installed using Python 3.12.2
+    - bak
+    - unbak
+   package browser-history 0.4.0, installed using Python 3.12.2
+    - browser-history
+   package git-filter-repo 2.38.0, installed using Python 3.12.2
+    - git-filter-repo
+   package gpt-command-line 0.1.5, installed using Python 3.12.2
+    - gpt
+   package icalcli 1.0.4, installed using Python 3.12.2
+    - icalcli
+   package ignorant 1.2, installed using Python 3.12.2
+    - ignorant
+   package parse-pip-search 0.0.1, installed using Python 3.12.2
+    - parse_pip_search
+   package pip-search 0.0.12, installed using Python 3.12.2
+    - pip_search
+   package pygments 2.17.2, installed using Python 3.12.2
+    - pygmentize
+   package spacy 3.7.4, installed using Python 3.12.2
+    - spacy
+   package sqlite-utils 3.36, installed using Python 3.12.2
+    - sqlite-utils
+   package uv 0.1.24, installed using Python 3.12.2
+    - uv
+   package visidata 3.0.2, installed using Python 3.12.2
+    - vd
+    - vd2to3.vdx
+    - visidata
+    - man1/vd.1
+    - man1/visidata.1
+   package wpdetect 1.4.10, installed using Python 3.12.2
+    - wpdetect
+   package youtubedlez 0.3.0, installed using Python 3.12.2
+    - youtubedlez
+   package ytdl-sub 2024.3.19, installed using Python 3.12.2
+    - ytdl-sub

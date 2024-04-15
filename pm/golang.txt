@@ -1,0 +1,13 @@
+ai-multiplex
+cheat
+cs
+curlie
+dlv
+dutis
+gopls
+gow
+guru
+r2
+speedtest-go
+staticcheck
+yai
