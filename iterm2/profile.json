@@ -37,9 +37,9 @@
   },
   "Triggers" : [
     {
-      "regex" : "totoxxx",
+      "partial" : true,
       "action" : "BounceTrigger",
-      "partial" : true
+      "regex" : "totoxxx"
     }
   ],
   "Mouse Reporting" : true,
@@ -69,7 +69,9 @@
         "class" : "iTermStatusBarJobComponent",
         "configuration" : {
           "knobs" : {
+            "minwidth" : 0,
             "base: priority" : 5,
+            "base: compression resistance" : 1,
             "shared text color" : {
               "Red Component" : 0.5,
               "Color Space" : "sRGB",
@@ -77,15 +79,13 @@
               "Alpha Component" : 1,
               "Green Component" : 0.25
             },
-            "base: compression resistance" : 1,
-            "minwidth" : 0,
             "maxwidth" : 1.7976931348623157e+308
           },
           "layout advanced configuration dictionary value" : {
             "remove empty components" : false,
+            "auto-rainbow style" : 0,
             "font" : ".AppleSystemUIFont 12",
-            "algorithm" : 0,
-            "auto-rainbow style" : 0
+            "algorithm" : 0
           }
         }
       },
@@ -106,9 +106,9 @@
           },
           "layout advanced configuration dictionary value" : {
             "remove empty components" : false,
+            "auto-rainbow style" : 0,
             "font" : ".AppleSystemUIFont 12",
-            "algorithm" : 0,
-            "auto-rainbow style" : 0
+            "algorithm" : 0
           }
         }
       },
@@ -127,9 +127,9 @@
           },
           "layout advanced configuration dictionary value" : {
             "remove empty components" : false,
+            "auto-rainbow style" : 0,
             "font" : ".AppleSystemUIFont 12",
-            "algorithm" : 0,
-            "auto-rainbow style" : 0
+            "algorithm" : 0
           }
         }
       },
@@ -150,9 +150,9 @@
           },
           "layout advanced configuration dictionary value" : {
             "remove empty components" : false,
+            "auto-rainbow style" : 0,
             "font" : ".AppleSystemUIFont 12",
-            "algorithm" : 0,
-            "auto-rainbow style" : 0
+            "algorithm" : 0
           }
         }
       },
@@ -172,9 +172,9 @@
           },
           "layout advanced configuration dictionary value" : {
             "remove empty components" : false,
+            "auto-rainbow style" : 0,
             "font" : ".AppleSystemUIFont 12",
-            "algorithm" : 0,
-            "auto-rainbow style" : 0
+            "algorithm" : 0
           }
         }
       },
@@ -195,9 +195,9 @@
           },
           "layout advanced configuration dictionary value" : {
             "remove empty components" : false,
+            "auto-rainbow style" : 0,
             "font" : ".AppleSystemUIFont 12",
-            "algorithm" : 0,
-            "auto-rainbow style" : 0
+            "algorithm" : 0
           }
         }
       },
@@ -217,18 +217,18 @@
           },
           "layout advanced configuration dictionary value" : {
             "remove empty components" : false,
+            "auto-rainbow style" : 0,
             "font" : ".AppleSystemUIFont 12",
-            "algorithm" : 0,
-            "auto-rainbow style" : 0
+            "algorithm" : 0
           }
         }
       }
     ],
     "advanced configuration" : {
       "remove empty components" : false,
+      "auto-rainbow style" : 0,
       "font" : ".AppleSystemUIFont 12",
-      "algorithm" : 0,
-      "auto-rainbow style" : 0
+      "algorithm" : 0
     }
   },
   "Flashing Bell" : false,
@@ -276,9 +276,9 @@
     },
     "0xf702-0x380000-0x7b" : {
       "Version" : 1,
-      "Action" : 2,
+      "Label" : "",
       "Text" : "",
-      "Label" : ""
+      "Action" : 2
     },
     "0x2f-0x200000-0x0" : {
       "Text" : "\/",
@@ -386,15 +386,15 @@
     },
     "0xf703-0x380000-0x7c" : {
       "Version" : 1,
-      "Action" : 0,
+      "Label" : "",
       "Text" : "",
-      "Label" : ""
+      "Action" : 0
     },
     "0x68-0x80000-0x4" : {
       "Version" : 1,
-      "Action" : 10,
+      "Label" : "",
       "Text" : "OS",
-      "Label" : ""
+      "Action" : 10
     },
     "0x33-0x40000-0x0" : {
       "Text" : "0x1b",
@@ -462,9 +462,9 @@
     },
     "0x72-0x80000-0xf" : {
       "Version" : 1,
-      "Action" : 10,
+      "Label" : "",
       "Text" : "OQ",
-      "Label" : ""
+      "Action" : 10
     },
     "0xf700-0x260000-0x0" : {
       "Text" : "[1;6A",
@@ -630,9 +630,9 @@
   },
   "Automatically Log" : true,
   "Semantic History" : {
-    "editor" : "com.microsoft.VSCode",
+    "action" : "editor",
     "text" : "",
-    "action" : "best editor"
+    "editor" : "com.microsoft.VSCode"
   },
   "Ambiguous Double Width" : false,
   "Blur Radius" : 21.486743683510639,
@@ -700,12 +700,12 @@
   "Show Timestamps" : 0,
   "Visual Bell" : true,
   "Custom Directory" : "Recycle",
+  "ASCII Ligatures" : true,
   "Ansi 5 Color" : {
     "Red Component" : 0.73333333333333328,
     "Color Space" : "sRGB",
     "Blue Component" : 0.96862745098039216,
     "Alpha Component" : 1,
     "Green Component" : 0.60392156862745094
-  },
-  "ASCII Ligatures" : true
+  }
 }
