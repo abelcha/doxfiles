@@ -1,0 +1,77 @@
+
+f1 - \eOP 
+f2 - \eOQ 
+f3 - \eOR 
+f4 - \eOS 
+f5 - \e\[15~ 
+f6 - \e\[17~ 
+f8 - \e\[19~ 
+f9 - \e\[20~ 
+f10 - \e\[21~ 
+
+in iterms -> send escape sequence OP
+
+
+
+#               hex:   1B  char: \e
+# (  0.216 ms)  hex:   4F  char: O
+# (  0.092 ms)  hex:   50  char: P
+# bind -k f1 'do something'
+# bind \eOP 'do something'
+# (188.776 ms)  hex:   1B  char: \e
+# (  0.045 ms)  hex:   4F  char: O
+# (  0.019 ms)  hex:   51  char: Q
+# bind -k f2 'do something'
+# bind \eOQ 'do something'
+
+# (329.967 ms)  hex:   1B  char: \e
+# (  0.067 ms)  hex:   4F  char: O
+# (  0.020 ms)  hex:   52  char: R
+# bind -k f3 'do something'
+# bind \eOR 'do something'
+
+# (339.241 ms)  hex:   1B  char: \e
+# (  0.087 ms)  hex:   4F  char: O
+# (  0.041 ms)  hex:   53  char: S
+# bind -k f4 'do something'
+# bind \eOS 'do something'
+
+# (334.022 ms)  hex:   1B  char: \e
+# (  0.133 ms)  hex:   5B  char: [
+# (  0.051 ms)  hex:   31  char: 1
+# (  0.041 ms)  hex:   35  char: 5
+# (  0.041 ms)  hex:   7E  char: ~
+# bind -k f5 'do something'
+# bind \e\[15~ 'do something'
+
+# (276.292 ms)  hex:   1B  char: \e
+# (  0.067 ms)  hex:   5B  char: [
+# (  0.091 ms)  hex:   31  char: 1
+# (  0.046 ms)  hex:   37  char: 7
+# (  0.041 ms)  hex:   7E  char: ~
+# bind -k f6 'do something'
+# bind \e\[17~ 'do something'
+
+#               hex:   1B  char: \e
+# (  0.151 ms)  hex:   5B  char: [
+# (  0.049 ms)  hex:   31  char: 1
+# (  0.043 ms)  hex:   39  char: 9
+# (  0.041 ms)  hex:   7E  char: ~
+# bind -k f8 'do something'
+# bind \e\[19~ 'do something'
+
+# (477.543 ms)  hex:   1B  char: \e
+# (  0.118 ms)  hex:   5B  char: [
+# (  0.041 ms)  hex:   32  char: 2
+# (  0.041 ms)  hex:   30  char: 0
+# (  0.041 ms)  hex:   7E  char: ~
+# bind -k f9 'do something'
+# bind \e\[20~ 'do something'
+
+# (733.705 ms)  hex:   1B  char: \e
+# (  0.068 ms)  hex:   5B  char: [
+# (  0.036 ms)  hex:   32  char: 2
+# (  0.035 ms)  hex:   31  char: 1
+# (  0.032 ms)  hex:   7E  char: ~
+# bind -k f10 'do something'
+# bind \e\[21~ 'do something'
