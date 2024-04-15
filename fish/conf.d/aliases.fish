@@ -8,7 +8,7 @@ alias compath="fd  --type=file  .fish $fish_complete_path"
 alias compfind="compath |skp"
 alias skp="sk --preview='bat --style=numbers --color=always --highlight-line {2}:+0 {1}' --preview-window='up:65%:+{2}-/2' --bind='ctrl-d:half-page-down,ctrl-u:half-page-up,?:toggle-preview,alt-/:execute-silent(ql {}),alt-space:execute-silent(ql {})+down,alt-j:preview-down,alt-k:preview-up,alt-h:preview-left,alt-l:preview-right,alt-d:preview-page-down,alt-u:preview-page-up,' --bind 'ctrl-e:execute(hx {})'  --bind 'ctrl-o:execute(code {})'"
 alias jsonll="jq . -s"
-alias x="xh -b"
+# x="xh -b"
 #alias x="xh -b"
 alias lastdl="last-downloaded | nohome"
 alias rev-lines tac
