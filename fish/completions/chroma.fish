@@ -1,0 +1,20 @@
+complete -c chroma -s h -l help -d 'Show context-sensitive help.'
+complete -c chroma -n __fish_no_arguments -l version -d 'Show version.'
+complete -c chroma -l list -d 'List lexers, styles and formatters.'
+complete -c chroma -l unbuffered -d 'Do not buffer output.'
+complete -c chroma -l trace -d 'Trace lexer states as they are traversed.'
+complete -c chroma -l check -d 'Do not format, check for tokenisation errors instead.'
+complete -c chroma -l fail -d 'Exit silently with status 1 if no specific lexer was'
+complete -c chroma -l json -d 'Convenience flag to use JSON formatter.'
+complete -c chroma -l html -d 'Convenience flag to use HTML formatter.'
+complete -c chroma -l svg -d 'Convenience flag to use SVG formatter.'
+complete -c chroma -l html-styles -d 'Output HTML CSS styles.'
+complete -c chroma -l html-all-styles -d 'Output all HTML CSS styles, including'
+complete -c chroma -l html-only -d 'Output HTML fragment.'
+complete -c chroma -l html-inline-styles -d 'Output HTML with inline styles (no classes).'
+complete -c chroma -l html-lines -d 'Include line numbers in output.'
+complete -c chroma -l html-lines-table -d 'Split line numbers and code in a HTML table'
+complete -c chroma -l html-linkable-lines -d 'Make the line numbers linkable and be a link'
+complete -c chroma -l style -s s -x -a "(chroma --list|grep styles|sd 'styles:' ''|plines)"
+set list (chroma --list | jh --lines --map "e.match(/aliases:(.+)/)?.[1]" --filter "e.includes('alias')" | sd "\n" "")
+complete -c chroma -l lexer -s l -x -a "$list"

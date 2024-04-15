@@ -1,0 +1,7 @@
+complete -c unibeautify -n __fish_no_arguments -s V -l version -d 'output the version number'
+complete -c unibeautify -s l -l language -d '<language>  Language of file to beautify'
+complete -c unibeautify -s o -l out-file -d '<file>      Output file of beautified results'
+complete -c unibeautify -s r -l replace -d 'Replace file(s) with beautified results'
+complete -c unibeautify -s c -l config-file -d '<file>   Beautifier configuration file'
+complete -c unibeautify -l config-json -d '<JSON>       Beautifier configuration as stringified JSON'
+complete -c unibeautify -s h -l help -d 'output usage information'

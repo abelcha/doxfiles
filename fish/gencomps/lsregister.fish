@@ -1,0 +1,13 @@
+complete -c lsregister -s delete -d 'Delete the Launch Services database file. You must then reboot!'
+complete -c lsregister -s kill -d 'Reset the Launch Services database before doing anything else'
+complete -c lsregister -s seed -d If\ database\ isn\'t\ seeded,\ scan\ default\ locations\ for\ applications\ and\ libraries\ to\ register
+complete -c lsregister -s lint -d 'Print information about plist errors while registering bundles'
+complete -c lsregister -s lazy -d 'n       Sleep for n seconds before registering/scanning'
+complete -c lsregister -s r -d 'Recursive directory scan, do not recurse into packages or invisible directories'
+complete -c lsregister -s R -d 'Recursive directory scan, descending into packages and invisible directories'
+complete -c lsregister -s f -d 'force-update registration even if mod date is unchanged'
+complete -c lsregister -s u -d 'unregister instead of register'
+complete -c lsregister -s v -d 'Display progress information'
+complete -c lsregister -s gc -d 'Garbage collect old data and compact the database'
+complete -c lsregister -s dump -d '[table] Display full database contents after registration'
+complete -c lsregister -s h -d 'Display this help'

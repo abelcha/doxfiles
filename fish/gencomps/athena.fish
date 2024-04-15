@@ -1,0 +1,5 @@
+complete -c athena -s p -l tsconfig-path -d '<TSCONFIG_PATH>'
+complete -c athena -s f -l file -d '<FILE>'
+complete -c athena -s d -l direction -d '<DIRECTION>'
+complete -c athena -s m -l max-depth -d '<MAX_DEPTH>'
+complete -c athena -l dump-resolved-imports -d '<DUMP_RESOLVED_IMPORTS>'

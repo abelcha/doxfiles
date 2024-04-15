@@ -1,0 +1,10 @@
+complete -c jh -l filter -d '<string>        filter objects (default: "true")'
+complete -c jh -s h -l help -d 'Show help'
+complete -c jh -s j -l json -d 'output json (default: true)'
+complete -c jh -s n -l jsonl -d 'output jsonl'
+complete -c jh -s l -l lines -d 'treat input line by line'
+complete -c jh -l map -d '<string>           map objects (default: "e")'
+complete -c jh -l perfs -d 'output performance stats'
+complete -c jh -s p -l pretty
+complete -c jh -s r -l raw -d 'output plain chars'
+complete -c jh -s s -l stream -d 'treat input line by line (default: true)'

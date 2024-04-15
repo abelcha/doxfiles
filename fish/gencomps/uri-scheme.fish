@@ -1,0 +1,6 @@
+complete -c uri-scheme -n __fish_no_arguments -s V -l version -d 'output the version number'
+complete -c uri-scheme -s h -l help -d 'output usage information'
+complete -f -c uri-scheme -n __fish_use_subcommand -a add -d '[options] [uri-protocol]     Add URI schemes to a native app'
+complete -f -c uri-scheme -n __fish_use_subcommand -a remove -d '[options] [uri-protocol]  Remove URI schemes from a native app'
+complete -f -c uri-scheme -n __fish_use_subcommand -a open -d '[options] [uri-protocol]    Open a URI scheme in a running simulator or emulator'
+complete -f -c uri-scheme -n __fish_use_subcommand -a list -d '[options] [uri-protocol]    List the existing URI scheme prefixes for a native app'
