@@ -1,4 +1,6 @@
-set -gx ATUIN_SESSION (atuin uuid)
+if type -q atuin
+    set -gx ATUIN_SESSION (atuin uuid)
+end
 
 function _atuin_preexec --on-event fish_preexec
     if not test -n "$fish_private_mode"
@@ -22,13 +24,13 @@ function _atuin_search
 
     if test -n "$ATUIN_H"
         if string match --quiet '__atuin_accept__:*' "$ATUIN_H"
-          set -l ATUIN_HIST "$(string replace "__atuin_accept__:" "" -- "$ATUIN_H")"
-          commandline -r "$ATUIN_HIST"
-          commandline -f repaint
-          commandline -f execute
-          return
+            set -l ATUIN_HIST "$(string replace "__atuin_accept__:" "" -- "$ATUIN_H")"
+            commandline -r "$ATUIN_HIST"
+            commandline -f repaint
+            commandline -f execute
+            return
         else
-          commandline -r "$ATUIN_H"
+            commandline -r "$ATUIN_H"
         end
     end
 
