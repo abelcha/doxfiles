@@ -1,0 +1,6 @@
+fish-completions-extra
+modules
+_funcs
+*.bak
+generated_completions
+.DS_Store
