@@ -4,4 +4,4 @@ _funcs
 *.bak
 generated_completions
 .DS_Store
-fish_variables
+conf.d/secrets.fish
