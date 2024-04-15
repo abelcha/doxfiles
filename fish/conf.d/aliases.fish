@@ -57,7 +57,7 @@ alias jh "/opt/d/jshell/src/cli.ts"
 # alias list bundle="osascript -e 'tell application \"System Events\" to get bundle identifier of every process whose background only is false'"
 # alias ll "~/dev/eza/target/release/eza --long  -F --total-size --no-user"
 function ll --wraps eza
-    command ~/dev/eza/target/release/eza --long -F --total-size --no-user $argv
+    command eza --long -F --total-size --no-user $argv
 end
 
 function ng --wraps rg
