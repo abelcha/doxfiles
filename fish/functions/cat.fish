@@ -9,7 +9,19 @@ for ext in (string split ' ' $zat_exts)
 end
 
 
-function cat -d "Use bat instead of cat unless it's a Markdown file, then use mdless" --wraps zat
+function cat -d "Use bat instead of cat unless it's a Markdown file, then use mdless" --wraps bat
+    if not isatty stdout
+        /bin/cat $argv
+        return 0
+    end
+    if test (count $argv) -ne 1 #-a not test -f $argv[-1]
+        #echo "Error: argv length is not equal to 3"
+        /bin/cat -- $argv
+        return 0
+    end
+    # if not test -f $argv[-1]
+    command bat --force-colorization --style plain --theme OneHalfDark $argv
+    return 0
     # echo "use cat"
     set -l ext (get_ext $argv)
     set -l lookup (dict ExtMap get "$ext")
@@ -34,7 +46,8 @@ end
 
 function get_ext -d 'Get the file extension from the argument'
 
-    set -l splits (string split "." "$argv")
+    set -l splits (string split "." "$argv" | sd '-' )
+    set -l filtered
     echo $splits[-1]
 end
 

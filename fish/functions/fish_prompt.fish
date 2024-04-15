@@ -10,7 +10,7 @@ function fish_prompt
         echo -n (set_color red)'# '
     end
     set termwidth (tput cols)
-    set maxwidth 50
+    set maxwidth 65
     if test $termwidth -lt $maxwidth
         # If true, put the prompt on the next line:
         echo ""
