@@ -1,4 +1,9 @@
-
+function tsdate
+    jh --raw --map "e.replace(/1[67][0-9]{8}/img, e => JSON.stringify(new Date(parseInt(e*1000)).toISOString().slice(0, 19)))"
+end
+function tsdate1601
+    jh --raw --map "e.replace(/13[0-9]{15}/img, e => Math.round((parseInt(e) - 11644473600000000)/1000000))"
+end
 
 function _aichat_fish
     set -l _old (commandline)
@@ -17,13 +22,12 @@ end
 
 
 
-function w
-    set resp (/usr/bin/which "$argv[1]")
-    if test -f "$resp"
-        echo "$resp"
-    else
-        functions $argv[1]
-    end
+function w --wraps command
+    echo -----------------------------------------
+    /usr/bin/which -a "$argv[1]"
+    echo -----------------------------------------
+    functions "$argv[1]"
+    echo -----------------------------------------
 end
 
 
@@ -35,8 +39,7 @@ end
 
 
 function fexec --wraps fzf
-    #set temp_file (mktemp)
-    #/bin/cat > $temp_file
+    #set temp_file (mktemp) $rr    #/bin/cat > $temp_file
     #set cmd "bat $temp_file | gawk $argv {q}"
     # echo $cmd
     # return

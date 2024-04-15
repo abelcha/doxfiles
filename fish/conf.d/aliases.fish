@@ -1,11 +1,28 @@
+function acp
+    adb shell am broadcast -a clipper.get | string match -r 'data="(.*)"' -g | pbcopy
+end
+function apv
+    adb shell am broadcast -a clipper.set -e text $argv
+end
+alias compath="fd  --type=file  .fish $fish_complete_path"
+alias compfind="compath |skp"
+alias skp="sk --preview='bat --style=numbers --color=always --highlight-line {2}:+0 {1}' --preview-window='up:65%:+{2}-/2' --bind='ctrl-d:half-page-down,ctrl-u:half-page-up,?:toggle-preview,alt-/:execute-silent(ql {}),alt-space:execute-silent(ql {})+down,alt-j:preview-down,alt-k:preview-up,alt-h:preview-left,alt-l:preview-right,alt-d:preview-page-down,alt-u:preview-page-up,' --bind 'ctrl-e:execute(hx {})'  --bind 'ctrl-o:execute(code {})'"
+alias jsonll="jq . -s"
+alias x="xh -b"
+#alias x="xh -b"
+alias lastdl="last-downloaded | nohome"
+alias rev-lines tac
 alias keyreadr "fish_key_reader -c"
 alias speed=cfspeedtest
-alias ai "bun run ~/dev/ai-shell/dist/cli.mjs"
-alias expo ../../node_modules/.bin/expo
-alias next ../../node_modules/.bin/next
-
-alias rge 'rgf -w --iglob "js\$"'
-
+#alias ai "bun run ~/dev/ai-shell/dist/cli.mjs"
+alias pbat prettybat
+alias pat prettybat
+alias ai aichat
+#alias expo ../../node_modules/.bin/expo
+#alias next ../../node_modules/.bin/next
+alias simctl 'xcrun simctl'
+alias rge 'rgf --iglob "js\$"'
+#alias rge 'rgf -w --iglob "js\$"'
 alias bx "bunx --bun"
 alias ccat /bin/cat
 # alias chrome "open -a \"Google Chrome\""
