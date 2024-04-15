@@ -32,7 +32,7 @@ alias codepush "appcenter codepush"
 alias comv "git commit --no-verify -m"
 alias conflicts "git diff --name-only --diff-filter=U"
 alias conv "bun run convex"
-alias cp "advcp -gir"
+
 # alias crc "code $ZSH_HOME"
 alias cu cursor
 alias dc docker-compose
@@ -70,7 +70,11 @@ alias lls "ll --sort size "
 alias ls "ls --color=auto -t"
 alias mi hx
 alias mik "micro ~/.config/micro/bindings.json"
-alias mv "advmv -gi"
+
+if type -q advcp
+    alias cp "advcp -gir"
+    alias mv "advmv -gi"
+end
 alias mvs "gmv --backup=numbered"
 alias ne /opt/homebrew/bin/emacs
 # alias notify "osascript -e 'tell app \"System Events\" to display dialog \"FINISHED\"'"
