@@ -1,0 +1,5 @@
+complete -c parq -s h -l help -d 'show this help message and exit'
+complete -c parq -s s -d '[SCHEMA], --schema [SCHEMA]'
+complete -c parq -l head -d '[HEAD]         get first N rows from file'
+complete -c parq -l tail -d '[TAIL]         get last N rows from file'
+complete -c parq -s c -d '[COUNT], --count [COUNT]'

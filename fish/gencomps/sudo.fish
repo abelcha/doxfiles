@@ -1,0 +1,22 @@
+complete -c sudo -s A -l askpass -d 'use a helper program for password prompting'
+complete -c sudo -s b -l background -d 'run command in the background'
+complete -c sudo -s B -l bell -d 'ring bell when prompting'
+complete -f -c sudo -n __fish_use_subcommand -a -E -d '--preserve-env            preserve user environment when running command'
+complete -f -c sudo -n __fish_use_subcommand -a --preserve-env -d 'list       preserve specific environment variables'
+complete -f -c sudo -n __fish_use_subcommand -a -e -d '--edit                    edit files instead of running a command'
+complete -f -c sudo -n __fish_use_subcommand -a -g -d '--group=group             run command as the specified group name or ID'
+complete -f -c sudo -n __fish_use_subcommand -a -H -d --set-home\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ set\ HOME\ variable\ to\ target\ user\'s\ home\ dir
+complete -f -c sudo -n __fish_use_subcommand -a -h -d '--help                    display help message and exit'
+complete -f -c sudo -n __fish_use_subcommand -a -h -d '--host=host               run command on host (if supported by plugin)'
+complete -f -c sudo -n __fish_use_subcommand -a -i -d '--login                   run login shell as the target user; a command'
+complete -f -c sudo -n __fish_use_subcommand -a may -d 'also be specified'
+complete -f -c sudo -n __fish_use_subcommand -a -K -d '--remove-timestamp        remove timestamp file completely'
+complete -f -c sudo -n __fish_use_subcommand -a -k -d '--reset-timestamp         invalidate timestamp file'
+complete -f -c sudo -n __fish_use_subcommand -a -l -d --list\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ list\ user\'s\ privileges\ or\ check\ a\ specific
+complete -f -c sudo -n __fish_use_subcommand -a -n -d '--non-interactive         non-interactive mode, no prompts are used'
+complete -f -c sudo -n __fish_use_subcommand -a -P -d '--preserve-groups         preserve group vector instead of setting to'
+complete -c sudo -s S -l stdin -d 'read password from standard input'
+complete -c sudo -s s -l shell -d 'run shell as the target user; a command may'
+complete -c sudo -n __fish_no_arguments -s V -l version -d 'display version information and exit'
+complete -c sudo -s v -l validate -d update\ user\'s\ timestamp\ without\ running\ a
+complete -f -c sudo -n __fish_use_subcommand -a -- -d 'stop processing command line arguments'

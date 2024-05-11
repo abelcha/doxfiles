@@ -1,0 +1,5 @@
+complete -c base64_img_cli -s d -l decode -d 'Decode the input base64 string to an image'
+complete -c base64_img_cli -s e -l encode -d 'Encode the input image to base64'
+complete -c base64_img_cli -s h -l help -d 'Prints help information'
+complete -c base64_img_cli -n __fish_no_arguments -s V -l version -d 'Prints version information'
+complete -c base64_img_cli -s i -l input -d '<FILE>    Sets the input file path'

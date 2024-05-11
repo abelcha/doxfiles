@@ -1,0 +1,10 @@
+complete -c pup -s c -l color -d 'print result with color'
+complete -c pup -s f -l file -d 'file to read from'
+complete -c pup -s h -l help -d 'display this help'
+complete -c pup -s i -l indent -d 'number of spaces to use for indent or character'
+complete -c pup -s n -l number -d 'print number of elements selected'
+complete -c pup -s l -l limit -d 'restrict number of levels printed'
+complete -c pup -s p -l plain -d don\'t\ escape\ html
+complete -c pup -l pre -d 'preserve preformatted text'
+complete -c pup -l charset -d 'specify the charset for pup to use'
+complete -c pup -n __fish_no_arguments -l version -d 'display version'
