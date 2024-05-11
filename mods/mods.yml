@@ -107,12 +107,13 @@ apis:
       llama2-70b-4096:
         aliases: ["llama2"]
         max-input-chars: 12250
-  localai:
+  ollama:
     # LocalAI setup instructions: https://github.com/go-skynet/LocalAI#example-use-gpt4all-j-model
-    base-url: http://localhost:8080
+    base-url: http://localhost:11434/v1
+    api-key-env: NOPE
     models:
-      ggml-gpt4all-j:
-        aliases: ["local", "4all"]
+      llama3:
+        aliases: ["lloc3"]
         max-input-chars: 12250
         fallback:
   azure:

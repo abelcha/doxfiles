@@ -1,16 +1,29 @@
+alias funcis='funced -is'
 function acp
     adb shell am broadcast -a clipper.get | string match -r 'data="(.*)"' -g | pbcopy
 end
 function apv
     adb shell am broadcast -a clipper.set -e text $argv
 end
-alias compath="fd  --type=file  .fish $fish_complete_path"
-alias compfind="compath |skp"
-alias skp="sk --preview='bat --style=numbers --color=always --highlight-line {2}:+0 {1}' --preview-window='up:65%:+{2}-/2' --bind='ctrl-d:half-page-down,ctrl-u:half-page-up,?:toggle-preview,alt-/:execute-silent(ql {}),alt-space:execute-silent(ql {})+down,alt-j:preview-down,alt-k:preview-up,alt-h:preview-left,alt-l:preview-right,alt-d:preview-page-down,alt-u:preview-page-up,' --bind 'ctrl-e:execute(hx {})'  --bind 'ctrl-o:execute(code {})'"
+alias yarn="bun"
+alias duck="duckdb"
+alias ddb="duckdb"
+# alias sqb="sqlitebiter"
+alias kv="wrangler kv:key   --binding kv"
+# alias run="run_bun"
+alias proxyman="/Applications/Proxyman.app/Contents/MacOS/proxyman-cli"
+alias pygz="pigz"
+alias bottom="btm"
+alias dxl="dx --strategy=live"
+alias charm="gum"
+alias datafusion="datafusion-cli"
+alias compfiles="fd  --type=file  .fish $fish_complete_path"
+alias compfind="compfiles |skp --query "
+alias skp="sk --algo clangd --preview='bat --style=numbers --color=always --highlight-line {2}:+0 {1}' --preview-window='up:65%:+{2}-/2' --bind='ctrl-d:half-page-down,ctrl-u:half-page-up,?:toggle-preview,alt-/:execute-silent(ql {}),alt-space:execute-silent(ql {})+down,alt-j:preview-down,alt-k:preview-up,alt-h:preview-left,alt-l:preview-right,alt-d:preview-page-down,alt-u:preview-page-up,' --bind 'ctrl-e:execute(hx {})'  --bind 'ctrl-o:execute(code {})'"
 alias jsonll="jq . -s"
 # x="xh -b"
 #alias x="xh -b"
-alias lastdl="last-downloaded | nohome"
+# alias lastdl="last-downloaded | nohome"
 alias rev-lines tac
 alias keyreadr "fish_key_reader -c"
 alias speed=cfspeedtest

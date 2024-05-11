@@ -18,15 +18,18 @@ set -x JAVA_HOME /Library/Java/JavaVirtualMachines/temurin-17.jdk/Contents/Home
 
 set -x SKIM_DEFAULT_OPTIONS "--ansi --reverse --color=16 --delimiter=: --preview-window='up:65%:+{2}-/2' --preview='bat --style=numbers --color=always --highlight-line {2}:+0 {1}' --bind='ctrl-d:half-page-down,ctrl-u:half-page-up,?:toggle-preview,alt-/:execute-silent(ql {}),alt-space:execute-silent(ql {})+down,alt-j:preview-down,alt-k:preview-up,alt-h:preview-left,alt-l:preview-right,alt-d:preview-page-down,alt-u:preview-page-up,"
 
-type -q pyenv; and pyenv init - | source
+# type -q pyenv; and pyenv init - | source
 type -q rbenv; and rbenv init - | source
+
+source ~/.venv/bin/activate.fish
 
 fish_add_path $ANDROID_HOME/emulator
 fish_add_path $ANDROID_HOME/platform-tools
 fish_add_path /Applications/Transporter.app/Contents/itms/bin/
 fish_add_path ~/.rbenv/versions/3.3.0/bin/
+fish_add_path /Applications/Proxyman.app/Contents/MacOS/
 
-
+fish_add_path /opt/homebrew/opt/openvpn/sbin
 fish_add_path ~/.cargo/bin
 fish_add_path ~/.iterm2
 fish_add_path ~/.cargo/bin

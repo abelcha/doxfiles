@@ -51,7 +51,7 @@ dict dmap set za "~/config/zsh/aliases.zsh"
 dict dmap set zf "~/config/zsh/functions.zsh"
 dict dmap set zrc "~/config/zsh/.zshrc"
 dict dmap set zh "~/config/zsh/.zsh_history"
-
+dict dmap set ds "~/datasets/"
 
 
 
@@ -81,6 +81,7 @@ abbr -a -- \.3 awk '{ print \$3 }'
 abbr -a -- \.4 awk '{ print \$4 }'
 abbr -a -- \.5 awk '{ print \$5 }'
 abbr -a -- dr 'dx -s=live'
+abbr -a -- sqb sqlitebiter
 abbr -a -- gs 'git status .'
 abbr -a -- abr 'mi ~/config/fish/conf.d/abbr.fish && fish'
 abbr -a -- als 'mi ~/config/fish/conf.d/aliases.fish && fish'
@@ -135,12 +136,19 @@ function checkFirstCharType
     end
 end
 
-# abbr -a --position anywhere lastdl -- 'last-downloaded | unexpand-home-tilde'
+
+function last_dl_file
+    set -l file (ls -U ~/Downloads |head -n 1)
+
+    echo "~/Downloads/$file"
+end
+
+abbr -a --position anywhere lastdl --function last_dl_file #'ls -U ~/Downloads |head -n 1'
 
 abbr -a --set-cursor f 'fd . % | fzf'
 
 
-
+# rf
 # set shortcuts["py"] "Python"
 # set shortcuts["rs"] "Rust"
 
@@ -243,10 +251,14 @@ function multicd
 end
 abbr --add dotdot --regex '^\.\.+$' --function multicd
 
+# f
 
+# funQSDSSSSDKddd
 
 # pynappo/dotfiles · .config/fish/conf.d/abbr_helpers.fish
-# fish
+# fishfqsd
+# Fkdd
+# qdsdqsfqfdsf
 # ·
 
 # main
@@ -277,7 +289,7 @@ end
 abbr --add diffxp --position anywhere --regex '^[0-9]{1,2}\:[0-9]{1,2}$' --function diff_expand
 
 
-abbr --add diffxwp --position anywhere --regex '^\:[0-9]{1,2}$' --function diff_expand2
+# abbr --add diffxwp --position anywhere --regex '^\:[0-9]{1,2}$' --function diff_expand2
 
 
 function escape_url_arg

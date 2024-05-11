@@ -27,7 +27,7 @@ end
 function help_auto
     set cmd (commandline -op)
     #commandline --replace -- "which $cmd[1]"
-    eval "echo; hr; $cmd[1] --help|bat --language help --paging always"
+    eval "$cmd[1] --help|bat --language help --paging always"
     commandline -f repaint
 end
 
@@ -45,14 +45,16 @@ function fish_user_key_bindings
     bind \eH help_auto
     bind bind -k f4 help_auto
     bind \eG gencomp_auto
-
+    bind \eg 'genuine compedit'
     bind \ek fish_key_reader
     bind \ej which_auto
-    bind -k f4 'genfn '
+    bind -k f4 help_auto
     bind \em 'genfn man'
+    bind \ew 'geninline w'
     bind \et tldr_auto
 
     bind \eƒ 'hx ~/config/fish'
+    # bind \ew 'genfn compedit'
 end
 
 function reload_fish
@@ -101,7 +103,16 @@ bind \cv __smart-ctrl-v.fish::paste
 
 #bind \e\h __fish_man_page
 #bind \e\? _help_page
+function geninline -a cmd
 
+    # set cmd (commandline -op)
+    #commandline --replace -- "which $cmd[1]"
+    eval "echo; hr;  $cmd (current_command)"
+    commandline -f repaint
+end
+function genuine -a cmd
+    eval $cmd (current_command)
+end
 function genfn -a cmd
     if eval "$cmd (current_command)" &>/dev/null
         eval "$cmd (current_command) | bat --paging always --language sh --theme Dracula"
