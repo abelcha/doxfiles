@@ -1,0 +1,65 @@
+Usage: sketchybar [options]
+
+Startup: 
+  -c, --config CONFIGFILE	Read CONFIGFILE as the configuration file
+                         	Default CONFIGFILE is ~/.config/sketchybar/sketchybarrc
+
+Set global bar properties, see https://felixkratz.github.io/SketchyBar/config/bar
+      --bar <setting>=<value> ... <setting>=<value>
+
+Items and their properties, see https://felixkratz.github.io/SketchyBar/config/items
+      --add item <name> <position>	Add item to bar
+      --set <name> <property>=<value> ... <property>=<value>
+                                  	Change item properties
+      --default <property>=<value> ... <property>=<value>
+                                  	Change default properties for new items
+      --set <name> popup.<popup_property>=<value>
+                                  	Configure item popup menu
+                                  	See https://felixkratz.github.io/SketchyBar/config/popups
+      --reorder <name> ... <name> 	Reorder items
+      --move <name> before <reference name>
+      --move <name> after <reference name>
+                                  	Move item relative to reference item
+      --clone <parent name> <name> [optional: before/after]
+                                  	Clone parent to create new item
+      --rename <old name> <new name>	Rename item
+      --remove <name>             	Remove item
+
+Special components, see https://felixkratz.github.io/SketchyBar/config/components
+      --add graph <name> <position> <width in points>
+                                  	Add graph component
+      --push <name> <data point> ... <data point>
+                                  	Push data points to a graph
+      --add space <name> <position>	Add space component
+      --add bracket <name> <member name> ... <member name>
+                                  	Add bracket component
+      --add alias <application_name> <position>
+                                  	Add alias component
+      --add slider <name> <position> <width>
+                                  	Add slider component
+
+Events and Scripting, see https://felixkratz.github.io/SketchyBar/config/events
+      --subscribe <name> <event> ... <event>
+                                  	Subscribe to events
+      --add event <name> [optional: <NSDistributedNotificationName>]
+                                  	Create custom event
+      --trigger <event> [optional: <envvar>=<value> ... <envvar>=<value>]
+                                  	Trigger custom event
+
+Querying information, see https://felixkratz.github.io/SketchyBar/config/querying
+      --query bar               	Query bar properties
+      --query <name>            	Query item properties
+      --query defaults          	Query default properties
+      --query events            	Query events
+      --query default_menu_items	Query names of available items for aliases
+
+Animations, see https://felixkratz.github.io/SketchyBar/config/animations
+      --animate <linear|quadratic|tanh|sin|exp|circ> <duration> \
+                --bar <property=value> ... <property=value>\
+                --set <name> <property=value> ... <property=value>
+                         	Animate from given source to target property values
+
+Reloading the config
+      --hotload <boolean>        	Enable or disable the config hotloader
+      --reload [optional: <path>]	Reload the current or the given config
+
