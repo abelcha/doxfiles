@@ -1,0 +1,7 @@
+complete -c stu -s r -l region -d '<REGION>     AWS region'
+complete -c stu -s e -l endpoint-url -d '<URL>  AWS endpoint url'
+complete -c stu -s p -l profile -d '<NAME>      AWS profile name'
+complete -c stu -s b -l bucket -d '<NAME>       Target bucket name'
+complete -c stu -l debug -d 'Output debug logs'
+complete -c stu -s h -l help -d 'Print help'
+complete -c stu -n __fish_no_arguments -s V -l version -d 'Print version'

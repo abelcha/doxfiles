@@ -1,0 +1,15 @@
+complete -c qlmanage -s h -d 'Display this help'
+complete -c qlmanage -s r -d 'Force reloading Generators list'
+complete -c qlmanage -s r -d 'cache Reset thumbnail disk cache'
+complete -c qlmanage -s m -d '[name ...] Display statistics about quicklookd. Stats names:'
+complete -c qlmanage -s p -d 'Compute previews of the documents'
+complete -c qlmanage -s t -d 'Compute thumbnails of the documents'
+complete -c qlmanage -s x -d 'Use quicklookd (remote computation)'
+complete -c qlmanage -s i -d 'Compute thumbnail in icon mode'
+complete -c qlmanage -s s -d 'size  Size for the thumbnail'
+complete -c qlmanage -s f -d 'factor Scale factor for the thumbnail'
+complete -c qlmanage -s F -d 'factor Scale factor for the thumbnail, draw downscaled and compare to 1x'
+complete -c qlmanage -s z -d Display\ generation\ performance\ info\ \(don\'t\ display\ thumbnails\)
+complete -c qlmanage -s o -d dir\ \ Output\ result\ in\ dir\ \(don\'t\ display\ thumbnails\ or\ previews\)
+complete -c qlmanage -s c -d 'contentType Force the content type used for the documents'
+complete -c qlmanage -s g -d 'generator Force the generator to use'

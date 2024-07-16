@@ -1,0 +1,35 @@
+complete -c run -l silent -d Don\'t\ print\ the\ script\ command
+complete -c run -l filter -d 'Run a script in all workspace packages matching the pattern'
+complete -c run -s b -l bun -d Force\ a\ script\ or\ package\ to\ use\ Bun\'s\ runtime\ instead\ of\ Node.js\ \(via\ symlinking\ node\)
+complete -c run -l shell -d Control\ the\ shell\ used\ for\ package.json\ scripts.\ Supports\ either\ \'bun\'\ or\ \'system\'
+complete -c run -l watch -d 'Automatically restart the process on file change'
+complete -c run -l hot -d 'Enable auto reload in the Bun runtime, test runner, or bundler'
+complete -c run -l smol -d 'Use less memory, but run garbage collection more often'
+complete -c run -s r -l preload -d 'Import a module before other modules are loaded'
+complete -c run -l inspect -d Activate\ Bun\'s\ debugger
+complete -c run -l inspect-wait -d Activate\ Bun\'s\ debugger,\ wait\ for\ a\ connection\ before\ executing
+complete -c run -l inspect-brk -d Activate\ Bun\'s\ debugger,\ set\ breakpoint\ on\ first\ line\ of\ code\ and\ wait
+complete -c run -l if-present -d 'Exit without an error if the entrypoint does not exist'
+complete -c run -l no-install -d 'Disable auto install in the Bun runtime'
+complete -c run -l install -d 'Configure auto-install behavior. One of "auto" (default, auto-installs when no node_modules), "fallback" (missing packages only), "force" (always).'
+complete -c run -s i -d 'Auto-install dependencies during execution. Equivalent to --install=fallback.'
+complete -c run -s e -l eval -d 'Evaluate argument as a script'
+complete -c run -l print -d 'Evaluate argument as a script and print the result'
+complete -c run -l prefer-offline -d 'Skip staleness checks for packages in the Bun runtime and resolve from disk'
+complete -c run -l prefer-latest -d 'Use the latest matching versions of packages in the Bun runtime, always checking npm'
+complete -c run -s p -l port -d 'Set the default port for Bun.serve'
+complete -c run -l conditions -d 'Pass custom conditions to resolve'
+complete -c run -l main-fields -d 'Main fields to lookup in package.json. Defaults to --target dependent'
+complete -c run -l extension-order -d 'Defaults to: .tsx,.ts,.jsx,.js,.json'
+complete -c run -l tsconfig-override -d 'Specify custom tsconfig.json. Default <d>$cwd<r>/tsconfig.json'
+complete -c run -s d -l define -d 'Substitute K:V while parsing, e.g. --define process.env.NODE_ENV:"development". Values are parsed as JSON.'
+complete -c run -s l -l loader -d 'Parse files with .ext:loader, e.g. --loader .js:jsx. Valid loaders: js, jsx, ts, tsx, json, toml, text, file, wasm, napi'
+complete -c run -l no-macros -d 'Disable macros from being executed in the bundler, transpiler and runtime'
+complete -c run -l jsx-factory -d 'Changes the function called when compiling JSX elements using the classic JSX runtime'
+complete -c run -l jsx-fragment -d 'Changes the function called when compiling JSX fragments'
+complete -c run -l jsx-import-source -d 'Declares the module specifier to be used for importing the jsx and jsxs factory functions. Default: "react"'
+complete -c run -l jsx-runtime -d '"automatic" (default) or "classic"'
+complete -c run -l env-file -d 'Load environment variables from the specified file(s)'
+complete -c run -l cwd -d Absolute\ path\ to\ resolve\ files\ \&\ entry\ points\ from.\ This\ just\ changes\ the\ process\'\ cwd.
+complete -c run -s c -l config -d 'Specify path to Bun config file. Default <d>$cwd<r>/bunfig.toml'
+complete -c run -s h -l help -d 'Display this menu and exit'

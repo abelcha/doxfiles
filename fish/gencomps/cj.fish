@@ -1,0 +1,5 @@
+complete -c cj -s c -l compress -d 'compress JSON input'
+complete -c cj -s f -l filters -d '<FILTERS>...    filters'
+complete -c cj -s h -l help -d 'Print help information'
+complete -c cj -s p -l path -d '[<PATH>...]        file path relative or absolute'
+complete -c cj -n __fish_no_arguments -s V -l version -d 'Print version information'

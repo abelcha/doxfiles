@@ -1,0 +1,5 @@
+complete -c resign-jwt -s h -l help -d 'Prints help information'
+complete -c resign-jwt -n __fish_no_arguments -s V -l version -d 'Prints version information'
+complete -c resign-jwt -s a -l algorithm -d '<algorithm>'
+complete -c resign-jwt -s j -l jwt -d '<jwt>'
+complete -c resign-jwt -s k -l key -d '<key>'

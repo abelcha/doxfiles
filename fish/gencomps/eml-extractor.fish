@@ -1,0 +1,5 @@
+complete -c eml-extractor -s h -l help -d 'show this help message and exit'
+complete -c eml-extractor -s s -d 'PATH, --source PATH'
+complete -c eml-extractor -s r -l recursive -d 'allow recursive search for .eml files under SOURCE'
+complete -c eml-extractor -s f -d 'FILE [FILE ...], --files FILE [FILE ...]'
+complete -c eml-extractor -s d -d 'PATH, --destination PATH'

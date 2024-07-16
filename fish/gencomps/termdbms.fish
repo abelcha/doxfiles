@@ -1,0 +1,5 @@
+complete -c termdbms -s p -d '/ database path (absolute)'
+complete -c termdbms -s d -d '/ specifies which database driver to use (sqlite/mysql)'
+complete -c termdbms -s a -d '/ enable ascii mode'
+complete -c termdbms -s h -d '/ prints this message'
+complete -c termdbms -s t -d '/ starts app with specific theme (default, nord, solarized)'

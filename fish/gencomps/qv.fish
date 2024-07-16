@@ -1,0 +1,7 @@
+complete -c qv -s a -l at -d '<AT>              Timestamp to load deltatable in RFC format, eg:'
+complete -c qv -s h -l help -d 'Print help information'
+complete -c qv -s l -l limit -d '<LIMIT>        Rows to return [default: 10]'
+complete -c qv -s p -l profile -d '<PROFILE>    Optional AWS Profile to use'
+complete -c qv -s q -l query -d '<QUERY>        Query to execute [default: "select * from tbl"]'
+complete -c qv -s s -l schema -d 'When provided the schema is shown'
+complete -c qv -n __fish_no_arguments -s V -l version -d 'Print version information'

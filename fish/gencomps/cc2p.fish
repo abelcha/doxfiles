@@ -1,0 +1,6 @@
+complete -c cc2p -s d -l delimiter -d '<DELIMITER>  Represents the delimiter used in CSV files [default: ,]'
+complete -c cc2p -s n -l no-header -d 'Represents whether to include the header in the CSV search column'
+complete -c cc2p -s w -l worker -d '<WORKER>        Number of worker threads to use for performing the task [default: 1]'
+complete -c cc2p -s s -l sampling -d '<SAMPLING>    Number of rows to sample for inferring the schema [default: 100]'
+complete -c cc2p -s h -l help -d 'Print help'
+complete -c cc2p -n __fish_no_arguments -s V -l version -d 'Print version'
