@@ -28,8 +28,8 @@ complete -c cmake -l debug-output -d '= Put cmake in a debug mode.'
 complete -c cmake -l debug-find -d '= Put cmake find in a debug mode.'
 complete -c cmake -l trace -d '= Put cmake in trace mode.'
 complete -c cmake -l trace-expand -d '= Put cmake in trace mode with variable'
-complete -c cmake -l warn-uninitialized -d '= Warn about uninitialized values.'
-complete -c cmake -l no-warn-unused-cli -d =\ Don\'t\ warn\ about\ command\ line\ options.
+complete -c cmake -l warn-uninitialized -d 'Warn about uninitialized values.'
+complete -c cmake -l no-warn-unused-cli -d "Don't warn about command line options."
 complete -c cmake -l check-system-vars -d '= Find problems with variable usage in system'
 complete -c cmake -l help -d '<keyword> [<file>]    = Print help for one keyword and exit.'
 complete -c cmake -l help-full -d '[<file>]         = Print all help manuals and exit.'

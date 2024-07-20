@@ -3,12 +3,12 @@ complete -c conv -n '__fish_seen_subcommand_from dev' -s v -l verbose -d 'Show f
 complete -c conv -n '__fish_seen_subcommand_from dev' -l typecheck -d '<mode>        Check TypeScript files with `tsc --noEmit`.'
 complete -c conv -n '__fish_seen_subcommand_from dev' -l codegen -d '<mode>          Regenerate code in `convex/_generated/` (choices:'
 complete -c conv -n '__fish_seen_subcommand_from dev' -l configure -d '[choice]      Ignore existing configuration and configure new or'
-complete -c conv -n '__fish_seen_subcommand_from dev' -l team -d \<team_slug\>\ \ \ \ \ \ \ \ The\ team\ you\'d\ like\ to\ use\ for\ this\ project
-complete -c conv -n '__fish_seen_subcommand_from dev' -l project -d \<project_slug\>\ \ The\ name\ of\ the\ project\ you\'d\ like\ to\ configure
+complete -c conv -n '__fish_seen_subcommand_from dev' -l team -d "<team_slug>        The team you'd like to use for this project>"
+complete -c conv -n '__fish_seen_subcommand_from dev' -l project -d "<project_slug>  The name of the project you'd like to configure>"
 complete -c conv -n '__fish_seen_subcommand_from dev' -l once -d 'Execute only the first 3 steps, stop on any failure'
 complete -c conv -n '__fish_seen_subcommand_from dev' -l until-success -d 'Execute only the first 3 steps, on failure watch'
 complete -c conv -n '__fish_seen_subcommand_from dev' -l run -d '<functionName>      The identifier of the function to run in step 3,'
-complete -c conv -n '__fish_seen_subcommand_from dev' -l tail-logs -d Tail\ this\ project\'s\ Convex\ logs\ in\ this\ terminal.
+complete -c conv -n '__fish_seen_subcommand_from dev' -l tail-logs -d "Tail this project's Convex logs in this terminal."
 complete -c conv -n '__fish_seen_subcommand_from dev' -s h -l help -d 'display help for command'
 complete -f -c conv -n __fish_use_subcommand -a watching -d 'for changes'
 complete -f -c conv -n __fish_use_subcommand -a deploy -d '[options]                     Deploy to your prod deployment'
@@ -25,7 +25,7 @@ complete -c conv -n '__fish_seen_subcommand_from deploy' -s h -l help -d 'displa
 complete -f -c conv -n __fish_use_subcommand -a run -d '[options] <functionName> [args]  Run a function (query, mutation, or'
 complete -c conv -n '__fish_seen_subcommand_from run' -s w -l watch -d 'Watch a query, printing its result if the'
 complete -c conv -n '__fish_seen_subcommand_from run' -l push -d 'Push code to deployment before running'
-complete -c conv -n '__fish_seen_subcommand_from run' -l prod -d Run\ the\ function\ on\ this\ project\'s
+complete -c conv -n '__fish_seen_subcommand_from run' -l prod '-d Run the function on this project\'s'
 complete -c conv -n '__fish_seen_subcommand_from run' -l preview-name -d '<previewName>        Run the function on the preview'
 complete -c conv -n '__fish_seen_subcommand_from run' -l deployment-name -d '<deploymentName>  Run the function on the specified'
 complete -c conv -n '__fish_seen_subcommand_from run' -l typecheck -d '<mode>                  Whether to check TypeScript files with'

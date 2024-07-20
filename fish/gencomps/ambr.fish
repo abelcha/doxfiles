@@ -25,3 +25,4 @@ complete -c ambr -l max-threads -d '<NUM>          Number of max threads [defaul
 complete -c ambr -l size-per-thread -d '<BYTES>    File size per one thread [default: 1048576]'
 complete -c ambr -l bin-check-bytes -d '<BYTES>    Read size for checking binary [default: 256]'
 complete -c ambr -l mmap-bytes -d '<BYTES>         [Experimental] Minimum size for using mmap [default: 1048576]'
+

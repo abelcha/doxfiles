@@ -29,12 +29,6 @@ alias funcis='funced -is'
 alias s='s5cmd'
 alias btop="bpytop"
 alias copy='/opt/d/abel/dkp.ts'
-function acp
-    adb shell am broadcast -a clipper.get | string match -r 'data="(.*)"' -g | pbcopy
-end
-function apv
-    adb shell am broadcast -a clipper.set -e text $argv
-end
 alias pygz="pigz"
 
 alias codi="/Applications/VisualStudioCode-Insiders.app/Contents/Resources/app/bin/code"
@@ -100,9 +94,6 @@ alias ne /opt/homebrew/bin/emacs
 alias pack pack_auto
 alias pcp "rsync -r --progress"
 alias plines "tr ' ' '\n'"
-function trim
-    sd '(\s+$|^\s+)' '' $argv
-end
 alias pline "sd '\s.+' ' '"
 alias prev "qlmanage -p"
 alias prv "qlmanage -p"

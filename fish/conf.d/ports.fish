@@ -6,9 +6,6 @@ function tsdate1601
 end
 
 
-
-
-
 function edit
     /usr/bin/which $argv[1]; or return
     command $EDITOR (/usr/bin/which  $argv[1])
@@ -49,38 +46,3 @@ function abin
     eval $cmd
 end
 
-function fzf-preview-file
-    rg --files | fzf --reverse --preview 'bat --color=always {}'
-end
-
-
-function pak --wraps tar
-    set -l dir (echo $argv[1] | sd '/$' '')
-    tar --create --gzip --file "$dir.tar.gz" $dir
-end
-
-
-
-function pax --wraps tar
-    set -l dir (echo $argv[1] | sd '/$' '')
-    # tar --create --xz --file "$dir.tar.xz" $dir
-    # tar -I/opt/homebrew/bin/pixz -cf output.tar.xz $dir
-    echo "creating tar"
-    tar --create --file "$dir.tar" $dir
-    echo compression
-    pixz "$dir.tar"
-    # trash $argv[1]
-
-end
-
-function pack --wraps tar
-    pak $argv[1]
-    trash $argv[1]
-end
-
-function zipy
-    set -l folder "$argv[1]"
-    dx -s=live "$folder"
-    zip -qrm "$folder.zip" "$folder" && trash "$folder"
-    dx -s=live "$folder.zip"
-end
