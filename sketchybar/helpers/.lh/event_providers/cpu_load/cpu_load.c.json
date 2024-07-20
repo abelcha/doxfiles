@@ -1,0 +1,34 @@
+{
+    "sourceFile": "event_providers/cpu_load/cpu_load.c",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 4,
+            "patches": [
+                {
+                    "date": 1720025172982,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1720025187216,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,10 +1,12 @@\n #include \"cpu.h\"\n #include \"../sketchybar.h\"\n \n-int main (int argc, char** argv) {\n+int main(int argc, char **argv)\n+{\n   float update_freq;\n-  if (argc < 3 || (sscanf(argv[2], \"%f\", &update_freq) != 1)) {\n+  if (argc < 3 || (sscanf(argv[2], \"%f\", &update_freq) != 1))\n+  {\n     printf(\"Usage: %s \\\"<event-name>\\\" \\\"<event_freq>\\\"\\n\", argv[0]);\n     exit(1);\n   }\n \n@@ -17,23 +19,24 @@\n   snprintf(event_message, 512, \"--add event '%s'\", argv[1]);\n   sketchybar(event_message);\n \n   char trigger_message[512];\n-  for (;;) {\n+  for (;;)\n+  {\n     // Acquire new info\n     cpu_update(&cpu);\n-    printf(\"cpu_update[total_load]:   %d\\n\", cpu.total_load);\n-    printf(\"cpu_update[user_load]:   %d\\n\", cpu.user_load);\n-    printf(\"cpu_update[sys_load]:   %d\\n\", cpu.sys_load);\n+    printf(\"cpu_update[total_load]:\\t%d\\n\", cpu.total_load);\n+    printf(\"cpu_update[user_load]:\\t%d\\n\", cpu.user_load);\n+    printf(\"cpu_update[sys_load]:\\t%d\\n\", cpu.sys_load);\n \n     // Prepare the event message\n     snprintf(trigger_message,\n              512,\n              \"--trigger '%s' user_load='%d' sys_load='%02d' total_load='%02d'\",\n              argv[1],\n              cpu.user_load,\n              cpu.sys_load,\n-             cpu.total_load                                        );\n+             cpu.total_load);\n \n     // Trigger the event\n     sketchybar(trigger_message);\n     // printf(\"trigger_message CPU:  %s\\n\", trigger_message);\n"
+                },
+                {
+                    "date": 1720025804661,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -27,8 +27,9 @@\n     printf(\"cpu_update[total_load]:\\t%d\\n\", cpu.total_load);\n     printf(\"cpu_update[user_load]:\\t%d\\n\", cpu.user_load);\n     printf(\"cpu_update[sys_load]:\\t%d\\n\", cpu.sys_load);\n \n+\n     // Prepare the event message\n     snprintf(trigger_message,\n              512,\n              \"--trigger '%s' user_load='%d' sys_load='%02d' total_load='%02d'\",\n"
+                },
+                {
+                    "date": 1720026123510,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -26,8 +26,9 @@\n     cpu_update(&cpu);\n     printf(\"cpu_update[total_load]:\\t%d\\n\", cpu.total_load);\n     printf(\"cpu_update[user_load]:\\t%d\\n\", cpu.user_load);\n     printf(\"cpu_update[sys_load]:\\t%d\\n\", cpu.sys_load);\n+    \n \n \n     // Prepare the event message\n     snprintf(trigger_message,\n"
+                },
+                {
+                    "date": 1720028136063,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -43,8 +43,8 @@\n     sketchybar(trigger_message);\n     // printf(\"trigger_message CPU:  %s\\n\", trigger_message);\n \n     // Wait\n-    usleep(1 * 1000000);\n+    usleep(update_freq * 1000000);\n   }\n   return 0;\n }\n"
+                }
+            ],
+            "date": 1720025172982,
+            "name": "Commit-0",
+            "content": "#include \"cpu.h\"\n#include \"../sketchybar.h\"\n\nint main (int argc, char** argv) {\n  float update_freq;\n  if (argc < 3 || (sscanf(argv[2], \"%f\", &update_freq) != 1)) {\n    printf(\"Usage: %s \\\"<event-name>\\\" \\\"<event_freq>\\\"\\n\", argv[0]);\n    exit(1);\n  }\n\n  alarm(0);\n  struct cpu cpu;\n  cpu_init(&cpu);\n\n  // Setup the event in sketchybar\n  char event_message[512];\n  snprintf(event_message, 512, \"--add event '%s'\", argv[1]);\n  sketchybar(event_message);\n\n  char trigger_message[512];\n  for (;;) {\n    // Acquire new info\n    cpu_update(&cpu);\n    printf(\"cpu_update[total_load]:   %d\\n\", cpu.total_load);\n    printf(\"cpu_update[user_load]:   %d\\n\", cpu.user_load);\n    printf(\"cpu_update[sys_load]:   %d\\n\", cpu.sys_load);\n\n    // Prepare the event message\n    snprintf(trigger_message,\n             512,\n             \"--trigger '%s' user_load='%d' sys_load='%02d' total_load='%02d'\",\n             argv[1],\n             cpu.user_load,\n             cpu.sys_load,\n             cpu.total_load                                        );\n\n    // Trigger the event\n    sketchybar(trigger_message);\n    // printf(\"trigger_message CPU:  %s\\n\", trigger_message);\n\n    // Wait\n    usleep(1 * 1000000);\n  }\n  return 0;\n}\n"
+        }
+    ]
+}

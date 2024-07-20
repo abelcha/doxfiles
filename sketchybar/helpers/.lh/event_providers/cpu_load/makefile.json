@@ -1,0 +1,18 @@
+{
+    "sourceFile": "event_providers/cpu_load/makefile",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1720028375923,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1720028375923,
+            "name": "Commit-0",
+            "content": "bin/cpu_load: cpu_load.c cpu.h ../sketchybar.h | bin\n\tclang -std=c99 -O3 -Wall $< -o $@\n\nbin:\n\tmkdir bin\n"
+        }
+    ]
+}
