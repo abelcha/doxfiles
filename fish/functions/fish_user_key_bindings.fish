@@ -41,7 +41,7 @@ function fish_user_key_bindings
     bind \e\[1\;5A prevd
     bind \e\[1\;5B nextd
     # bind \ef --preset --erase
-    bind \eF reload_fish
+    bind \eF _reload_fish
     bind \eH help_auto
     bind bind -k f4 help_auto
     bind \eG gencomp_auto
@@ -52,22 +52,12 @@ function fish_user_key_bindings
     bind \em 'genfn man'
     bind \ew 'geninline w'
     bind \et tldr_auto
-
+    bind \e\[1\;5A _atuin_bind_up
+    bind \e\[1\;5B _atuin_bind_down
+    bind \e\e\[A history-prefix-search-backward
+    bind \e\e\[B history-prefix-search-forward
     bind \eƒ 'hx ~/config/fish'
     # bind \ew 'genfn compedit'
-end
-
-function reload_fish
-    set cmd (commandline -o)
-    echo
-    hr -
-    fish
-    # sleep 2
-    # echo lol
-    commandline -i repaint
-
-    # commandline --replace fish
-    # fish_prompt
 end
 
 
@@ -138,13 +128,15 @@ bind \e_ history-token-search-backward
 # set -U fifc_keybinding \e\[Z
 
 bind \eOR complete-and-search
-bind \eOQ history-pager
+# bind \eOQ history-pager
 #bind \eOS help
 
-bind -k btab _fzf_search_directory
+bind \eOQ _fzf_search_directory
 
 bind \eR _atuin_search
-# bind -k up _atuin_bind_up
+bind \e\[1\;5A _atuin_bind_up
+bind \e\[1\;5B _atuin_bind_down
+
 # bind \eOA _atuin_bind_up
 # bind \e\[A _atuin_bind_up
 # if bind -M insert > /dev/null 2>&1

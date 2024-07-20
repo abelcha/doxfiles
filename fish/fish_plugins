@@ -5,4 +5,8 @@ dangh/dict.fish
 kpbaks/smart-ctrl-v.fish
 ryotako/fish-completion-generator
 triarius/sk-fish
-jorgebucaran/nvm.fish
+danhper/fish-ssh-agent
+kentork/fish-comp
+rmartine-ias/jq-fish-plugin
+jgantunes/fish-gvm
+edc/bass

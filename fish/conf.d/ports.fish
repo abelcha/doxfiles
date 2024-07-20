@@ -5,30 +5,7 @@ function tsdate1601
     jh --raw --map "e.replace(/13[0-9]{15}/img, e => Math.round((parseInt(e) - 11644473600000000)/1000000))"
 end
 
-function _aichat_fish
-    set -l _old (commandline)
-    if test -n $_old
-        echo -n "⌛"
-        commandline -f repaint
-        commandline (aichat -e $_old)
-    end
-end
 
-
-
-function list-bundle
-    osascript -e 'tell application "System Events" to get bundle identifier of every process whose background only is false'
-end
-
-
-
-function w --wraps command
-    echo -----------------------------------------
-    /usr/bin/which -a "$argv[1]"
-    echo -----------------------------------------
-    functions "$argv[1]"
-    echo -----------------------------------------
-end
 
 
 
@@ -37,39 +14,6 @@ function edit
     command $EDITOR (/usr/bin/which  $argv[1])
 end
 
-
-function fexec --wraps fzf
-    #set temp_file (mktemp) $rr    #/bin/cat > $temp_file
-    #set cmd "bat $temp_file | gawk $argv {q}"
-    # echo $cmd
-    # return
-    set resp (echo '' | fzf --query "echo 'lol'" --print0 --print-query --preview "eval {q}" $argv)
-
-    echo "gawk $resp" | tr -d \\n | pbcopy
-end
-
-function fawk --wraps awk
-    set temp_file (mktemp)
-    /bin/cat >$temp_file
-    set cmd "bat $temp_file | gawk $argv {q}"
-    # echo $cmd
-    # return
-    set resp (echo '' | fzf --query "// { print \$0 }" --print0 --print-query --preview "$cmd")
-
-    echo "gawk $resp" | tr -d \\n | pbcopy
-end
-
-
-function flogcat --wraps fzf
-    set temp_file (mktemp)
-    /bin/cat >$temp_file
-    set cmd "/bin/cat $temp_file | gawk {q}"
-    # echo $cmd
-    # return
-    set resp (echo '' | fzf --query "// { print \$0 }" --print0 --print-query --preview-window="down,95%" --preview "$cmd" )
-
-    echo "gawk $resp" | tr -d \\n | pbcopy
-end
 
 function clib
     if test $argv[1] = install
@@ -83,17 +27,6 @@ function ghdoc
     readme $argv | mdcat -p
 end
 
-function fzf_env
-    env | column -t -s = | fzf --print0 --tac --layout=reverse --info=right
-end
-
-function fenv
-    fzf_env | awk '{ print "$" $1 }' | tr -d '\n\0' | pbcopy
-end
-
-function fenval
-    fzf_env | awk '{ print $2 }' | tr -d '\n\0' | pbcopy
-end
 
 function lk
     set source $argv[1]
@@ -124,6 +57,20 @@ end
 function pak --wraps tar
     set -l dir (echo $argv[1] | sd '/$' '')
     tar --create --gzip --file "$dir.tar.gz" $dir
+end
+
+
+
+function pax --wraps tar
+    set -l dir (echo $argv[1] | sd '/$' '')
+    # tar --create --xz --file "$dir.tar.xz" $dir
+    # tar -I/opt/homebrew/bin/pixz -cf output.tar.xz $dir
+    echo "creating tar"
+    tar --create --file "$dir.tar" $dir
+    echo compression
+    pixz "$dir.tar"
+    # trash $argv[1]
+
 end
 
 function pack --wraps tar

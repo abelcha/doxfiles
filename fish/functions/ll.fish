@@ -1,4 +1,4 @@
-function ll --wraps=eza --wraps='eza    -l -F     --total-size  --no-user -r' --description 'alias ll eza    -l -F     --total-size  --no-user -r'
-  eza    -l -F     --total-size  --no-user -r $argv
-        
+function ll --wraps=eza
+    /opt/d/eza/target/release/eza --long -F --total-size --no-user $argv
+
 end

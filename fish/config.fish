@@ -1,3 +1,9 @@
+# set -g LANG en_EN.UTF-8
+
+set -x LESSOPEN "|/opt/a/abin/lesspipe.sh %s"
+
+set -x CGO_CPPFLAGS -w
+
 set -x XDG_CONFIG_HOME ~/.config
 set -x XDG_DATA_HOME ~/.local
 set -x LLVM_PATH /opt/homebrew/opt/llvm
@@ -12,29 +18,36 @@ set -x EDITOR hx
 set -x PKG_CONFIG_PATH /usr/local/lib/pkgconfig/lib
 set -x N_PREFIX ~/.local/
 set -x ANDROID_HOME ~/Library/Android/sdk
-set -x EXPO_APPLE_TEAM_ID WG5XTC5GTZ
 set -g fish_function_path $fish_function_path $fisher_path/functions
-set -x JAVA_HOME /Library/Java/JavaVirtualMachines/temurin-17.jdk/Contents/Home
 
-set -x SKIM_DEFAULT_OPTIONS "--ansi --reverse --color=16 --delimiter=: --preview-window='up:65%:+{2}-/2' --preview='bat --style=numbers --color=always --highlight-line {2}:+0 {1}' --bind='ctrl-d:half-page-down,ctrl-u:half-page-up,?:toggle-preview,alt-/:execute-silent(ql {}),alt-space:execute-silent(ql {})+down,alt-j:preview-down,alt-k:preview-up,alt-h:preview-left,alt-l:preview-right,alt-d:preview-page-down,alt-u:preview-page-up,"
+set regphonefr "'(0033|\+33|0)[6-7](\d\d[^\-\.\s]?){4}'"
+
+
 
 # type -q pyenv; and pyenv init - | source
-type -q rbenv; and rbenv init - | source
+# type -q rbenv; and rbenv init - | source
+
+fnm env --use-on-cd | source
+
+# source ~/dev/abel/'bunfish'.fish
+
 
 source ~/.venv/bin/activate.fish
 
+set -x VCPKG_ROOT "/opt/a/.local/vcpkg"
+#fish_add_path
+fish_add_path $VCPKG_ROOT
 fish_add_path $ANDROID_HOME/emulator
 fish_add_path $ANDROID_HOME/platform-tools
 fish_add_path /Applications/Transporter.app/Contents/itms/bin/
 fish_add_path ~/.rbenv/versions/3.3.0/bin/
-fish_add_path /Applications/Proxyman.app/Contents/MacOS/
+# fish_add_path /Applications/Proxyman.app/Contents/MacOS/
 
 fish_add_path /opt/homebrew/opt/openvpn/sbin
-fish_add_path ~/.cargo/bin
 fish_add_path ~/.iterm2
 fish_add_path ~/.cargo/bin
 fish_add_path /Applications/VLC.app/Contents/MacOS
-fish_add_path /opt/homebrew/opt/mysql@5.7/bin
+# fish_add_path /opt/homebrew/opt/mysql@5.7/bin
 fish_add_path /opt/homebrew/bin
 fish_add_path /opt/homebrew/opt/llvm
 fish_add_path $GOPATH/bin
@@ -64,24 +77,38 @@ function last-download
     echo ~/Downloads/(ls -t ~/Downloads/ | head -1)
 end
 
-# function adbbr
-#     echo "===> $argv"
-#     set cleaned_args (echo $argv | unexpand-home-tilde | trim-trailing-slash)
-#     echo "CLEANED $cleaned_args toto"
-#     abbr -a (echo $cleaned_args | string split ' ')
+function setRunner
 
-#     set abbr_file "$HOME/.config/fish/conf.d/abbrs.fish"
-#     abbr >$abbr_file
-# end
+    if test -f ./Cargo.toml
+        set project_runner cargo
+    else if test -f ./go.mod
+        set project_runner go
+    else if test -f ./build.zig
+        set project_runner zig
+    end
+    set project_runner bun
 
-
-
+end
 if status is-interactive
     function __fish_enable_focus --on-event fish_postexec
         echo -n \e\[\?1004h
     end
     function __fish_disable_focus --on-event fish_preexec
         echo -n \e\[\?1004l
+    end
+
+    # setRunner
+    function onDirChange --on-variable PWD
+        # setRunner
+
+        #xh :8081 > /dev/null 2>&1 &
+        # if test -e "$PWD/wrangler.toml"
+        # alias run="run_wrangler"
+        # else
+        # alias run="run"
+        # end
+
+        # if
     end
     # Commands to run in interactive sessions can go here
     # source ~/config/fish/atuin.fish
@@ -94,7 +121,7 @@ end
 # begin wrangler completion
 #wrangler --completion-fish | source
 # end wrangler completion
-
+# source /opt/d/abel/
 function __gt_command_completions
     set -lx SHELL (type -p fish)
     set -l command (commandline -opc)
