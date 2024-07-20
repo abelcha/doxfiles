@@ -23,6 +23,9 @@ function taz --wraps pzstd
 
 end
 
+function dz -a file
+    pv $file | pzstd -d --stdout | tar -x - -C . && trash $file
+end
 
 function pak --wraps tar
     set -l dir (echo $argv[1] | sd '/$' '')
@@ -54,3 +57,5 @@ function zipy
     zip -qrm "$folder.zip" "$folder" && trash "$folder"
     dx -s=live "$folder.zip"
 end
+
+
