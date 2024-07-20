@@ -106,6 +106,8 @@ static inline uint32_t format_message(char* message, char* formatted_message) {
   return caret + 1;
 }
 
+static int fail_count = 0;
+
 static inline void sketchybar(char* message) {
   char formatted_message[strlen(message) + 2];
   uint32_t length = format_message(message, formatted_message);
@@ -115,8 +117,11 @@ static inline void sketchybar(char* message) {
   if (!mach_send_message(g_mach_port, formatted_message, length)) {
     g_mach_port = mach_get_bs_port();
     if (!mach_send_message(g_mach_port, formatted_message, length)) {
+      printf("[NO SKETCHYBAR] - %s\n", message);
       // No sketchybar instance running, exit.
-      exit(0);
+      if (fail_count++ > 10) {
+        exit(0);
+      }
     }
   }
 }

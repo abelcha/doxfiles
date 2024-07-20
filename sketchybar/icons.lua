@@ -86,7 +86,9 @@ local icons = {
 }
 
 if not (settings.icons == "NerdFont") then
+  print("using sf")
   return icons.sf_symbols
 else
+  print("using nerdfont")
   return icons.nerdfont
 end

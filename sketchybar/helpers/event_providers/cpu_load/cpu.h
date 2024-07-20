@@ -1,7 +1,7 @@
+#include <stdio.h>
 #include <mach/mach.h>
 #include <stdbool.h>
 #include <unistd.h>
-#include <stdio.h>
 
 struct cpu {
   host_t host;
@@ -10,12 +10,14 @@ struct cpu {
   host_cpu_load_info_data_t prev_load;
   bool has_prev_load;
 
-  int user_load;
-  int sys_load;
-  int total_load;
+  unsigned short user_load;
+  unsigned short sys_load;
+  unsigned short total_load;
 };
 
 static inline void cpu_init(struct cpu* cpu) {
+  // init struct fields to zero:
+  // memset(cpu, 0, sizeof(struct cpu));
   cpu->host = mach_host_self();
   cpu->count = HOST_CPU_LOAD_INFO_COUNT;
   cpu->has_prev_load = false;

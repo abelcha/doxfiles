@@ -115,6 +115,8 @@ return {
   ["Messenger"] = ":messenger:",
   ["Tower"] = ":tower:",
   ["VSCodium"] = ":vscodium:",
+  ["Code Insiders"] = ":vscodium:",
+
   ["Drafts"] = ":drafts:",
   ["Cypress"] = ":cypress:",
   ["GitHub Desktop"] = ":git_hub:",

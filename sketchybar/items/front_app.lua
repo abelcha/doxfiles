@@ -6,6 +6,7 @@ local front_app = sbar.add("item", "front_app", {
   icon = { drawing = false },
   label = {
     font = {
+      -- family = "PP\\ EditorialNew",
       style = settings.font.style_map["Black"],
       size = 12.0,
     },
@@ -14,6 +15,7 @@ local front_app = sbar.add("item", "front_app", {
 })
 
 front_app:subscribe("front_app_switched", function(env)
+  debugTable(env)
   front_app:set({ label = { string = env.INFO } })
 end)
 
