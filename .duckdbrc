@@ -1,0 +1,24 @@
+.highlight on
+.maxrows 100
+.prompt '▷ '
+.nullvalue ¤
+
+.headers on
+--.timer on
+SET temp_directory TO '/tmp';
+CREATE OR REPLACE MACRO lenx(a) AS CASE WHEN len(a)=0 THEN NULL ELSE len(a) END;
+CREATE OR REPLACE MACRO deburr(a) AS TRIM(STRIP_ACCENTS(LOWER(a)));
+CREATE OR REPLACE MACRO phone_clean(a) AS regexp_replace(a, '[^0-9+]', '', 'g');
+CREATE or replace MACRO phone_fmt1(a) AS regexp_replace(a, '^00', '+');
+CREATE or replace MACRO phone_fmt2(a) AS regexp_replace(a, '^0', '');
+CREATE or replace MACRO phone_fmt3(a) AS CASE WHEN starts_with(a, '33') THEN concat('+', a) ELSE a END;
+CREATE or replace MACRO phone_fmt4(a) AS CASE WHEN len(a)=9 THEN concat('+33', a) ELSE a END;
+
+CREATE or replace MACRO phone_fmtn(a) AS CASE WHEN len(a)<8 THEN null ELSE phone_fmt4(phone_fmt3(phone_fmt2(a))) END;
+
+
+create or replace MACRO phormat(a) AS phone_fmtn(phone_clean(a));
+-- 33695151291
+.headers ON
+INSTALL spatial;
+LOAD spatial;

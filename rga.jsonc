@@ -1,0 +1,34 @@
+{
+  "custom_adapters": [
+    
+    {
+      "name": "tesseract",
+      "version": 1,
+      "description": "Uses Tesseract OCR to recognize text in image files",
+      "extensions": ["jpg", "jpeg", "jpe", "png", "webp", "gif", "tif", "tiff", "jp2", "j2k", "jpf", "jpm", "jpg2", "jpg2000", "jpeg2000", "j2c", "jpc", "jpx", "bmp", "pnm"],
+      "mimetypes": ["image/jpeg", "image/png", "image/webp", "image/gif", "image/tiff", "image/jp2", "image/jpx", "image/jpm", "image/bmp", "image/x-portable-anymap"],
+      "binary": "tesseract",
+      "args": ["--psm", "1", "-", "-"],
+      "disabled_by_default": true,
+      "match_only_by_mime": false
+    },
+
+    {
+      "name": "htmxxxm",
+      "version": 1,
+      "description": "Uses Tesseract OCR to recognize text in image files",
+      "extensions": ["htm"],
+      // "mimetypes": ["image/jpeg", "image/png", "image/webp", "image/gif", "image/tiff", "image/jp2", "image/jpx", "image/jpm", "image/bmp", "image/x-portable-anymap"],
+      "binary": "pandoc",
+      "args": [
+        "--from=html",
+        "--to=plain",
+        "--wrap=none",
+        "--markdown-headings=atx"
+      ],
+      "disabled_by_default": false,
+      "match_only_by_mime": false
+    }
+  ]
+}
+
