@@ -1,0 +1,10 @@
+
+complete -c mpk -s o -l output -d "<OUTPUT_FILE>  Specify the output file to write. If not specified, stdout will be used"
+complete -c mpk -s i -l input -d "<INPUT> Specify input via text. (cant use with INPUT_FILE)"
+complete -c mpk -s j -l to-json -d "Convert from MessagePack to JSON. (cant use with --to-json)"
+complete -c mpk -s m -l to-msgpack -d "Convert from JSON to MessagePack. (cant use with --to-msgpack)"
+complete -c mpk -l hex -d "Use messagepack with hexadecimal strings instead of binary. Implied with -i <input>"
+complete -c mpk -s p -l pretty -d "Enable pretty output (formatted JSON, spacing for MessagePack when used with `--hex`)"
+complete -c mpk -s v -l verbose -d "Turn verbose mode on"
+complete -c mpk -s h -l help -d "Print help (see more with --help)"
+complete -c mpk -n __fish_no_arguments -s V -l version -d "Print version"

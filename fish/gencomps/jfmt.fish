@@ -1,0 +1,7 @@
+complete -c jfmt -s c -l compact -d 'Output JSON in fully compacted form.  Uses no indentation,'
+complete -c jfmt -s h -l help -d 'Print help information'
+complete -c jfmt -s i -l in-place -d 'Modify INPUT_FILE in-place.  Uses a tempfile+rename for'
+complete -c jfmt -s o -l output-file -d '<OUTPUT_FILE>    File to output to.  Creates file/directory if needed.'
+complete -c jfmt -s s -l spaces -d '<SPACES>              Use the specified number of spaces for indentation.  Must be'
+complete -c jfmt -s t -l tabs -d 'Use single tabs for indentation. Not compatible with --spaces'
+complete -c jfmt -n __fish_no_arguments -s V -l version -d 'Print version information'

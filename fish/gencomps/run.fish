@@ -4,6 +4,7 @@ complete -c run -s b -l bun -d Force\ a\ script\ or\ package\ to\ use\ Bun\'s\ r
 complete -c run -l shell -d Control\ the\ shell\ used\ for\ package.json\ scripts.\ Supports\ either\ \'bun\'\ or\ \'system\'
 complete -c run -l watch -d 'Automatically restart the process on file change'
 complete -c run -l hot -d 'Enable auto reload in the Bun runtime, test runner, or bundler'
+complete -c run -l no-clear-screen -d 'Disable clearing the terminal screen on reload when --hot or --watch is enabled'
 complete -c run -l smol -d 'Use less memory, but run garbage collection more often'
 complete -c run -s r -l preload -d 'Import a module before other modules are loaded'
 complete -c run -l inspect -d Activate\ Bun\'s\ debugger
@@ -19,6 +20,8 @@ complete -c run -l prefer-offline -d 'Skip staleness checks for packages in the 
 complete -c run -l prefer-latest -d 'Use the latest matching versions of packages in the Bun runtime, always checking npm'
 complete -c run -s p -l port -d 'Set the default port for Bun.serve'
 complete -c run -l conditions -d 'Pass custom conditions to resolve'
+complete -c run -l fetch-preconnect -d 'Preconnect to a URL while code is loading'
+complete -c run -l max-http-header-size -d 'Set the maximum size of HTTP headers in bytes. Default is 16KiB'
 complete -c run -l main-fields -d 'Main fields to lookup in package.json. Defaults to --target dependent'
 complete -c run -l extension-order -d 'Defaults to: .tsx,.ts,.jsx,.js,.json'
 complete -c run -l tsconfig-override -d 'Specify custom tsconfig.json. Default <d>$cwd<r>/tsconfig.json'
@@ -29,6 +32,7 @@ complete -c run -l jsx-factory -d 'Changes the function called when compiling JS
 complete -c run -l jsx-fragment -d 'Changes the function called when compiling JSX fragments'
 complete -c run -l jsx-import-source -d 'Declares the module specifier to be used for importing the jsx and jsxs factory functions. Default: "react"'
 complete -c run -l jsx-runtime -d '"automatic" (default) or "classic"'
+complete -c run -l ignore-dce-annotations -d 'Ignore tree-shaking annotations such as @__PURE__'
 complete -c run -l env-file -d 'Load environment variables from the specified file(s)'
 complete -c run -l cwd -d Absolute\ path\ to\ resolve\ files\ \&\ entry\ points\ from.\ This\ just\ changes\ the\ process\'\ cwd.
 complete -c run -s c -l config -d 'Specify path to Bun config file. Default <d>$cwd<r>/bunfig.toml'

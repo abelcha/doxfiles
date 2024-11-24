@@ -1,0 +1,10 @@
+complete -c px -l top -d 'Show a continuously refreshed process list'
+complete -c px -l tree -d 'Print a process tree'
+complete -c px -l debug -d 'Print debug logs (if any) after running'
+complete -c px -l install -d 'Install px, ptop and pxtree in /usr/local/bin/'
+complete -c px -l no-pager -d 'Print PID info to stdout rather than to a pager'
+complete -c px -l sort -d 'cpupercent Order processes by CPU percentage only'
+complete -c px -l no-username -d Don\'t\ show\ the\ username\ column\ in\ px\ output
+complete -c px -l color -d 'Force color output even when piping'
+complete -c px -l help -d 'Print this help'
+complete -c px -n __fish_no_arguments -l version -d 'Print version information'

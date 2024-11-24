@@ -1,0 +1,13 @@
+complete -c b3sum -l keyed -d 'Use the keyed mode, reading the 32-byte key from stdin'
+complete -c b3sum -l derive-key -d '<CONTEXT>          Use the key derivation mode, with the given context string'
+complete -c b3sum -s l -l length -d '<LEN>          The number of output bytes, before hex encoding'
+complete -c b3sum -l seek -d '<SEEK>          The starting output byte offset, before hex encoding'
+complete -c b3sum -l num-threads -d '<NUM>          The maximum number of threads to use'
+complete -c b3sum -l no-mmap -d 'Disable memory mapping'
+complete -c b3sum -l no-names -d 'Omit filenames in the output'
+complete -c b3sum -l raw -d 'Write raw output bytes to stdout, rather than hex'
+complete -c b3sum -l no-names -d 'is implied. In this case, only a single input is allowed.'
+complete -c b3sum -s c -l check -d 'Read BLAKE3 sums from the [FILE]s and check them'
+complete -c b3sum -l quiet -d 'Skip printing OK for each checked file'
+complete -c b3sum -s h -l help -d Print\ help\ \(see\ a\ summary\ with\ \'-h\'\)
+complete -c b3sum -n __fish_no_arguments -s V -l version -d 'Print version'

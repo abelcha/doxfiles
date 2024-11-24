@@ -9,7 +9,7 @@ complete -c parallel -l bner -l basenameextensionreplace -d 'Use the replacement
 complete -c parallel -l bin -d 'Use <binexpr> as binning key and bin input to the jobs.' -x
 complete -c parallel -l bg -d 'Run command in background thus GNU parallel will not wait for completion of the command before exiting.'
 complete -c parallel -l bibtex -l citation -d 'Print the citation notice and BibTeX entry for GNU parallel.'
-complete -c parallel -l block -l block-size size -d 'Size of block in bytes to read at a time.' -x
+# complete -c parallel -l block -l block-size size -d 'Size of block in bytes to read at a time.' -x
 complete -c parallel -l bt -l blocktimeout -d 'Time out for reading block when using --pipe.' -x
 complete -c parallel -l cat -d 'Create a temporary file with content.'
 complete -c parallel -l cleanup -d 'Remove transferred files.'
@@ -20,7 +20,7 @@ complete -c parallel -l decompress-program -d 'Use <prg> for decompressing tempo
 complete -c parallel -l csv -d 'Treat input as CSV-format.'
 complete -c parallel -l delay -d 'Delay starting next job by <mytime>.' -x
 complete -c parallel -s d -l delimiter -d 'Input items are terminated by <delim>.' -x
-complete -c parallel -l dirnamereplace --dnr -d 'Use the replacement string <replace-str> instead of {//} for dirname of input line.' -x
+# complete -c parallel -l dirnamereplace --dnr -d 'Use the replacement string <replace-str> instead of {//} for dirname of input line.' -x
 complete -c parallel -l dry-run -d 'Print the job to run on stdout (standard output), but do not run the job.'
 complete -c parallel -s E -d 'Set the end of file string to <eof-str>.' -x
 complete -c parallel -s e -l eof -d 'This option is a synonym for the -E option.'
@@ -46,12 +46,12 @@ complete -c parallel -l jobs -s j -l max-procs -s P -d 'Read parameter from file
 complete -c parallel -s k -l keep-order -d 'Keep sequence of output same as the order of input.'
 complete -c parallel -s L -d 'When used with --pipe: Read records of recsize.' -x
 complete -c parallel -s l -l max-lines -d 'When used with --pipe: Read records of recsize lines.' -x
-complete -c parallel -l limit -d 'Dynamic job limit.' -d
+# complete -c parallel -l limit -d 'Dynamic job limit.' -d
 complete -c parallel -l line-buffer -l lb -d 'Buffer output on line basis.'
 complete -c parallel -l xapply -l link -d 'Link input sources.'
 complete -c parallel -l load -d 'Do not start new jobs on a given computer unless the number of running processes on the computer is less than <max-load>.' -x
 complete -c parallel -l controlmaster -s M -d 'Use ssh\'s ControlMaster to make ssh connections faster.'
-complete -c parallel -s m   -d 'Multiple arguments.'
+complete -c parallel -s m -d 'Multiple arguments.'
 complete -c parallel -l memfree -d 'Minimum memory free when starting another job.' -x
 complete -c parallel -l memsuspend -d 'Suspend jobs when there is less than 2 * size memory free.' -x
 complete -c parallel -l minversion -d 'Print the version GNU parallel and exit.' -x

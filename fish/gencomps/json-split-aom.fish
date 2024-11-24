@@ -1,0 +1,6 @@
+complete -c json-split-aom -s a -d '<JSON_PATH>      Dotted JSON path to an array in the input file'
+complete -c json-split-aom -s i -d '<JSON_PATH>      Dotted JSON path to the ID in the array element'
+complete -c json-split-aom -s p -d 'Pretty print output files'
+complete -c json-split-aom -s c -d 'Allow ID path collisions; still gives warnings but'
+complete -c json-split-aom -s h -l help -d 'Print help'
+complete -c json-split-aom -n __fish_no_arguments -s V -l version -d 'Print version'

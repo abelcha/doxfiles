@@ -1,3 +1,4 @@
+#string replace -a -- {} stdrename  {} --help
 complete -c stdrename -s c -l camel -d 'Uses the camelCase naming convention'
 complete -c stdrename -s k -l kebab -d 'Uses the kebab-case naming convention'
 complete -c stdrename -s p -l pascal -d 'Uses the PascalCase naming convention'

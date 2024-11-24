@@ -3,12 +3,12 @@ complete -c hexyl -s c -l bytes -d '<N>                 An alias for -n/--length
 complete -c hexyl -s s -l skip -d '<N>                  Skip the first N bytes of the input. The N argument can'
 complete -c hexyl -l block-size -d '<SIZE>         Sets the size of the `block` unit to SIZE (default is'
 complete -c hexyl -s v -l no-squeezing -d 'Displays all input data. Otherwise any number of groups'
-complete -c hexyl -l color -d \<WHEN\>\ \ \ \ \ \ \ \ \ \ \ \ \ \ When\ to\ use\ colors.\ The\ \'auto\'\ mode\ only\ displays\ colors
+complete -c hexyl -l color -d "<COLOR>"
 complete -c hexyl -l border -d '<STYLE>            Whether to draw a border with Unicode characters, ASCII'
 complete -c hexyl -s p -l plain -d 'Display output with --no-characters, --no-position,'
 complete -c hexyl -l no-characters -d 'Do not show the character panel on the right.'
 complete -c hexyl -s C -l characters -d 'Show the character panel on the right. This is the'
-complete -c hexyl -l character-table -d '<FORMAT>  Defines how bytes are mapped to characters:'
+complete -c hexyl -l character-table -d '<FORMAT>  Defines how bytes are mapped to characters' -xa "default ascii codepage-437"
 complete -c hexyl -s P -l no-position -d 'Whether to display the position panel on the left.'
 complete -c hexyl -s o -l display-offset -d '<N>        Add N bytes to the displayed file position. The N'
 complete -c hexyl -l panels -d '<N>                Sets the number of hex data panels to be displayed.'

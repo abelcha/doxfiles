@@ -1,0 +1,13 @@
+string replace -a -- {} clangd  {} --help
+complete -c clangd -l help -d '- Display available options (--help-hidden for more)'
+complete -c clangd -l help-list -d '- Display list of available options (--help-list-hidden for more)'
+complete -c clangd -n __fish_no_arguments -l version -d '- Display the version of this program'
+complete -c clangd -l all-scopes-completion -d '- If set to true, code completion will include index symbols that are not defined in the scopes (e.g. namespaces) visible from the code completion point. Such completions can insert scope qualifiers'
+complete -c clangd -l background-index -d '- Index project code in the background and persist index on disk.'
+complete -c clangd -l clang-tidy -d '- Enable clang-tidy diagnostics'
+complete -c clangd -l function-arg-placeholders -d '- When disabled, completions contain only parentheses for function calls. When enabled, completions also contain placeholders for method parameters'
+complete -c clangd -l header-insertion-decorators -d '- Prepend a circular dot or space before the completion label, depending on whether an include line will be inserted or not'
+complete -c clangd -l import-insertions -d '- If header insertion is enabled, add #import directives when accepting code completions or fixing includes in Objective-C code'
+complete -c clangd -l enable-config -d '- Read user and project configuration from YAML files.'
+complete -c clangd -s j -d '<uint>                           - Number of async workers used by clangd. Background index also uses this many workers.'
+complete -c clangd -l pretty -d '- Pretty-print JSON output'

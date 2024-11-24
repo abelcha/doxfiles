@@ -1,31 +1,31 @@
-complete -c duckdb -s append -d 'append the database to the end of the file'
-complete -c duckdb -s ascii -d set output mode to 'ascii'
-complete -c duckdb -s bail -d 'stop after hitting an error'
-complete -c duckdb -s batch -d 'force batch I/O'
-complete -c duckdb -s box -d set output mode to 'box'
-complete -c duckdb -s column -d set output mode to 'column'
-complete -c duckdb -s cmd -d 'COMMAND         run "COMMAND" before reading stdin'
-complete -c duckdb -s c -d 'COMMAND           run "COMMAND" and exit'
-complete -c duckdb -s csv -d set output mode to 'csv'
-complete -c duckdb -s echo -d 'print commands before execution'
-complete -c duckdb -s init -d 'FILENAME       read/process named file'
-complete -c duckdb -s help -d 'show this message'
-complete -c duckdb -s html -d 'set output mode to HTML'
-complete -c duckdb -s interactive -d 'force interactive I/O'
-complete -c duckdb -s json -d set output mode to 'json'
-complete -c duckdb -s line -d set output mode to 'line'
-complete -c duckdb -s list -d set output mode to 'list'
-complete -c duckdb -s markdown -d set output mode to 'markdown'
-complete -c duckdb -s newline -d SEP         set output row separator. Default: 'n'
-complete -c duckdb -s nofollow -d 'refuse to open symbolic links to database files'
-complete -c duckdb -s no-stdin -d 'exit after processing options instead of reading stdin'
-complete -c duckdb -s nullvalue -d TEXT      set text string for NULL values. Default ''
-complete -c duckdb -s quote -d set output mode to 'quote'
-complete -c duckdb -s readonly -d 'open the database read-only'
-complete -c duckdb -s s -d 'COMMAND           run "COMMAND" and exit'
-complete -c duckdb -s separator -d SEP       set output column separator. Default: '|'
-complete -c duckdb -s stats -d 'print memory stats before each finalize'
-complete -c duckdb -s table -d set output mode to 'table'
-complete -c duckdb -s unredacted -d 'allow printing unredacted secrets'
-complete -c duckdb -s unsigned -d 'allow loading of unsigned extensions'
-complete -c duckdb -s version -d 'show DuckDB version'
+complete -c duckdb -s append -d "append the database to the end of the file"
+complete -c duckdb -s ascii -d "set output mode to ascii"
+complete -c duckdb -s bail -d "stop after hitting an error"
+complete -c duckdb -s batch -d "force batch I/O"
+complete -c duckdb -s box -d "set output mode to box"
+complete -c duckdb -s column -d "set output mode to 'column'"
+complete -c duckdb -s cmd -d "COMMAND         run \"COMMAND\" before reading stdin"
+complete -c duckdb -s c -d "COMMAND           run \"COMMAND\" and exit"
+complete -c duckdb -s csv -d "set output mode to csv"
+complete -c duckdb -s echo -d "print commands before execution"
+complete -c duckdb -s init -d "FILENAME       read/process named file"
+complete -c duckdb -s help -d "show this message"
+complete -c duckdb -s html -d "set output mode to HTML"
+complete -c duckdb -s interactive -d "force interactive I/O"
+complete -c duckdb -s json -d "set output mode to json"
+complete -c duckdb -s line -d "set output mode to line"
+complete -c duckdb -s list -d "set output mode to list"
+complete -c duckdb -s markdown -d "set output mode to markdown"
+complete -c duckdb -s newline -d "SEP set output row separator. Default: n"
+complete -c duckdb -s nofollow -d "refuse to open symbolic links to database files"
+complete -c duckdb -s no-stdin -d "exit after processing options instead of reading stdin"
+complete -c duckdb -s nullvalue -d "TEXT set text string for NULL values. Default ''"
+complete -c duckdb -s quote -d "set output mode to quote"
+complete -c duckdb -s readonly -d "open the database read-only"
+complete -c duckdb -s s -d "COMMAND           run \"COMMAND\" and exit"
+complete -c duckdb -s separator -d "SEP set output column separator. Default: '|'"
+complete -c duckdb -s stats -d "print memory stats before each finalize"
+complete -c duckdb -s table -d "set output mode to 'table'"
+complete -c duckdb -s unredacted -d "allow printing unredacted secrets"
+complete -c duckdb -s unsigned -d "allow loading of unsigned extensions"
+complete -c duckdb -s version -d "show DuckDB version"

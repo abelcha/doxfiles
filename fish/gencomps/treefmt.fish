@@ -1,0 +1,11 @@
+#string replace -a -- {} treefmt  {} --help
+complete -c treefmt -s h -l help -d 'Show context-sensitive help.'
+complete -c treefmt -l allow-missing-formatter -d 'Do not exit with error if a configured'
+complete -c treefmt -l no-cache -d 'Ignore the evaluation cache entirely.'
+complete -c treefmt -s c -l clear-cache -d 'Reset the evaluation cache. Use in case the'
+complete -c treefmt -l fail-on-change -d 'Exit with error if any changes were made.'
+complete -c treefmt -s v -l verbose -d 'Set the verbosity of logs e.g. -vv'
+complete -c treefmt -n __fish_no_arguments -s V -l version -d 'Print version.'
+complete -c treefmt -s i -l init -d 'Create a new treefmt.toml.'
+complete -c treefmt -l stdin -d 'Format the context passed in via stdin.'
+complete -c treefmt -l ci -d 'Runs treefmt in a CI mode, enabling'

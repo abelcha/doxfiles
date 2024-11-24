@@ -1,0 +1,10 @@
+complete -c headj -s c -l count -d '<COUNT>          Number of elements to copy to the output (default: 100) [default:'
+complete -c headj -s d -l debug -d 'Activate extra debugging output'
+complete -c headj -s f -l format-output -d 'Nicely format the output JSON with indentation & newlines'
+complete -c headj -s h -l help -d 'Print help information'
+complete -c headj -s k -l key -d '<KEY>              The JSON key of the array to copy from. If none specified, treat'
+complete -c headj -s n -l no-context -d 'Output _only_ the target JSON array'
+complete -c headj -s o -l out-file -d '<OUT_FILE>    File to write the JSON results to (default: Standard Output)'
+complete -c headj -s q -l quiet -d Don\'t\ print\ any\ status,\ diagnostic\ or\ error\ messages
+complete -c headj -s s -l skip -d '<SKIP>            Number of elements to skip before copying (default: 0) [default: 0]'
+complete -c headj -n __fish_no_arguments -s V -l version -d 'Print version information'

@@ -1,0 +1,11 @@
+#string replace -a -- {} sqlfluff  {} --help
+complete -c sqlfluff -n __fish_no_arguments -l version -d 'Show the version and exit.'
+complete -c sqlfluff -s h -l help -d 'Show this message and exit.'
+complete -f -c sqlfluff -n __fish_use_subcommand -a dialects -d 'Show the current dialects available.'
+complete -f -c sqlfluff -n __fish_use_subcommand -a fix -d 'Fix SQL files.'
+complete -f -c sqlfluff -n __fish_use_subcommand -a format -d 'Autoformat SQL files.'
+complete -f -c sqlfluff -n __fish_use_subcommand -a lint -d 'Lint SQL files via passing a list of files or using stdin.'
+complete -f -c sqlfluff -n __fish_use_subcommand -a parse -d 'Parse SQL files and just spit out the result.'
+complete -f -c sqlfluff -n __fish_use_subcommand -a render -d 'Render SQL files and just spit out the result.'
+complete -f -c sqlfluff -n __fish_use_subcommand -a rules -d 'Show the current rules in use.'
+complete -f -c sqlfluff -n __fish_use_subcommand -a version -d 'Show the version of sqlfluff.'

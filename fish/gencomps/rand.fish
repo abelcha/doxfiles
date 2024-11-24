@@ -1,0 +1,8 @@
+complete -f -c rand -n __fish_use_subcommand -a random -d 'array [length]      Prints a shuffled array, array starts at 1 by default  [alias : arr]'
+complete -f -c rand -n __fish_use_subcommand -a random -d 'boolean             Prints a random boolean  [alias : bool]'
+complete -f -c rand -n __fish_use_subcommand -a random -d 'float               Prints a random floating point number between 0 (inclusive) and 1 (exclusive) with some chosen precision'
+complete -f -c rand -n __fish_use_subcommand -a random -d 'number <min> <max>  Prints a random integer number from a given range  [alias : num, integer, int]'
+complete -f -c rand -n __fish_use_subcommand -a random -d 'pick <items..>      Picks and print a random item from the given items'
+complete -f -c rand -n __fish_use_subcommand -a random -d 'string              Prints a random string  [alias : str]'
+complete -f -c rand -n __fish_use_subcommand -a random -d 'shuffle <items..>   Shuffles the given items'
+# complete -f -c rand -n __fish_no_arguments -x -a 'array boolean float number pick string shuffle'
