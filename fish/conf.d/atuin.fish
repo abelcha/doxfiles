@@ -19,7 +19,7 @@ if type -q atuin
     end
 
     function _atuin_search
-        set -l ATUIN_H "$(ATUIN_SHELL_FISH=t ATUIN_LOG=error atuin search $argv -i -- (commandline -b) 3>&1 1>&2 2>&3)"
+        set -l ATUIN_H "$(ATUIN_SHELL_FISH=t ATUIN_LOG=error atuin search $argv -i -- (commandline -op)[1] 3>&1 1>&2 2>&3)"
 
         if test -n "$ATUIN_H"
             if string match --quiet '__atuin_accept__:*' "$ATUIN_H"

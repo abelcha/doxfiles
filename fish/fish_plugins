@@ -1,12 +1,11 @@
 jorgebucaran/fisher
-patrickf1/fzf.fish
 gazorby/fifc
-dangh/dict.fish
 kpbaks/smart-ctrl-v.fish
-ryotako/fish-completion-generator
-triarius/sk-fish
 danhper/fish-ssh-agent
-kentork/fish-comp
 rmartine-ias/jq-fish-plugin
 jgantunes/fish-gvm
 edc/bass
+g-plane/pnpm-shell-completion
+patrickf1/fzf.fish
+fabioantunes/base16-fish-shell
+kentork/fish-comp

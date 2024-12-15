@@ -7,34 +7,35 @@ function imagedisk --wraps 'hdiutil create'
 end
 
 
-function taz --wraps pzstd
-    if test -f $argv[1]
+# function taz --wraps pzstd
+#     if test -f $argv[1]
 
-        pzstd --rm $argv[1]
-        return
-    end
-    # pv $argv[1] | tar -c - |
-    # pakz $argv[1]
-    #    tar -c - | pzstd -o $argv[1].tzst $argv[2..] && trash $argv[1]
-    # tar -cf '$argv[1].tar' $argv[1] && pzstdc  $argv[1..] --
-    #  tar cf - $argv[1] | pv -s (command gdu -sb $argv[1] | cut -f 1) -N (get_filename $argv[1]).tzst | pzstd $argv[1..] >(get_filename $argv[1]).tzst
-    # tcar -c - $argv[1] | pzstd $argv[1..] && trash $argv[1]
-    comp tar.zst $argv && trash $argv
+#         zstd --fast --rm $argv[1]
+#         return
+#     end
+#     # pv $argv[1] | tar -c - |
+#     # pakz $argv[1]
+#     #    tar -c - | pzstd -o $argv[1].tzst $argv[2..] && trash $argv[1]
+#     # tar -cf '$argv[1].tar' $argv[1] && pzstdc  $argv[1..] --
+#     #  tar cf - $argv[1] | pv -s (command gdu -sb $argv[1] | cut -f 1) -N (get_filename $argv[1]).tzst | pzstd $argv[1..] >(get_filename $argv[1]).tzst
+#     # tcar -c - $argv[1] | pzstd $argv[1..] && trash $argv[1]
+#     # comp tar.zst $argv && trash $argv
+#     aarpack compress $argv
 
-end
+# end
 
 function dz -a file
-    pv $file | pzstd -d --stdout | tar -x - -C . && trash $file
+    pv $file | zstd -d --stdout | tar -x - -C . && trash $file
 end
 
-function pak --wraps tar
-    set -l dir (echo $argv[1] | sd '/$' '')
-    tar --create --gzip --file "$dir.tar.gz" $dir
-end
+# function pak --wraps tar
+#     set -l dir (echo $argv[1] | sd '/$' '')
+#     tar --create --gzip --file "$dir.tar.gz" $dir
+# end
 
 
 
-function pax --wraps tar
+function paxz --wraps tar
     set -l dir (echo $argv[1] | sd '/$' '')
     # tar --create --xz --file "$dir.tar.xz" $dir
     # tar -I/opt/homebrew/bin/pixz -cf output.tar.xz $dir
@@ -57,5 +58,3 @@ function zipy
     zip -qrm "$folder.zip" "$folder" && trash "$folder"
     dx -s=live "$folder.zip"
 end
-
-

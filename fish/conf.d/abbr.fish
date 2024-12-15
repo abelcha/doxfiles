@@ -1,7 +1,7 @@
 
 # https://github.com/pynappo/dotfiles/blob/ebc81db4a96575b053a9ff1eebd0b8a73c8ce703/.config/fish/config.fish#L65
 abbr -a --set-cursor wl -- while read -l line\n echo %\nend\n
-
+abbr -a -- mc mods --continue-last
 abbr -a -p anywhere -- \:3 'http://localhost:3000'
 abbr -a -p anywhere -- \:3 'http://localhost:3000'
 abbr -a -- \.1 awk '{ print \$1 }'
@@ -12,20 +12,23 @@ abbr -a -- \.5 awk '{ print \$5 }'
 abbr -a -- dr 'dx -s=live'
 abbr -a -- sqb sqlitebiter
 abbr -a -- pi 'pip install -r requirements.txt'
-abbr -a -- ss 'brew services'
-abbr -a -- bs 'brew search'
+abbr -a -- ss 'set -S'
+abbr -a -- bs 'brew search --eval-all --desc'
 abbr -a -- bi 'brew info'
+abbr -a -- do doctl
 abbr -a -- bn 'brew install'
+
 abbr -a -- abr 'mi ~/config/fish/conf.d/abbr.fish && _reload_fish'
 abbr -a -- als 'mi ~/config/fish/conf.d/aliases.fish && _reload_fish'
 abbr -a -- kb 'mi ~/config/fish/functions/fish_user_key_bindings.fish && _reload_fish'
 abbr -a -- pipi 'uv pip install -r requirements.txt'
-abbr -a -- fconf 'mi ~/config/fish/ && fish'
+abbr -a -- fc 'mi ~/config/fish/config.fish && _reload_fish'
 abbr -a -- gsm 'git status .'
 abbr -a -- mtr 'sudo mtr'
 abbr -a -- bung 'bun --global install'
 abbr -a -- chx "sudo chmod -R +x"
-abbr -a -- pir "pip install -r ./requirements.txt"
+# abbr -a -- pir "pip install -r ./requirements.txt"
+abbr -a -- cl csvlens
 
 function strFirst
     set -l text $argv[1]
@@ -114,6 +117,16 @@ abbr -a dostart --position anywhere --set-cursor --regex "[\.\:]\w+" --function 
 abbr -a docmd --position command --set-cursor --regex "[\.\:]\w+" --function dot_start
 
 
+function __dollar -a key
+    # set -q (echo $key); and echo __ $key
+    # set -l nxt -- "set \-\-show $key"
+    commandline --replace ""
+
+    echo (string replace '$' '' --  "set --show $key")
+end
+
+abbr -a dolx --set-cursor --regex '\$[\w\[\]]+' -f __dollar
+
 function _last_history_item_nth_word
     set -l cmd (string split " " $history[1])
     set -l idx -(echo $argv[1] | string split '!')[3]
@@ -166,9 +179,9 @@ function diff_expand2
     echo "HEAD$(echo '^' | string repeat -n $split[2])"
 end
 
-abbr --add diffxp --position anywhere --regex '^[0-9]{1,2}\^[0-9]{1,2}$' --function diff_expand
+# abbr --add diffxp --position anywhere --regex '^[0-9]{1,2}\^[0-9]{1,2}$' --function diff_expand
 
-abbr --add diffxwp --position anywhere --regex '^\^[0-9]{1,2}$' --function diff_expand2
+# abbr --add diffxwp --position anywhere --regex '^\^[0-9]{1,2}$' --function diff_expand2
 
 
 function escape_url_arg
@@ -179,8 +192,21 @@ function raw_github_url
     echo $argv[1] | sd /blob/ /raw/
 end
 
+function anon_url
+    echo $argv[1] | sd /\d/ /X/
+end
+
+function clonable_github
+    # echo "CLONAME GITHUB"
+    # c  echo $argv[1] | sd /blob/ /raw/
+    string replace -r '/tree.+' '' -- $argv[1]
+end
+
+abbr -a ghclone_safe --position anywhere --regex "http.+github.com/.+/.+/tree/.+" --function clonable_github
 abbr -a gh_safe --position anywhere --regex "http.+github.com.+/blob/.+" --function raw_github_url
-abbr -a url_safe --position anywhere --regex "http.+[\&\?].+" --function escape_url_arg
+abbr -a path_anon --position anywhere --regex "/Users/a\w{9}r/" --function anon
+abbr -a url_safe --position anywhere --regex "[a-z]{3,10}://.+[\&\?].+" --function escape_url_arg
+abbr -a url_safe --position anywhere --regex "[a-z\-]+\.[a-z]{2,5}[\&\?].+" --function escape_url_arg
 function dict --argument-names id action key value
     set --local id (string escape --style=var $id)
     set --local keys_ref _dict_{$id}_keys
@@ -214,27 +240,41 @@ end
 
 set -g dmap
 
-dict dmap set d "~/dev/"
-dict dmap set da "~/dev/awesome-find/"
+dict dmap set d /me/dev/
+dict dmap set da /me/dev/awesome-find/
 
-dict dmap set dl "~/Downloads/"
+dict dmap set dl /me/Downloads/
 dict dmap set h "$HOME/"
-dict dmap set c "~/config/"
-dict dmap set ca "~/config/aichat/config.yaml"
-dict dmap set f "~/config/fish"
-dict dmap set ch "~/config/helix/"
-dict dmap set hc "~/config/helix/config.toml"
-dict dmap set fc "~/config/fish/config.fish"
-dict dmap set fp "~/config/fish/conf.d/ports.fish"
-dict dmap set fa "~/config/fish/conf.d/aliases.fish"
-dict dmap set fb "~/config/fish/conf.d/abbr.fish"
-dict dmap set ch "~/config/hammerspoon"
-# dict dmap set cm "~/config/micro/"
-dict dmap set z "~/config/zsh/"
-dict dmap set za "~/config/zsh/aliases.zsh"
-dict dmap set zf "~/config/zsh/functions.zsh"
-dict dmap set zrc "~/config/zsh/.zshrc"
-dict dmap set zh "~/config/zsh/.zsh_history"
-dict dmap set ds "~/datasets/"
-dict dmap set t /Volume/T9/
-dict dmap set s "~/opsec"
+dict dmap set c /me/config/
+dict dmap set ca "/me/config/aichat/config.yaml"
+dict dmap set f /me/config/fish/
+dict dmap set ch /me/config/helix/
+dict dmap set b /me/backup/
+dict dmap set hc "/me/config/helix/config.toml"
+dict dmap set fc "/me/config/fish/config.fish"
+dict dmap set fd "/me/config/fish/conf.d"
+dict dmap set ff /me/config/fish/functions
+dict dmap set fg /me/config/fish/completions
+dict dmap set fa "/me/config/fish/conf.d/aliases.fish"
+dict dmap set fb "/me/config/fish/conf.d/abbr.fish"
+dict dmap set ch /me/config/hammerspoon
+dict dmap set a /me/
+# dict dmap set cm "/me/config/micro/"
+# dict dmap set e /Volumes/explore/
+dict dmap set z /me/config/zsh/
+dict dmap set za "/me/config/zsh/aliases.zsh"
+dict dmap set zf "/me/config/zsh/functions.zsh"
+dict dmap set zrc "/me/config/zsh/.zshrc"
+dict dmap set zh "/me/config/zsh/.zsh_history"
+dict dmap set ds /me/datasets/
+dict dmap set xx /me/XDL/
+dict dmap set x /me/XDL/
+dict dmap set t /tmp/
+dict dmap set w /me/dev/P2/examples/corewar/
+dict dmap set v /Volumes/
+dict dmap set s /me/datasets/sherlock/
+dict dmap set e /me/datasets/entreprise/
+dict dmap set se /dev/stderr
+dict dmap set so /dev/stdout
+dict dmap set su /dev/null
+dict dmap set va /opt/v/

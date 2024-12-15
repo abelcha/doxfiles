@@ -25,6 +25,6 @@ function dcp --wraps=duckdb
     end
     #echo "SOURCE: $source =="
     set -l cmd "COPY $source TO '$dest' $opts ;"
-    echo duckdb -c $cmd >&2
+    echo duckdb -c \" $cmd \" >&2
     duckdb -c $cmd
 end

@@ -1,24 +1,70 @@
 .highlight on
-.maxrows 100
+.maxrows 110
 .prompt '▷ '
 .nullvalue ¤
+.echo off
+-- main duckdb config
+
 
 .headers on
+
+
+
+
 --.timer on
 SET temp_directory TO '/tmp';
+INSTALL spatial;
+LOAD spatial;
+--INSTALL h3 FROM community;
+--LOAD h3;
+LOAD shellfs
+CREATE OR REPLACE MACRO ratio(cunt, total) as (cunt - total) / total; 
+
+
+-- CREATE OR UPDATE MACRO ratio(truepositive, totalpositive) AS (     format ('{:.1f}%', 100*(totalpositive-truepositive)/truepositive) );
 CREATE OR REPLACE MACRO lenx(a) AS CASE WHEN len(a)=0 THEN NULL ELSE len(a) END;
 CREATE OR REPLACE MACRO deburr(a) AS TRIM(STRIP_ACCENTS(LOWER(a)));
 CREATE OR REPLACE MACRO phone_clean(a) AS regexp_replace(a, '[^0-9+]', '', 'g');
 CREATE or replace MACRO phone_fmt1(a) AS regexp_replace(a, '^00', '+');
 CREATE or replace MACRO phone_fmt2(a) AS regexp_replace(a, '^0', '');
 CREATE or replace MACRO phone_fmt3(a) AS CASE WHEN starts_with(a, '33') THEN concat('+', a) ELSE a END;
+
+CREATE OR REPLACE MACRO px_ratio(truepositive, totalpositive) AS format ('{:.1f}%', 100*(totalpositive-truepositive)/truepositive);
+CREATE OR REPLACE MACRO xpercent(a) AS format('{:09d}',  a);
 CREATE or replace MACRO phone_fmt4(a) AS CASE WHEN len(a)=9 THEN concat('+33', a) ELSE a END;
-
+CREATE OR REPLACE MACRO is_mobile_fr(phone) AS CASE WHEN phone SIMILAR TO '^(\+33|0033|0)?[67].+' THEN true ELSE false END;
 CREATE or replace MACRO phone_fmtn(a) AS CASE WHEN len(a)<8 THEN null ELSE phone_fmt4(phone_fmt3(phone_fmt2(a))) END;
-
-
 create or replace MACRO phormat(a) AS phone_fmtn(phone_clean(a));
--- 33695151291
+CREATE OR REPLACE MACRO PICKMOBILE_FR(a, b) AS case when is_mobile_fr(b) AND NOT is_mobile_fr(a) THEN b else a end;
+ 
 .headers ON
-INSTALL spatial;
-LOAD spatial;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
