@@ -18,7 +18,6 @@ cargo install watchexec               ;
 cargo install uv                      ; 
 cargo install sk                      ; 
 cargo install rga                     ; 
-cargo install unar                    ; 
 cargo install csvlens                 ; 
 
 
