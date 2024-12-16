@@ -8,7 +8,7 @@ function read_duck --argument ext file options
     #echo "options $options << "
     set -l read_options (string join , $options)
     #echo "readopts $read_options <<"
-    echo $args >&2
+    #echo $args >&2
     #set -l cmd "COPY (SELECT * FROM $read_fn($read_options)) TO '$tmpfile'"   
     set -l cmd "(SELECT * FROM $read_fn($read_options))"
     echo $cmd

@@ -1,147 +1,275 @@
-bind --preset \eb backward-word
-bind --preset \ef forward-word
+function __actual_cmd_token
+    set -l resp (commandline -op)
+    if echo "$resp[1]" | rg -w 'sudo|__|time|bkt' --quiet
+        echo $resp[2]
+    else
+        echo $resp[1]
+    end
+end
 
-# bind \ek beginning-of-line kill-word
+function _fish_xxx_current_dir -d "List contents of token under the cursor if it is a directory, otherwise list the contents of the current directory"
+    set -l val (commandline -t | string replace -r '^~' "$HOME")
+    set -l cmd
+    if test -d $val
+        set cmd $argv[1] $val
+    else
+        set -l dir (dirname -- $val)
+        if test $dir != . -a -d $dir
+            set cmd $argv[1] $dir
+        else
+            set cmd $argv[1]
+        end
+    end
+    __fish_echo $cmd
+end
 
-bind \eK beginning-of-line kill-word
-
-bind \es _fzf_search_git_status
-
+function _fish_xxx_current_path -d "List contents of token under the cursor if it is a directory, otherwise list the contents of the current directory"
+    set -l val (commandline -t | string replace -r '^~' "$HOME")
+    set -l cmd
+    if test -e $val
+        set cmd $argv[1] $val
+    else
+        set cmd $argv[1]
+    end
+    __fish_echo $cmd
+end
 
 function gencomp_auto --wraps gencomp
-    set cmd (commandline -op)
-    commandline --replace (echo -n gencomp $cmd[1])
-
-    # eval "echo; hr; gencomp $cmd[1]"
+    set cmd (__actual_cmd_token)
+    # if string match -q -r '..dry.run' -- "$cmd"
+    #     set nwcmd (string replace '..dry.run' "$cmd")
+    #     exec "$nwcmd"
+    #     commandline -f repaint
+    # end
+    commandline --replace (echo -n gencomp3 $cmd --dry-run)
+end
+# https://gist.github.com/jamiew/40c66061b666272462c17f65addb14d5
+function which_auto --wraps which
+    set cmd (__actual_cmd_token)
+    echo
+    hr '★・・・・・・'
+    w $cmd
     # commandline -f repaint
 end
 
-function which_auto --wraps which
-    set cmd (commandline -op)
-    #commandline --replace -- "which $cmd[1]"
-    eval "echo; hr; which $cmd[1]"
-    commandline -f repaint
-end
-
-
 function help_auto
-    set cmd (commandline -op)
-    #commandline --replace -- "which $cmd[1]"
-    eval "$cmd[1] --help|bat --language help --paging always"
+    set cmd (__actual_cmd_token)
+    eval "$cmd --help|bat --language help --paging always"
     commandline -f repaint
 end
 
 function tldr_auto
-    set cmd (commandline -op)
-    eval "echo; hr; tldr $cmd[1]"
+    set cmd (__actual_cmd_token)
+    eval "echo; hr; tldr $cmd"
     commandline -f repaint
 end
-
-function fish_user_key_bindings
-    bind \e\[1\;5A prevd
-    bind \e\[1\;5B nextd
-    # bind \ef --preset --erase
-    bind \eF _reload_fish
-    bind \eH help_auto
-    bind bind -k f4 help_auto
-    bind \eG gencomp_auto
-    bind \eg 'genuine compedit'
-    bind \ek fish_key_reader
-    bind \ej which_auto
-    bind -k f4 help_auto
-    bind \em 'genfn man'
-    bind \ew 'geninline w'
-    bind \et tldr_auto
-    bind \e\[1\;5A _atuin_bind_up
-    bind \e\[1\;5B _atuin_bind_down
-    bind \e\e\[A history-prefix-search-backward
-    bind \e\e\[B history-prefix-search-forward
-    bind \eƒ 'hx ~/config/fish'
-    # bind \ew 'genfn compedit'
-end
-
-
 
 function history_merge
     history merge
 end
 
+function run_preview
+    # if commandline
+    set -l cmd (__actual_cmd_token)
+    # set -l fullbuff (commandline --current-buffer)
+    # set -S fullbuff
+    # if set -S fullbuff | rg '[^1]\selements'
+    #     string join \n $fullbuff | fish
+    #     # echo gt1111
+    #     return
+    # end
+    # if [ "$cmd[1]" = while ]
+    # echo reeeeeed
+    # return
+    # end
+    if echo "$cmd" | rg -w 'rm|cp|mv|mkdir' --quiet
+        # echo
+        echo
+        hr '⚠︎'
+        echo command detected, doing nuthin
+    else if test -n "$cmd"
+        echo
+        hr '•°•°•°•°°'
+        # exec "echo; hr '✰'"
+        # echo "|$(commandline --current-buffer)|"
+        set fullcmd (commandline --current-buffer)
+        if set -S fullcmd | rg '[^1]\selements' --quiet
+            string join \n $fullcmd | fish
+            commandline -f repaint
+            echo '•°•°•°•°°'
+            echo
+        else
+            eval "$fullcmd"
+        end
+    end
+    commandline -f repaint
+end
 
 function history_save
     history save
-end
-
-function dump_commandline_test
-    echo -----------
-    # echo (commandline -j) # print only the full command 
-    # echo (commandline -p) # print only pwd -l in: ls|cat| pwd -l
-    echo (commandline -op) # print only pwd -l in: ls|cat| pwd -l
-    echo -----d------
 end
 
 function current_command
     set z (commandline -op)
     echo $z[1]
 end
-
-bind \e\& current_command
-bind \e\[O history_save
-bind \e\[I history_merge
-
-
-bind \cv __smart-ctrl-v.fish::paste
-
-#bind \e\h __fish_man_page
-#bind \e\? _help_page
 function geninline -a cmd
-
-    # set cmd (commandline -op)
-    #commandline --replace -- "which $cmd[1]"
-    eval "echo; hr;  $cmd (current_command)"
+    echo
+    hr '* . ﹢ ˖ ✦ ¸ . ﹢ °'
+    echo $cmd (current_command) | fish
     commandline -f repaint
 end
 function genuine -a cmd
-    eval $cmd (current_command)
+    eval $cmd (__actual_cmd_token)
 end
-function genfn -a cmd
-    if eval "$cmd (current_command)" &>/dev/null
-        eval "$cmd (current_command) | bat --paging always --language sh --theme Dracula"
+function genfn -a cmd lang
+    # if eval "$cmd (current_command)" &>/dev/null
+    # set -l commandx (current_command)
+    set z (commandline -op)
+
+    if eval "$cmd $z[1]" &>/dev/null
+        eval "$cmd $z[1] | bat --paging always --language sh --theme Dracula"
+    else
+        commandline -f repaint
+    end
+    # command $cmd $commandx
+    # end
+
+end
+
+function genxcat -a cmd
+    # dump_commandline_test
+    xcat (commandline -C)
+end
+function genxmi -a cmd
+    # dump_commandline_test
+    hx (commandline --current-token)
+end
+function genbroot -a cmd
+    # dump_commandline_test
+    br (commandline --current-token)
+end
+
+function bekill
+
+    if test -z "$(commandline -op)"
+        # echo noline
+        # _fzf_search_directory
+        fish_key_reader -c
+    else
+        echo "cursor: $(commandline --cursor)" >>/tmp/whatever
+        if test (commandline --cursor) -lt 5
+            # commandline --insert POP THAT
+            # return
+            echo "before: $POP_CMD" >>/tmp/whatever
+            set temp $POP_CMD[1]
+            commandline -f kill-word
+            sleep 0.1
+            commandline --insert "$temp "
+            commandline -f beginning-of-line
+            set POP_CMD $POP_CMD[2..]
+            set --append POP_CMD $temp
+            echo "$temp" >>/tmp/whatever
+            echo "now: $POP_CMD" >>/tmp/whatever
+        else
+            commandline -f beginning-of-line
+            commandline -f kill-word
+
+        end
+
     end
 end
-
-function genafter -a prepend
-    # if eval "(current_command)c" &>/dev/null
-    eval "$cmd (current_command) | bat --paging always --language sh --theme Dracula"
-    # end
+function insertnull
+    commandline --insert "> /dev/null"
 end
 
+# function swap_args
 
-bind \ec 'genfn cheat'
-bind \e- history-token-search-forward
-bind \e_ history-token-search-backward
-
-# bind \e\[A 'history --merge ; up-or-search'
-# . ~/.config/fish/aliases.fish
-# . ~/.config/fish/ports.fish
-
-# set -U fifc_keybinding \e\[Z
-# set -U fifc_keybinding \e\[Z
-
-bind \eOR complete-and-search
-# bind \eOQ history-pager
-#bind \eOS help
-
-bind \eOQ _fzf_search_directory
-
-bind \eR _atuin_search
-bind \e\[1\;5A _atuin_bind_up
-bind \e\[1\;5B _atuin_bind_down
-
-# bind \eOA _atuin_bind_up
-# bind \e\[A _atuin_bind_up
-# if bind -M insert > /dev/null 2>&1
-# bind -M insert \cr _atuin_search
-# bind -M insert -k up _atuin_bind_up
-# bind -M insert \eOA _atuin_bind_up
-# bind -M insert \e\[A _atuin_bind_up
-# end
+function fish_user_key_bindings
+    echo "mi cd mv cp cat codm" | read -g --export -a POP_CMD
+    bind --preset alt-b backward-word
+    bind --preset alt-f forward-word
+    #   bind alt-k bekill #beginning-of-line kill-word
+    #   bind alt-s _fzf_search_git_status
+    #   bind alt-w 'geninline w'
+    #   bind alt-W 'geninline ww'
+    #   bind alt-t tldr_auto
+    #   bind alt-S 'genfn sm csv'
+    #   bind \e\$ transpose-words
+    #   bind \cR _atuin_search
+    #   bind alt-b genbroot
+    #   bind alt-ƒ _fzf_search_directory
+    #   bind alt-OR complete-and-search
+    #   bind alt-OQ complete-and-search
+    #   # bind alt-c genxcat
+    #   bind alt-O genxmi
+    #   bind alt-m 'genuine man'
+    #   bind \e\# insertnull
+    #   bind alt-K fish_key_reader
+    #   bind alt-j which_auto
+    #   bind alt-H help_auto
+    #   bind alt-g 'genuine compedit'
+    #   bind alt-G gencomp_auto
+    #   bind alt-F _reload_fish
+    #   bind alt-D dump_commandline_test
+    #   bind alt-r run_preview
+    #   bind alt-c 'genfn cheat ash'
+    #   bind alt-C 'genuine compfind'
+    #   bind alt-u 'genuine funcis'
+    #   bind \e\e\[B history-prefix-search-forward
+    #   bind \e\e\[A history-prefix-search-backward
+    #   bind \e\& current_command
+    #   bind \e\[O history_save
+    #   bind \e\[I history_merge
+    #   bind \e\[1\;5B nextd
+    #   # bind \e\[1\;5B _atuin_bind_down
+    #   bind \e\[1\;5A prevd
+    #   bind \e\[1\;5A _atuin_bind_up
+    #   bind alt-- history-token-search-forward
+    #   bind alt-_ history-token-search-backward
+    #   bind \cv '__smart-ctrl-v.fish::paste'
+    #   bind \cF 'hx ~/config/fish/config.fish && _reload_fish'
+    #   bind alt-backspace backward-kill-word
+    #   bind -k f4 help_auto
+    bind alt-j which_auto
+    bind alt-k bekill
+    bind alt-s _fzf_search_git_status
+    bind alt-w 'geninline w'
+    bind alt-W 'geninline ww'
+    bind alt-t tldr_auto
+    bind alt-S 'genfn sm csv'
+    bind alt-\$ transpose-words
+    bind ctrl-r _atuin_search
+    bind alt-ß '_fish_xxx_current_dir br'
+    bind ctrl-alt-l '_fish_xxx_current_dir lls'
+    bind ctrl-l '_fish_xxx_current_path ll'
+    bind alt-l '_fish_xxx_current_dir lld'
+    bind alt-ƒ _fzf_search_directory
+    bind \eOR complete-and-search
+    bind \eOQ complete-and-search
+    bind alt-O genxmi
+    bind alt-A 'commandline -f expand-abbr'
+    bind alt-m 'genuine man'
+    bind alt-\# insertnull
+    bind alt-K fish_key_reader
+    bind alt-H help_auto
+    bind alt-g 'genuine compedit'
+    bind alt-G gencomp_auto
+    bind alt-F _reload_fish
+    bind alt-D dump_commandline_test
+    bind alt-r run_preview
+    bind alt-c 'genfn cheat ash'
+    bind alt-C 'genuine compfind'
+    bind alt-u 'genuine funcis'
+    bind \e\e\[B history-prefix-search-forward
+    bind \e\e\[A history-prefix-search-backward
+    bind alt-\& current_command
+    bind \e\[O history_save
+    bind \e\[I history_merge
+    bind \e\[1\;5B nextd
+    bind \e\[1\;5A _atuin_ bind_up
+    bind alt-minus history-token-search-forward
+    bind alt-_ history-token-search-backward
+    bind ctrl-f 'hx ~/config/fish/config.fish && _reload_fish'
+    bind alt-backspace backward-kill-word
+end

@@ -4,6 +4,7 @@ function _reload_fish
     #history merge
     echo
     echo
+    #hr "  ><(((º> "
     hr "¸.·´¯`·.¸><((((º>  "
     echo
     exec fish

@@ -87,7 +87,7 @@ alias bottom="btm"
 alias dxl="dx --strategy=live"
 alias charm="gum"
 alias datafusion="datafusion-cli"
-alias compfiles="fd  --type=file  .fish $fish_complete_path"
+# alias compfiles="fd  --type=file  .fish $fish_complete_path"
 # alias compfind="compfiles |skp --query "
 alias jsonll="jq . -s"
 alias rev-lines tac
@@ -125,7 +125,6 @@ alias lls "ll  --sort size "
 alias ls "ls --color=auto -t"
 # alias mi hx
 alias mik "micro ~/.config/micro/bindings.json"
-
 
 if type -q advcp
     alias cp "advcp -gir"

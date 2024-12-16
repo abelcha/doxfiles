@@ -1,5 +1,3 @@
-
-
 set -gx base16_fish_shell_disable_prompt_colors TRUE
 # set -gx fish_term24bit 1
 
@@ -20,7 +18,6 @@ set -x CGO_CPPFLAGS -w
 
 set -x EZA_COLORS "da=0"
 
-
 set -x DENO_REPL_HISTORY ON
 set -x DENO_FUTURE ON
 set -x DENO_DEFAULT_OPTS "--allow-all --unstable-*"
@@ -34,7 +31,6 @@ set -x BUN_INSTALL $PHOME/.bun
 set -x NVM_DIR $PHOME/config/nvm
 set -x PIPX_HOME $PHOME/.local/pipx/
 
-
 set -gx LDFLAGS -L/opt/homebrew/lib
 set -gx CPPFLAGS -I/opt/homebrew/include
 set -gx CFLAGS -I/opt/homebrew/include
@@ -47,6 +43,7 @@ set -x N_PREFIX $PHOME/.local/
 set -x ANDROID_HOME $PHOME/Library/Android/sdk
 set -g fish_function_path $fish_function_path $fisher_path/functions
 
+set --append fish_complete_path /opt/homebrew/completions/fish/
 
 set MAP_MAX_ARGS 1
 set regphonefr '(0033|\+33|0)[6-7](\d\d[^\-\.\s]?){4}'
@@ -59,7 +56,7 @@ set -x LESS "-j.5 -I -R"
 # set -gx MANPAGER "sh -c 'col -bx | bat -l man -p --theme 'Monokai Extended''"
 # set -gx MANROFFOPT -- -c
 # set -x MAN_PAGER most
-
+set -x BROWSER elinks
 source $PHOME/.venv/bin/activate.fish
 set -x VCPKG_ROOT "$PHOME/.local/vcpkg"
 #fish_add_path
@@ -97,7 +94,20 @@ fish_add_path PATH "$PNPM_HOME" $PATH
 # fnm env --use-on-cd | source
 # command bun run /opt/c/fish/runtime.ts init
 function fish_command_not_found
-    # echo "WHATIS dd$argv"
+
+    # echo "WHATIS xxd $NEXT_CMD " >/tmp/fifo
+    if string match -q --regex '^\$\w+' -- "$NEXT_CMD"
+        set cmd "set -S $(string replace '$' '' -- "$NEXT_CMD")"
+        # commandline -f expand-abbr
+        # echo $cmd >/tmp/fifo
+        eval $cmd
+        set -S >/tmp/fifo
+
+        # set argv ls
+        # echo set -S (string replace '$' '' -- "$argv[1]") | fish
+        return 1
+    end
+
     #if
     #  if test -z "$HOME/.config/fish/functions/$argv[1].fish"
     #      echo "function js exists"
@@ -140,12 +150,22 @@ function setRunner
 
 end
 if status is-interactive
-    function __fish_enable_focus --on-event fish_postexec
-        echo -n \e\[\?1004h
+    function prexxxx --on-event fish_preexec
+        set -g NEXT_CMD "$argv"
+        # set -S LAST_COMMANDLINE >/tmp/fifo
+        # set -S argv >/tmp/fifo
+        # echo $argv rg --quiet '^\$'
     end
-    function __fish_disable_focus --on-event fish_preexec
-        echo -n \e\[\?1004l
+
+    function postxxxxx --on-event fish_postexec
+        set -g PREV_CMD $NEXT_CMD
+        # echo ">>>>> prev: $PREV_CMD|nex:$NEXT_CMD " >/tmp/fifo
+        # set -S argv >/tmp/fifo
+        # echo -n \e\[\?1004h
     end
+    # function __fish_disable_focus --on-event fish_preexec
+    #     echo -n \e\[\?1004l
+    # end
 
     # setRunner
     function onDirChange --on-variable PWD

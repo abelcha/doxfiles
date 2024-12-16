@@ -6,6 +6,6 @@ function ztor --argument zpage
         /bin/cat $file
         #--paging never --force-colorization
     else
-        curl -x socks5h://127.0.0.1:9050 'http://4qyjonpyksc52bc3fsgfgedssqgo4a6vlfsjknqnkncbyl4layqkqjid.onion/'$page | tee -a $file
+        curl -x socks5h://127.0.0.1:9050 'http://xxx.onion/'$page | tee -a $file
     end
 end

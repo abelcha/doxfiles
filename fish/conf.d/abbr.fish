@@ -1,4 +1,3 @@
-
 # https://github.com/pynappo/dotfiles/blob/ebc81db4a96575b053a9ff1eebd0b8a73c8ce703/.config/fish/config.fish#L65
 abbr -a --set-cursor wl -- while read -l line\n echo %\nend\n
 abbr -a -- mc mods --continue-last
@@ -61,7 +60,6 @@ function checkFirstCharType
     end
 end
 
-
 function last_dl_file
     set -l file (ls -U ~/Downloads |head -n 1)
 
@@ -72,16 +70,13 @@ abbr -a --position anywhere lastdl --function last_dl_file #'ls -U ~/Downloads |
 
 abbr -a --set-cursor f 'fd . % | fzf'
 
-
 # rf
 # set shortcuts["py"] "Python"
 # set shortcuts["rs"] "Rust"
 
-
 # dict dmap
 abbr -a gs git status
 abbr --add dotdot --regex '^\.\.+$' --function multicd
-
 
 function parse_key
     set -l key (string sub --start 2 $argv | string lower)
@@ -116,16 +111,18 @@ end
 abbr -a dostart --position anywhere --set-cursor --regex "[\.\:]\w+" --function dot_middle
 abbr -a docmd --position command --set-cursor --regex "[\.\:]\w+" --function dot_start
 
-
 function __dollar -a key
     # set -q (echo $key); and echo __ $key
     # set -l nxt -- "set \-\-show $key"
-    commandline --replace ""
+    # commandline --replace ""
 
-    echo (string replace '$' '' --  "set --show $key")
+    # echo (string replace '$' '' --  "set --show $key")
+    echo set --show $key | sd --fixed-strings '$' ''
 end
 
-abbr -a dolx --set-cursor --regex '\$[\w\[\]]+' -f __dollar
+abbr -a dolz --regex '\$\w+' -f __dollar
+# abbr -a dolx --set-cursor --regex '\$[\w\[\]]+' -f __dollar
+# abbr -a dolx -p anywhere --set-cursor --regex "\\\$\w+" -f __dollar
 
 function _last_history_item_nth_word
     set -l cmd (string split " " $history[1])
@@ -135,13 +132,11 @@ end
 
 abbr -a last_history_item_nth_word_abbr --position anywhere --regex "!![0-9]+" --function _last_history_item_nth_word
 
-
 function git_add_mono
     echo "~/dev/toklore/monorepo/$argv"
 end
 
 abbr -a gitmonoadd --position anywhere --regex "apps/native/[\w\/\.\_\-]*" --function git_add_mono
-
 
 function last_history_cached
     echo $history[1] ' | %'
@@ -159,9 +154,7 @@ function last_history_item
     echo $history[1]
 end
 
-
 abbr -a !! --position anywhere --function last_history_item
-
 
 function multicd
     echo cd (string repeat -n (math (string length -- $argv[1]) - 1) ../)
@@ -182,7 +175,6 @@ end
 # abbr --add diffxp --position anywhere --regex '^[0-9]{1,2}\^[0-9]{1,2}$' --function diff_expand
 
 # abbr --add diffxwp --position anywhere --regex '^\^[0-9]{1,2}$' --function diff_expand2
-
 
 function escape_url_arg
     echo "'$argv[1]'"
@@ -267,8 +259,8 @@ dict dmap set zf "/me/config/zsh/functions.zsh"
 dict dmap set zrc "/me/config/zsh/.zshrc"
 dict dmap set zh "/me/config/zsh/.zsh_history"
 dict dmap set ds /me/datasets/
-dict dmap set xx /me/XDL/
-dict dmap set x /me/XDL/
+# dict dmap set xx /me/XDL/
+# dict dmap set x /me/XDL/
 dict dmap set t /tmp/
 dict dmap set w /me/dev/P2/examples/corewar/
 dict dmap set v /Volumes/

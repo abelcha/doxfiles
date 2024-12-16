@@ -1,13 +1,11 @@
 function from --wraps=duckdb
-    argparse --name=my_function h/help 'db=?' -- $argv
-    or return
-    #argparse 'db=' -- $argv
-    #//or return
-    #echo "CMDCMDMCDF |$_flag_db|"
-    set args (echo $argv[2..] | tr   '][@‘“' ")(*'\"")
-    echo $args >&2
-    set -l cmd "FROM \"$argv[1]\" $args"
-    #set -l output ""
-    echo duck -c "$cmd" $DUCK_DISPLAY $DD >&2
+    set args (duckescape  $argv[2..])
+    #echo $args >&2
+    set -l cmd "FROM '$argv[1]' $args"
+    #echo duck -c \"( 
+    #echo "$cmd" $DUCK_DISPLAY $DD | sqlfmt --line-length (colwidth) --quiet - | shiki --lang sql --theme github-dark --color always >/dev/stderr
+    #-q --force-color --line-length (colwidth)
+    #exit | shiki --lang sql --theme github-dark --color always >/dev/stderr
+    #)\" >/dev/stderr
     duck $DUCK_DISPLAY $DD -c "$cmd"
 end

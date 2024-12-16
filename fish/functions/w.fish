@@ -1,13 +1,45 @@
-
-function w --wraps command
-    /usr/bin/which -a "$argv[1]" | while read -l file
-        if test -L $file
-            set origin (readlink -f $file)
-            echo "$file -> $origin"
-        else
-            echo "$file"
-        end
+function w --wraps=command
+    argparse --ignore-unknown f/full -- $argv
+    #echo "_flag_full: |$_flag_full|"
+    #set -l realwich (realpath/usr/bin/which  $argv[1]))
+    set xtype (fish -c "type -p $argv[1]")
+    #set ztype (fish -c "type -p $argv[1]")
+    if [ (echo $xtype| wc -m) -lt 10 ]
+        type $argv[1]
+        return
     end
-    functions "$argv[1]"
-end
 
+    if not test -e "$xtype"
+        echo -e (set_color --dim ) not found
+        return
+    end
+    set source (realpath "$xtype"|choose 0)
+    echo -n "$xtype" | anon
+    test -L "$xtype"; and echo -n (set_color blue) " -> $(realpath $source|anon)"
+    echo
+    if [ -e "$source" -a "$(head $source|uchardet)" != unknown ]
+        preview_script $source
+        #string match --quiet -e "$xfile" "$source"; and set -l mainbin "--theme dracula"; or set -l mainbin "--color never"
+        #set --query _flag_full; and bat --style full $xfile $asource; or preview_script $asource
+    end
+    return
+    functions "$argv[1]"
+    hr '⋍'
+    set source (command -s $argv[1])
+    if test -z "$source"
+        echo -e (set_color --dim ) not found
+        return
+    end
+    set realsource (realpath $source)
+    set asource (anon $source)
+    if test -L $file; and [ "$file" != "$asource" ]
+        echo "$source"\t"->"\t"$realsource" | anon
+    else
+        echo "$source" | anon
+    end
+
+    if grep -q ASCII (file $source|psub)
+        string match --quiet -e "$realwich" "$source"; and set -l mainbin "--theme dracula"; or set -l mainbin "--color never"
+        set --query _flag_full; and bat --style full $mainbin $asource; or preview_script $asource
+    end
+end
