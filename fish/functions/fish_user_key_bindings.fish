@@ -1,35 +1,58 @@
-function __actual_cmd_token
+function __actual_fullcmd_token
     set -l resp (commandline -op)
-    if echo "$resp[1]" | rg -w 'sudo|__|time|bkt' --quiet
-        echo $resp[2]
-    else
-        echo $resp[1]
-    end
+    string match -qr '^(ww|w|which|sudo|__|time|bkt)$' -- $resp[1]; and set --erase resp[1]
+
+    echo $resp | sd '\s\-.+' ''
 end
 
-function _fish_xxx_current_dir -d "List contents of token under the cursor if it is a directory, otherwise list the contents of the current directory"
-    set -l val (commandline -t | string replace -r '^~' "$HOME")
-    set -l cmd
+function __actual_cmd_token
+    echo (__actual_fullcmd_token $argv )[1]
+    # set -l resp (commandline -op)
+    # string match -qr '^(sudo|__|time|bkt)$' -- $resp[1]; and set --erase resp[1]
+    # if test (has_subcommand "$resp[1]" "$resp[2]")
+    #     echo $resp[1] $resp[2]
+    # else
+    #     echo $resp[1]
+    # end
+end
+
+function _fish_xxx_current_dir -d "List contents of token under the cursor if it is a directory, otherwise list the contents of the current directory" --no-scope-shadowing
+    set -x val (commandline -t | string replace -r '^~' "$HOME")
+    set -x cmd
     if test -d $val
         set cmd $argv[1] $val
+        fset ffirst cmd >/tmp/fifo
     else
         set -l dir (dirname -- $val)
         if test $dir != . -a -d $dir
             set cmd $argv[1] $dir
+            fset mid cmd >/tmp/fifo
         else
             set cmd $argv[1]
+            fset last cmd >/tmp/fifo
         end
     end
     __fish_echo $cmd
 end
 
-function _fish_xxx_current_path -d "List contents of token under the cursor if it is a directory, otherwise list the contents of the current directory"
-    set -l val (commandline -t | string replace -r '^~' "$HOME")
-    set -l cmd
-    if test -e $val
-        set cmd $argv[1] $val
+function _fish_xxx_current_path -d "List contents of token under the cursor if it is a directory, otherwise list the contents of the current directory" --no-scope-shadowing
+    #set cmd
+    set cline (§ (commandline -t) |§ (commandline -op)[-1])
+    fset cline >/tmp/fifo
+    set -x val (echo $cline | string replace -r '^~' "$HOME")
+    set -x cmd
+    if test -f $val
+        set cmd ll $val
+        fset fffirst cmd >/tmp/fifo
+    else if test -d $val
+        set cmd ll --list-dirs $val
+        # fset sssec cmd >/tmp/fifo
     else
-        set cmd $argv[1]
+
+        set cmd ll
+        fset val >/tmp/fifo
+        fset ttthird cmd >/tmp/fifo
+        return
     end
     __fish_echo $cmd
 end
@@ -43,6 +66,7 @@ function gencomp_auto --wraps gencomp
     # end
     commandline --replace (echo -n gencomp3 $cmd --dry-run)
 end
+
 # https://gist.github.com/jamiew/40c66061b666272462c17f65addb14d5
 function which_auto --wraps which
     set cmd (__actual_cmd_token)
@@ -58,9 +82,36 @@ function help_auto
     commandline -f repaint
 end
 
-function tldr_auto
+# function mantldr -a argz
+
+#     man $argz|col -b |sd --flags s '.+(EXAMP.+?)\n([A-Z].+)' '$1'
+
+# end 
+
+function tldr_manex
     set cmd (__actual_cmd_token)
-    eval "echo; hr; tldr $cmd"
+    echo
+    hr '★・・・'
+    manex "$cmd"
+    hr '・・・*'
+
+end
+
+function tldr_auto -a tldx
+    __actual_fullcmd_token | read --array xcmd
+    # set -S xcmd
+    echo
+    hr '♦︎'
+    if test (which $xcmd[1]|rg coreutils)
+        fexec tldr (string replace -r '^[gu]' '' -- "$xcmd[1] -p linux" )
+        # set xcmd[1] "-p linux $xcmd[1]"
+        #    set -S cmd
+    else
+        fexec $tldx $xcmd[1] $xcmd[2] 2>/dev/null; or fexec $tldx $xcmd[1]
+    end
+    # if test (tldr $xcmd[1]|rg )
+    # set -S xcmd
+    hr '♦︎'
     commandline -f repaint
 end
 
@@ -237,9 +288,12 @@ function fish_user_key_bindings
     bind alt-w 'geninline w'
     bind alt-W 'geninline ww'
     bind alt-t tldr_auto
+    bind alt-T tldr_manex
+
     bind alt-S 'genfn sm csv'
     bind alt-\$ transpose-words
     bind ctrl-r _atuin_search
+    bind ctrl-R _atuin_hist
     bind alt-ß '_fish_xxx_current_dir br'
     bind ctrl-alt-l '_fish_xxx_current_dir lls'
     bind ctrl-l '_fish_xxx_current_path ll'

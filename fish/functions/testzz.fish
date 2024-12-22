@@ -1,7 +1,3 @@
-
-
-
-
 function testzz
     //usr/bin/env bun run (status current-filename) $argv; : '
  
@@ -11,5 +7,4 @@ function testzz
     
 })()){ testzz() } ; //testzz()
 /* '
-end ### '
-# */
+end

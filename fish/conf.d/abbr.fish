@@ -147,8 +147,8 @@ function last_history_exec
     set -l position (commandline -C)
     set -l resp (eval $history[1])
 end
-abbr -a --set-cursor !x --position anywhere --function last_history_exec
-abbr -a --set-cursor :x --position anywhere --function last_history_exec
+# abbr -a --set-cursor !x --position anywhere --function last_history_exec
+# abbr -a --set-cursor :x --position anywhere --function last_history_exec
 
 function last_history_item
     echo $history[1]
@@ -240,6 +240,7 @@ dict dmap set h "$HOME/"
 dict dmap set c /me/config/
 dict dmap set ca "/me/config/aichat/config.yaml"
 dict dmap set f /me/config/fish/
+dict dmap set m /me/
 dict dmap set ch /me/config/helix/
 dict dmap set b /me/backup/
 dict dmap set hc "/me/config/helix/config.toml"
@@ -260,7 +261,7 @@ dict dmap set zrc "/me/config/zsh/.zshrc"
 dict dmap set zh "/me/config/zsh/.zsh_history"
 dict dmap set ds /me/datasets/
 # dict dmap set xx /me/XDL/
-# dict dmap set x /me/XDL/
+dict dmap set x /me/XDL/
 dict dmap set t /tmp/
 dict dmap set w /me/dev/P2/examples/corewar/
 dict dmap set v /Volumes/

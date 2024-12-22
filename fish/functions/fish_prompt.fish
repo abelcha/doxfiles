@@ -1,10 +1,11 @@
 function fish_prompt --description 'Write out the prompt'
+    set startime (gdate +%s%N) #% "(-$(gdate +%s%N) + $(sleep .3 && gdate +%s%N))/10^9"
     set -l last_pipestatus $pipestatus
     set -lx __fish_last_status $status # Export for __fish_print_pipestatus.
     set -l normal (set_color normal)
     set -q fish_color_status
     or set -g fish_color_status red
-
+    
     # Color the prompt differently when we're root
     set -l color_cwd $fish_color_cwd
     set -l suffix '>'
@@ -14,7 +15,7 @@ function fish_prompt --description 'Write out the prompt'
         end
         set suffix '#'
     end
-
+    
     # Write pipestatus
     # If the status was carried over (if no command is issued or if `set` leaves the status untouched), don't bold it.
     set -l bold_flag --bold
@@ -26,6 +27,7 @@ function fish_prompt --description 'Write out the prompt'
     set -l status_color (set_color $fish_color_status)
     set -l statusb_color (set_color $bold_flag $fish_color_status)
     set -l prompt_status (__fish_print_pipestatus "[" "]" "|" "$status_color" "$statusb_color" $last_pipestatus)
-
-    echo -n -s (set_color brmagenta --reverse ) " ✞ "(bkt --ttl=10m -- curlie --silent  https://ip.me 2> /dev/null |grep -v mpty)" ✞ "(bkt -- pmset -g batt |rg '\d+\%' --only-matching)" ⌁ "abel' '(set_color normal )(set_color $fish_color_cwd  ) (prompt_pwd ) $normal (fish_vcs_prompt) $normal " "$prompt_status $suffix " " | sd '~' /me | sd '/.*abelchalier' /me | sd 80.236.123.100 ::1
+    
+    echo -n -s (set_color brmagenta --reverse ) " ✞ "(bkt --ttl=10m -- curl --silent  https://ip.me 2> /dev/null |grep -v mpty)" ✞ "(bkt -- pmset -g batt |rg '\d+\%' --only-matching)" ⌁ "abel' '(set_color normal )(set_color $fish_color_cwd  ) (prompt_pwd ) $normal (fish_vcs_prompt) $normal " "$prompt_status $suffix " " | sd '~' /me | sd '/.*abelchalier' /me | sd 80.236.123.100 ::1
+    #fecho (% "( $(gdate +%s%N ) - $startime )/10^9")
 end

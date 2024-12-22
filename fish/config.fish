@@ -44,6 +44,7 @@ set -x ANDROID_HOME $PHOME/Library/Android/sdk
 set -g fish_function_path $fish_function_path $fisher_path/functions
 
 set --append fish_complete_path /opt/homebrew/completions/fish/
+set --append fish_complete_path /opt/homebrew/share/fish/vendor_completions.d/
 
 set MAP_MAX_ARGS 1
 set regphonefr '(0033|\+33|0)[6-7](\d\d[^\-\.\s]?){4}'
@@ -73,7 +74,7 @@ fish_add_path /Applications/VLC.app/Contents/MacOS
 # fish_add_path /opt/homebrew/opt/mysql@5.7/bin
 fish_add_path /System/Library/Filesystems/apfs.fs/Contents/Resources/
 fish_add_path /opt/homebrew/bin
-fish_add_path /opt/homebrew/opt/llvm
+# fish_add_path /opt/homebrew/opt/llvm
 fish_add_path $GOPATH/bin
 fish_add_path $PHOME/abin
 fish_add_path $PHOME/.clib/bin
@@ -88,6 +89,10 @@ fish_add_path $PHOME/.deno/bin
 fish_add_path $PHOME/.mint/bin
 set -gx PNPM_HOME /me/Library/pnpm
 fish_add_path PATH "$PNPM_HOME" $PATH
+# fish_add_path /opt/homebrew/Cellar/llvm/19.1.5/bin/
+
+# fish_add_path /opt/homebrew/opt/llvm
+fish_add_path /opt/homebrew/opt/llvm/bin/
 # type -q pyenv; and pyenv init - | source
 # type -q rbenv; and rbenv init - | source
 #register-python-argcomplete --shell fish pipx > ~/.config/fish/completions/pipx.fish

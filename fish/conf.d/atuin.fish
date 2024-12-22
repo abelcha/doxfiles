@@ -36,6 +36,24 @@ if type -q atuin
         commandline -f repaint
     end
 
+    function _atuin_hist --wraps 'atuin search'
+        set -l ATUIN_H "$(ATUIN_SHELL_FISH=t ATUIN_LOG=error atuist search --inline-height (tput lines) $argv -i -- (commandline -op)[1] 3>&1 1>&2 2>&3)"
+
+        if test -n "$ATUIN_H"
+            if string match --quiet '__atuin_accept__:*' "$ATUIN_H"
+                set -l ATUIN_HIST "$(string replace "__atuin_accept__:" "" -- "$ATUIN_H")"
+                commandline -r "$ATUIN_HIST"
+                commandline -f repaint
+                commandline -f execute
+                return
+            else
+                commandline -r "$ATUIN_H"
+            end
+        end
+
+        commandline -f repaint
+    end
+
     function _atuin_bind_up
         # Fallback to fish's builtin up-or-search if we're in search or paging mode
         if commandline --search-mode; or commandline --paging-mode
