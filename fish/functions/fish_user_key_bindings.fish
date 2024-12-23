@@ -94,24 +94,26 @@ function tldr_manex
     hr '★・・・'
     manex "$cmd"
     hr '・・・*'
+    commandline -f repaint
 
 end
 
-function tldr_auto -a tldx
+function tldr_auto
     __actual_fullcmd_token | read --array xcmd
     # set -S xcmd
     echo
     hr '♦︎'
     if test (which $xcmd[1]|rg coreutils)
-        fexec tldr (string replace -r '^[gu]' '' -- "$xcmd[1] -p linux" )
+        tldr (string replace -r '^[gu]' '' -- "$xcmd[1] -p linux" )
         # set xcmd[1] "-p linux $xcmd[1]"
         #    set -S cmd
     else
-        fexec $tldx $xcmd[1] $xcmd[2] 2>/dev/null; or fexec $tldx $xcmd[1]
+        tldr $xcmd[1] $xcmd[2] 2>/dev/null; or tldr $xcmd[1]
     end
     # if test (tldr $xcmd[1]|rg )
     # set -S xcmd
-    hr '♦︎'
+    # hr '♦︎'
+    # echo
     commandline -f repaint
 end
 
@@ -165,6 +167,7 @@ function current_command
     echo $z[1]
 end
 function geninline -a cmd
+    commandline -f repaint
     echo
     hr '* . ﹢ ˖ ✦ ¸ . ﹢ °'
     echo $cmd (current_command) | fish
@@ -312,6 +315,8 @@ function fish_user_key_bindings
     bind alt-F _reload_fish
     bind alt-D dump_commandline_test
     bind alt-r run_preview
+    # bind alt-r run_preview
+    # bind alt-f2 run_preview
     bind alt-c 'genfn cheat ash'
     bind alt-C 'genuine compfind'
     bind alt-u 'genuine funcis'

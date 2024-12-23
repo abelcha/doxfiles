@@ -50,8 +50,8 @@ set MAP_MAX_ARGS 1
 set regphonefr '(0033|\+33|0)[6-7](\d\d[^\-\.\s]?){4}'
 set regphone2 '(33|0033|\+33|0)\W?[67](\d{8}|(\.\d\d){4}|(\s\d\d){4})'
 set regemail '[\w\d\-\_\.]+@\w+\.\w{2,3}'
-set -x PAGER less
-set -x MANPAGER less
+set -x PAGER less2
+set -x MANPAGER less2
 set -x LESS "-j.5 -I -R"
 # set c-x MANPAGER "sh -c 'col -bx | bat -l man -p --theme 'Monokai Extended''"
 # set -gx MANPAGER "sh -c 'col -bx | bat -l man -p --theme 'Monokai Extended''"
