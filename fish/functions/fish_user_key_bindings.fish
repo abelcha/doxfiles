@@ -314,9 +314,8 @@ function fish_user_key_bindings
     bind alt-G gencomp_auto
     bind alt-F _reload_fish
     bind alt-D dump_commandline_test
-    bind alt-r run_preview
     # bind alt-r run_preview
-    # bind alt-f2 run_preview
+    bind alt-f2 run_preview
     bind alt-c 'genfn cheat ash'
     bind alt-C 'genuine compfind'
     bind alt-u 'genuine funcis'

@@ -58,6 +58,7 @@ set -x LESS "-j.5 -I -R"
 # set -gx MANROFFOPT -- -c
 # set -x MAN_PAGER most
 set -x BROWSER elinks
+# set -x BROWSER elinks
 source $PHOME/.venv/bin/activate.fish
 set -x VCPKG_ROOT "$PHOME/.local/vcpkg"
 #fish_add_path
