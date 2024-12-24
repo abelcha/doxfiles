@@ -325,7 +325,7 @@ function fish_user_key_bindings
     bind \e\[O history_save
     bind \e\[I history_merge
     bind \e\[1\;5B nextd
-    bind \e\[1\;5A _atuin_ bind_up
+    bind \e\[1\;5A _atuin_bind_up
     bind alt-minus history-token-search-forward
     bind alt-_ history-token-search-backward
     bind ctrl-f 'hx ~/config/fish/config.fish && _reload_fish'
