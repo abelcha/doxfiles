@@ -57,7 +57,6 @@ set -x LESS "-j.5 -I -R"
 # set -gx MANPAGER "sh -c 'col -bx | bat -l man -p --theme 'Monokai Extended''"
 # set -gx MANROFFOPT -- -c
 # set -x MAN_PAGER most
-set -x BROWSER elinks
 # set -x BROWSER elinks
 source $PHOME/.venv/bin/activate.fish
 set -x VCPKG_ROOT "$PHOME/.local/vcpkg"
