@@ -30,4 +30,4 @@ end
 bind --mode insert \ej _jq_complete
 bind --mode default \ej _jq_complete
 
-fish_add_path $__fish_config_dir/conf.d/jq_repl_bin
+fish_add_path /me/abin/jq_repl_bin
