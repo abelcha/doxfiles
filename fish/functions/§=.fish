@@ -1,4 +1,4 @@
-function §= --argument value
+function §= --argument-names value
 
     if not isatty 0
         read in

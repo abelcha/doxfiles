@@ -26,11 +26,12 @@ SETUVAR fish_color_selection:white\x1e\x2d\x2dbold\x1e\x2d\x2dbackground\x3dbrbl
 SETUVAR fish_color_status:red
 SETUVAR fish_color_user:brgreen
 SETUVAR fish_color_valid_path:\x2d\x2dunderline
+SETUVAR --path fish_complete_path:/me/\x2econfig/fish/completions\x1e/usr/local/share/fish/completions\x1e/me/\x2ecache/fish/generated_completions\x1e/opt/homebrew/share/fish/vendor_completions\x2ed/\x1e/opt/homebrew/completions/fish
 SETUVAR fish_key_bindings:fish_default_key_bindings
 SETUVAR fish_pager_color_completion:normal
 SETUVAR fish_pager_color_description:yellow\x1e\x2di
 SETUVAR fish_pager_color_prefix:normal\x1e\x2d\x2dbold\x1e\x2d\x2dunderline
 SETUVAR fish_pager_color_progress:brwhite\x1e\x2d\x2dbackground\x3dcyan
 SETUVAR fish_pager_color_selected_background:\x2dr
-SETUVAR fish_user_paths:/me/abin/jq_repl_bin\x1e/Users/abelchalier/\x2econfig/fish/conf\x2ed/jq_repl_bin\x1e/me/\x2edeno/bin\x1e/me/\x2elocal/nvim/mason/bin\x1e/me/\x2elocal/bin\x1e/me/\x2enpm\x2dglobal/bin\x1e/me/\x2ebun/bin\x1e/me/\x2eclib/bin\x1e/me/abin\x1e/me/\x2egolang/bin\x1e/opt/homebrew/bin\x1e/System/Library/Filesystems/apfs\x2efs/Contents/Resources\x1e/me/\x2ecargo/bin\x1e/me/\x2erbenv/versions/3\x2e3\x2e0/bin\x1e/me/\x2econfig/fish/conf\x2ed/jq_repl_bin
+SETUVAR fish_user_paths:/opt/homebrew/Cellar/man\x2ddb/2\x2e13\x2e0/bin\x1e/opt/bin\x1e/me/abin/jq_repl_bin\x1e/Users/abelchalier/\x2econfig/fish/conf\x2ed/jq_repl_bin\x1e/me/\x2edeno/bin\x1e/me/\x2elocal/nvim/mason/bin\x1e/me/\x2elocal/bin\x1e/me/\x2enpm\x2dglobal/bin\x1e/me/\x2ebun/bin\x1e/me/\x2eclib/bin\x1e/me/abin\x1e/me/\x2egolang/bin\x1e/opt/homebrew/bin\x1e/System/Library/Filesystems/apfs\x2efs/Contents/Resources\x1e/me/\x2ecargo/bin\x1e/me/\x2erbenv/versions/3\x2e3\x2e0/bin\x1e/me/\x2econfig/fish/conf\x2ed/jq_repl_bin
 SETUVAR intellipaste_filters:leading\x2ddollar\x1ecommon\x2dleading\x2dwhitespace\x1eescape\x2ddollar\x2dand\x2dquestionmark\x1egh\x2drepo\x2dclone\x1egithub\x2ddownload\x2dfile\x1egit\x2dclone\x1equoted\x2dstring

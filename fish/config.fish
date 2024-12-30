@@ -1,9 +1,14 @@
 # set -gx base16_fish_shell_disable_prompt_colors TRUE
+
 set -gx BKT_TTL 10m
 set -gx HOME /me
 set -gx PHOME /me
 set -x FZF_DEFAULT_OPTS --exact
 set -x SKIM_DEFAULT_OPTIONS "--algo clangd"
+
+# set -x HOMEBREW_AUTO_UPDATE_SECS "42e10"
+set -x HOMEBREW_NO_ENV_HINTS true
+set -x HOMEBREW_NO_AUTO_UPDATE true
 
 set -x CGO_CPPFLAGS -w
 set -x EZA_COLORS "da=0"
@@ -12,8 +17,6 @@ set -x DENO_REPL_HISTORY ON
 set -x DENO_FUTURE ON
 set -x DENO_DEFAULT_OPTS "--allow-all --unstable-*"
 set -x EGET_BIN /opt/bin
-
-
 
 set -gx LDFLAGS -L/opt/homebrew/lib
 set -gx CPPFLAGS -I/opt/homebrew/include
@@ -30,11 +33,10 @@ set MAP_MAX_ARGS 1
 set regphonefr '(0033|\+33|0)[6-7](\d\d[^\-\.\s]?){4}'
 set regphone2 '(33|0033|\+33|0)\W?[67](\d{8}|(\.\d\d){4}|(\s\d\d){4})'
 set regemail '[\w\d\-\_\.]+@\w+\.\w{2,3}'
-set PAGER less2
-set MANPAGER less2
-set LESS "-j.5 -I -R"
+set PAGER less
+set MANPAGER less
+set LESS "-j.5 -I -R --search-options W"
 set LESSOPEN "|/opt/a/abin/lesspipe.sh %s"
-
 
 set -x XDG_CONFIG_HOME $PHOME/.config
 set -x XDG_DATA_HOME $PHOME/.local
@@ -60,14 +62,14 @@ fish_add_path $PHOME/.rbenv/bin
 fish_add_path $PHOME/.local/nvim/mason/bin
 fish_add_path $PHOME/.deno/bin
 fish_add_path "$PNPM_HOME/$PATH"
+fish_add_path /opt/bin
 
+# set -g fish_function_path $fish_function_path $fisher_path/functions
+# set --append fish_complete_path /opt/homebrew/completions/fish/
+# set --append fish_complete_path /opt/homebrew/share/fish/vendor_completions.d/
 
-set -g fish_function_path $fish_function_path $fisher_path/functions
-set --append fish_complete_path /opt/homebrew/completions/fish/
-set --append fish_complete_path /opt/homebrew/share/fish/vendor_completions.d/
 set -x VCPKG_ROOT "$PHOME/.local/vcpkg"
 set -gx PNPM_HOME /me/Library/pnpm
-
 
 source $PHOME/.venv/bin/activate.fish
 
@@ -81,12 +83,6 @@ function fish_command_not_found
     end
     __fish_default_command_not_found_handler $argv
 end
-
-
-function last-download
-    echo $PHOME/Downloads/(ls -t $PHOME/Downloads/ | head -1)
-end
-
 if status is-interactive
     function prexxxx --on-event fish_preexec
         set -g NEXT_CMD "$argv"
@@ -99,4 +95,3 @@ if status is-interactive
     function onDirChange --on-variable PWD
     end
 end
-

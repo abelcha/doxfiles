@@ -1,3 +1,4 @@
+# alias gh "GH_TOKEN=$GITHUB_TOKEN gh"
 alias md hdiutil
 # alias fish-lsp /me/dev/helix/fish-lsp/bin/fish-lsp
 alias parallel "parallel --eta --progress --bar"
@@ -99,6 +100,8 @@ alias bx "bunx --bun"
 alias ccat /bin/cat
 # alias chrome "open -a \"Google Chrome\""
 alias co "git checkout"
+alias gc "git checkout"
+alias gd "git diff -w"
 alias code /opt/homebrew/bin/code
 alias codepush "appcenter codepush"
 alias comv "git commit --no-verify -m"
@@ -126,10 +129,10 @@ alias ls "ls --color=auto -t"
 # alias mi hx
 alias mik "micro ~/.config/micro/bindings.json"
 
-if type -q advcp
-    alias cp "advcp -gir"
-    # alias _mv "advmv -gi"
-end
+# if type -q xcp
+#     alias cp "advcp -gir"
+#     # alias _mv "advmv -gi"
+# end
 
 # function mv --wraps umv
 #     if test (count $argv) -eq 1
@@ -182,4 +185,4 @@ alias vd visidata
 alias wrun "bun --watch run"
 # alias y yazi
 
-alias zcat zstdcat
+# alias zcat zstdcat

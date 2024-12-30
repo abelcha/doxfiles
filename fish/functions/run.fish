@@ -3,6 +3,6 @@ function run
         malloy run $argv
         return
     end
-
+    
     bun run $argv
 end

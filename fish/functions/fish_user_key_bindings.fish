@@ -1,8 +1,11 @@
 function __actual_fullcmd_token
+    # argparse /help -- $argv
     set -l resp (commandline -op)
-    string match -qr '^(ww|w|which|sudo|__|time|bkt)$' -- $resp[1]; and set --erase resp[1]
-
-    echo $resp | sd '\s\-.+' ''
+    string match -qr '^(ww|w|which|sudo|__|time|bkt|man|timeout)$' -- $resp[1]; and set --erase resp[1]
+    # if string match -qr '[^\w]' -- "$resp[2]"
+    echo $resp[1]
+    # end
+    # echo $resp | sd '\s\-.+' ''
 end
 
 function __actual_cmd_token
@@ -89,10 +92,10 @@ end
 # end 
 
 function tldr_manex
-    set cmd (__actual_cmd_token)
-    echo
+    set cmdz (__actual_cmd_token)
+    echo "[$cmdz]"
     hr '★・・・'
-    manex "$cmd"
+    manex "$cmdz"
     hr '・・・*'
     commandline -f repaint
 
@@ -123,7 +126,7 @@ end
 
 function run_preview
     # if commandline
-    set -l cmd (__actual_cmd_token)
+    set -l cmdz (__actual_cmd_token)
     # set -l fullbuff (commandline --current-buffer)
     # set -S fullbuff
     # if set -S fullbuff | rg '[^1]\selements'
@@ -135,23 +138,26 @@ function run_preview
     # echo reeeeeed
     # return
     # end
-    if echo "$cmd" | rg -w 'rm|cp|mv|mkdir' --quiet
+    if echo "$cmdz" | rg -w 'rm|cp|mv|mkdir' --quiet
         # echo
         echo
         hr '⚠︎'
         echo command detected, doing nuthin
-    else if test -n "$cmd"
+    else if test -n "$cmdz"
         echo
         hr '•°•°•°•°°'
         # exec "echo; hr '✰'"
         # echo "|$(commandline --current-buffer)|"
-        set fullcmd (commandline --current-buffer)
+        set fullcmd (commandline $argv)
         if set -S fullcmd | rg '[^1]\selements' --quiet
+            h1 "$fullcmd"
             string join \n $fullcmd | fish
             commandline -f repaint
             echo '•°•°•°•°°'
             echo
         else
+            h1 "|$fullcmd|"
+
             eval "$fullcmd"
         end
     end
@@ -170,7 +176,7 @@ function geninline -a cmd
     commandline -f repaint
     echo
     hr '* . ﹢ ˖ ✦ ¸ . ﹢ °'
-    echo $cmd (current_command) | fish
+    echo $cmd (__actual_cmd_token) | fish
     commandline -f repaint
 end
 function genuine -a cmd
@@ -239,60 +245,22 @@ end
 
 # function swap_args
 
+function bindump -a key fn
+    bind $key "echo; $fn ;commandline -f repaint"
+end
+
 function fish_user_key_bindings
     echo "mi cd mv cp cat codm" | read -g --export -a POP_CMD
     bind --preset alt-b backward-word
     bind --preset alt-f forward-word
-    #   bind alt-k bekill #beginning-of-line kill-word
-    #   bind alt-s _fzf_search_git_status
-    #   bind alt-w 'geninline w'
-    #   bind alt-W 'geninline ww'
-    #   bind alt-t tldr_auto
-    #   bind alt-S 'genfn sm csv'
-    #   bind \e\$ transpose-words
-    #   bind \cR _atuin_search
-    #   bind alt-b genbroot
-    #   bind alt-ƒ _fzf_search_directory
-    #   bind alt-OR complete-and-search
-    #   bind alt-OQ complete-and-search
-    #   # bind alt-c genxcat
-    #   bind alt-O genxmi
-    #   bind alt-m 'genuine man'
-    #   bind \e\# insertnull
-    #   bind alt-K fish_key_reader
-    #   bind alt-j which_auto
-    #   bind alt-H help_auto
-    #   bind alt-g 'genuine compedit'
-    #   bind alt-G gencomp_auto
-    #   bind alt-F _reload_fish
-    #   bind alt-D dump_commandline_test
-    #   bind alt-r run_preview
-    #   bind alt-c 'genfn cheat ash'
-    #   bind alt-C 'genuine compfind'
-    #   bind alt-u 'genuine funcis'
-    #   bind \e\e\[B history-prefix-search-forward
-    #   bind \e\e\[A history-prefix-search-backward
-    #   bind \e\& current_command
-    #   bind \e\[O history_save
-    #   bind \e\[I history_merge
-    #   bind \e\[1\;5B nextd
-    #   # bind \e\[1\;5B _atuin_bind_down
-    #   bind \e\[1\;5A prevd
-    #   bind \e\[1\;5A _atuin_bind_up
-    #   bind alt-- history-token-search-forward
-    #   bind alt-_ history-token-search-backward
-    #   bind \cv '__smart-ctrl-v.fish::paste'
-    #   bind \cF 'hx ~/config/fish/config.fish && _reload_fish'
-    #   bind alt-backspace backward-kill-word
-    #   bind -k f4 help_auto
     bind alt-j which_auto
     bind alt-k bekill
     bind alt-s _fzf_search_git_status
     bind alt-w 'geninline w'
     bind alt-W 'geninline ww'
     bind alt-t tldr_auto
-    bind alt-T tldr_manex
-
+    bindump alt-T tldr_manex
+    bindump alt-@ __actual_fullcmd_token
     bind alt-S 'genfn sm csv'
     bind alt-\$ transpose-words
     bind ctrl-r _atuin_search
@@ -307,7 +275,7 @@ function fish_user_key_bindings
     bind alt-O genxmi
     bind alt-A 'commandline -f expand-abbr'
     bind alt-m 'genuine man'
-    bind alt-\# insertnull
+    # bind alt-\# insertnull
     bind alt-K fish_key_reader
     bind alt-H help_auto
     bind alt-g 'genuine compedit'
@@ -315,7 +283,8 @@ function fish_user_key_bindings
     bind alt-F _reload_fish
     bind alt-D dump_commandline_test
     # bind alt-r run_preview
-    bind alt-f2 run_preview
+    bind alt-r 'run_preview --current-job'
+    bind alt-R 'run_preview --current-buffer --cut-at-cursor'
     bind alt-c 'genfn cheat ash'
     bind alt-C 'genuine compfind'
     bind alt-u 'genuine funcis'

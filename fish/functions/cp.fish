@@ -1,5 +1,6 @@
-function cp --wraps='advcp -gir' --description 'alias cp advcp -gir'
-        #advcp -gir $argv 
-        xcp --recursive $argv
+function cp --wraps='advcp -gir' --wraps=xcp
+    #advcp -gir $argv 
+    
+    xcp --recursive -v $argv
     
 end

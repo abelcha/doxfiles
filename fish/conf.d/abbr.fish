@@ -132,10 +132,6 @@ end
 
 abbr -a last_history_item_nth_word_abbr --position anywhere --regex "!![0-9]+" --function _last_history_item_nth_word
 
-function git_add_mono
-    echo "~/dev/toklore/monorepo/$argv"
-end
-
 abbr -a gitmonoadd --position anywhere --regex "apps/native/[\w\/\.\_\-]*" --function git_add_mono
 
 function last_history_cached
@@ -236,7 +232,7 @@ dict dmap set d /me/dev/
 dict dmap set da /me/dev/awesome-find/
 
 dict dmap set dl /me/Downloads/
-dict dmap set h "$HOME/"
+dict dmap set h /me
 dict dmap set c /me/config/
 dict dmap set ca "/me/config/aichat/config.yaml"
 dict dmap set f /me/config/fish/
@@ -265,6 +261,7 @@ dict dmap set x /me/XDL/
 dict dmap set t /tmp/
 dict dmap set w /me/dev/P2/examples/corewar/
 dict dmap set v /Volumes/
+dict dmap set tt /Volumes/T9
 dict dmap set s /me/datasets/sherlock/
 dict dmap set e /me/datasets/entreprise/
 dict dmap set se /dev/stderr

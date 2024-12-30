@@ -89,7 +89,7 @@ function gencomp3 --wraps=gencomp --description 'generate completions for fish-s
             set -l cmd (echo "$cmd" |sd --fixed-strings  "{}" "$use_command" |sd --fixed-strings  "{sub}" "$sub")
             echo "real cmd: $cmd"
             test -e "$stdinfile"; and set -l cmd "cat $stdinfile"
-            echo2 "gencomp: reading from `$cmd` "
+            echo2 "# gencomp: reading from `$cmd` "
             eval $cmd 2>&1 | tr \t ' '
         end | while read -l line
 
@@ -234,7 +234,7 @@ function gencomp3 --wraps=gencomp --description 'generate completions for fish-s
     string match -q "*{}*" -- "$use_command"
     or set -l is_subcmd_parse_mode false
     set -lq _flag_S; and test is_subcmd_parse_mode = false; and echo "XXXX gencomp: subcommand parsing requires a place holder in $use_command"
-    set -S is_subcmd_parse_mode
+    # set -S is_subcmd_parse_mode
     switch "$action"
         case edit
             switch (count $argv)
@@ -267,7 +267,7 @@ function gencomp3 --wraps=gencomp --description 'generate completions for fish-s
             for path in "$gencomp_dir"/*.fish
                 basename "$path" .fish
             end
-            set -S $argv
+            # set -S $argv
         case complete
             # for command in $argv
             set -l command $argv[1]
@@ -313,7 +313,7 @@ function gencomp3 --wraps=gencomp --description 'generate completions for fish-s
             end
             for subc in $argv[2..]
                 # echo2 REEESST $subc
-                hr "❡"
+                # hcr "#" >/dev/stderr
                 complete -c $command -a $subc --condition __fish_use_subcommand
                 for completion in (__gencomp_parse "$command" "$subc" "$use_command" "true")
                     set -l allready_saved (rg --fixed-strings "$completion" $outputsaved)

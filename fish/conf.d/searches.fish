@@ -1,4 +1,3 @@
-
 function ftorrent -a torrentfile
     aria2c -S $torrentfile | rg -v "^-+" | sd '\n\s+' '' | rg '^\d' | grep -v "\.pad" | ccat | xsv fixlengths -l 3 -d '|' | xsv table | fzf
 end
@@ -12,7 +11,7 @@ alias rge 'rgf --iglob "js\$"'
 
 alias devices "xcrun simctl list devices |grep -v unavailable |grep -E 'Shutdown|Booted'"
 alias udid 'devices|fzf|plog "e => e.match(/\(([\w-]+)\)/)?.[1]"'
-alias rgg="command rg"
+# alias rgg="command rg"
 
 set -x SKIM_DEFAULT_OPTIONS "--ansi --reverse --color=16 --delimiter=: --preview-window='up:65%:+{2}-/2' --preview='xcat' --bind='ctrl-d:half-page-down,ctrl-u:half-page-up,?:toggle-preview,alt-/:execute-silent(ql {}),alt-space:execute-silent(ql {})+down,alt-j:preview-down,alt-k:preview-up,alt-h:preview-left,alt-l:preview-right,alt-d:preview-page-down,alt-u:preview-page-up,"
 
@@ -22,13 +21,11 @@ function fbundleid --wraps fzf
     bundleids | string split ', ' | gum choose --timeout=0 | string trim | pbcopy
 end
 
-
 function ng --wraps rg
     find ../../node_modules | rgf $argv
 end
 
 alias skp="sk --algo clangd --preview='bat --style=numbers --color=always --highlight-line {2}:+0 {1}' --preview-window='up:65%:+{2}-/2' --bind='ctrl-d:half-page-down,ctrl-u:half-page-up,?:toggle-preview,alt-/:execute-silent(ql {}),alt-space:execute-silent(ql {})+down,alt-j:preview-down,alt-k:preview-up,alt-h:preview-left,alt-l:preview-right,alt-d:preview-page-down,alt-u:preview-page-up,' --bind 'ctrl-e:execute(hx {})'  --bind 'ctrl-o:execute(code {})'"
-
 
 # set -x SKP_OPTIONS "--preview='bat --theme Dracula --style=numbers --color=always --highlight-line {2}:+0 {1}' --preview-window='up:65%:+{2}-/2' --bind='ctrl-d:half-page-down,ctrl-u:half-page-up,?:toggle-preview,alt-/:execute-silent(ql {}),alt-space:execute-silent(ql {})+down,alt-j:preview-down,alt-k:preview-up,alt-h:preview-left,alt-l:preview-right,alt-d:preview-page-down,alt-u:preview-page-up,' --bind 'ctrl-e:execute(hx {})'  --bind 'ctrl-o:execute(code {})'"
 
@@ -68,7 +65,6 @@ function fenval
     fzf_env | awk '{ print $2 }' | tr -d '\n\0' | pbcopy
 end
 
-
 # function fexec --wraps fzf
 #     #set temp_file (mktemp) $rr    #/bin/cat > $temp_file
 #     #set cmd "bat $temp_file | gawk $argv {q}"
@@ -90,7 +86,6 @@ function fawk --wraps awk
     echo "gawk $resp" | tr -d \\n | pbcopy
 end
 
-
 function flogcat --wraps fzf
     set temp_file (mktemp)
     /bin/cat >$temp_file
@@ -102,28 +97,23 @@ function flogcat --wraps fzf
     echo "gawk $resp" | tr -d \\n | pbcopy
 end
 
+# function _ripgrep_maxwidth
+#     set -l wlen (string length "[... XX more match]")
+#     command rg --max-columns-preview -M (math (colwidth) - $wlen - 2) $argv
+# end
 
+# function rg --wraps rg
+#     if not isatty 1
+#         command rg $argv
+#     else
+#         _ripgrep_maxwidth $argv
+#     end
 
-
-function _ripgrep_maxwidth
-    set -l wlen (string length "[... XX more match]")
-    command rg --max-columns-preview -M (math (colwidth) - $wlen - 2) $argv
-end
-
-
-function rg --wraps rg
-    if not isatty 1
-        command rg $argv
-    else
-        _ripgrep_maxwidth $argv
-    end
-
-
-    # set -cl wlen (string length "[... XX more match]")
-    #echo (colwidth) ddd $wlen
-    # /opt/homebrew/bin/rg --max-columns-preview -M (math (colwidth) - $wlen - 3) $argv
-    # /opt/homebrew/bin/rg
-end
+#     # set -cl wlen (string length "[... XX more match]")
+#     #echo (colwidth) ddd $wlen
+#     # /opt/homebrew/bin/rg --max-columns-preview -M (math (colwidth) - $wlen - 3) $argv
+#     # /opt/homebrew/bin/rg
+# end
 
 function rgz --wraps="rg"
     rg --text --pre zstdcat $argv
@@ -133,9 +123,6 @@ function fzf-preview-file
     rg --files | fzf --reverse --preview 'bat --color=always {}'
 end
 
-
-
-
 function fsearch
     src search $argv
 end
@@ -144,7 +131,6 @@ function fcargo
     from /opt/a/datasets/cargo.final.parquet SELECT name, description, dl WHERE slug LIKE \'command%\' AND description like \'%$argv[1]%\' ORDER BY dl DESC
 
 end
-
 
 function fgit
     if not git rev-parse --git-dir >/dev/null 2>&1
