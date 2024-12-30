@@ -60,13 +60,7 @@ function checkFirstCharType
     end
 end
 
-function last_dl_file
-    set -l file (ls -U ~/Downloads |head -n 1)
-
-    echo "~/Downloads/$file"
-end
-
-abbr -a --position anywhere lastdl --function last_dl_file #'ls -U ~/Downloads |head -n 1'
+abbr -a --position anywhere lastdl --function last_download_file #'ls -U ~/Downloads |head -n 1'
 
 abbr -a --set-cursor f 'fd . % | fzf'
 
