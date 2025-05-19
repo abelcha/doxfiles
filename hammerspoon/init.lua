@@ -33,9 +33,9 @@ end
 
 -- Load window-switcher.lua from the same directory
 pcall(function()
-    dofile(os.getenv("HOME") .. "/.hammerspoon/window-switcher.lua")
-    dofile(os.getenv("HOME") .. "/.hammerspoon/volume.lua")
-    dofile(os.getenv("HOME") .. "/.hammerspoon/app-picker.lua")
+    dofile("/me/config/hammerspoon/window-switcher.lua")
+    dofile("/me/config/hammerspoon/volume.lua")
+    dofile("/me/config/hammerspoon/app-picker.lua")
 end)
 
 
@@ -97,11 +97,11 @@ end)
 
 
 hs.hotkey.bind({ "cmd" }, "h", function()
-    alert("hide", 2)
+    -- alert("hide", 2)
     hs.eventtap.keyStroke({}, "F13")
 end)
 hs.hotkey.bind({ "cmd" }, "m", function()
-    alert("minimize", 2)
+    -- alert("minimize", 2)
     hs.eventtap.keyStroke({ }, "F14")
 end)
 
