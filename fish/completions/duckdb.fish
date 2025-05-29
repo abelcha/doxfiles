@@ -8,6 +8,7 @@ complete -c duckdb -o cmd -d "COMMAND         run \"COMMAND\" before reading std
 complete -c duckdb -s c -d "COMMAND           run \"COMMAND\" and exit"
 complete -c duckdb -o csv -d "set output mode to csv"
 complete -c duckdb -o echo -d "print commands before execution"
+
 complete -c duckdb -o init -d "FILENAME       read/process named file"
 complete -c duckdb -o help -d "show this message"
 complete -c duckdb -o html -d "set output mode to HTML"
