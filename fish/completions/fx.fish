@@ -1,0 +1,7 @@
+complete -c fx -s h -l help -d 'print help'
+complete -c fx -n __fish_no_arguments -s v -l version -d 'print version'
+complete -c fx -l themes -d 'print themes'
+complete -c fx -l comp -d '<shell>        print completion script'
+complete -c fx -s r -l raw -d 'treat input as a raw string'
+complete -c fx -s s -l slurp -d 'read all inputs into an array'
+complete -c fx -l yaml -d 'parse input as YAML'

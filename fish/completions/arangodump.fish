@@ -14,7 +14,7 @@ complete -c arangodump -l initial-batch-size -d '<uint64>                      T
 complete -c arangodump -l maskings -d '<string>                                A path to a file with masking definitions. (default: "") (introduced in v3.3.22, v3.4.2)'
 complete -c arangodump -l output-directory -d '<string>                        The output directory. (default: "/Users/abelchalier/dump")'
 complete -c arangodump -l overwrite -d '<boolean>                              Overwrite data in the output directory. (default: false)'
-complete -c arangodump -l progress -d '<boolean>                               Show the progress. (default: true)'
+complete -c arangodump -l progress -d '<boolean>                                   Show the progress. (default: true)'
 complete -c arangodump -l shard -d '<string...>                                Restrict the dump to this shard (can be specified multiple times). (default: ) (introduced in v3.8.0)'
 complete -c arangodump -l threads -d '<uint32>                                 The maximum number of collections/shards to process in parallel. (default: 8) (introduced in v3.4.0)'
 complete -c arangodump -l tick-end -d '<uint64>                                Last tick to be included in data dump. (default: 0)'

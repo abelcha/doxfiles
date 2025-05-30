@@ -1,0 +1,7 @@
+complete -c compression_tool -s a -d 'algo               compression algorithm, one of: zlib lzma lzfse lz4 lz4_raw, default is lzfse'
+complete -c compression_tool -s A -d 'algo               block compression algorithm, one of: zlib lzma lzfse lz4, default is lzfse'
+complete -c compression_tool -s b -d 'block_size         block size for block compression, integer followed by an optional unit: b k m, default is 1m'
+complete -c compression_tool -s t -d 'thread_count       worker thread count for block compression/decompression, default is 8 on this machine'
+complete -c compression_tool -s i -d 'input_file         file to process, default is stdin'
+complete -c compression_tool -s o -d 'output_file        receives the output, default is stdout'
+complete -c compression_tool -s v -d 'increase verbosity, default is silent'

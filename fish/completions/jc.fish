@@ -1,4 +1,3 @@
-#string replace -a -- {} jc  {} --help
 complete -c jc -l acpi -d '`acpi` command parser'
 complete -c jc -l airport -d '`airport -I` command parser'
 complete -c jc -l airport-s -d '`airport -s` command parser'

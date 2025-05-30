@@ -1,0 +1,17 @@
+complete -c git-restore-mtime -s h -l help -d 'show this help message and exit'
+complete -c git-restore-mtime -s q -l quiet -d 'Suppress informative messages and summary statistics.'
+complete -c git-restore-mtime -s v -l verbose -d 'Print additional information for each processed file.'
+complete -c git-restore-mtime -s C -l cwd -d 'DIRECTORY   Run as if git-restore-mtime was started in directory'
+complete -c git-restore-mtime -l git-dir -d 'GITDIR      Path to the git repository, by default auto-discovered'
+complete -c git-restore-mtime -l work-tree -d 'WORKTREE  Path to the work tree root, by default the parent of'
+complete -c git-restore-mtime -s f -l force -d 'Force updating files with uncommitted modifications.'
+complete -c git-restore-mtime -s m -l merge -d 'Include merge commits. Leads to more recent times and'
+complete -c git-restore-mtime -l first-parent -d 'Consider only the first parent, the "main branch",'
+complete -c git-restore-mtime -s s -l skip-missing -d 'Do not try to find missing files. If merge commits'
+complete -c git-restore-mtime -s D -l no-directories -d 'Do not update directory timestamps. By default, use'
+complete -c git-restore-mtime -s t -l test -d 'Test run: do not actually update any file timestamp.'
+complete -c git-restore-mtime -s c -l commit-time -d 'Use commit time instead of author time.'
+complete -c git-restore-mtime -s o -l oldest-time -d 'Update times based on the oldest, instead of the most'
+complete -c git-restore-mtime -l skip-older-than -d SECONDS
+complete -c git-restore-mtime -l unique-times -d 'Set the microseconds to a unique value per commit.'
+complete -c git-restore-mtime -n __fish_no_arguments -s V -l version -d "show program's version number and exit"

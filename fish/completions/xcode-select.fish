@@ -1,0 +1,6 @@
+complete -c xcode-select -s h -l help -d 'print this help message and exit'
+complete -c xcode-select -s p -l print-path -d 'print the path of the active developer directory'
+complete -c xcode-select -s s -d '<path>, --switch <path>  set the path for the active developer directory'
+complete -c xcode-select -l install -d 'open a dialog for installation of the command line developer tools'
+complete -c xcode-select -n __fish_no_arguments -s v -l version -d 'print the xcode-select version'
+complete -c xcode-select -s r -l reset -d 'reset to the default command line tools path'

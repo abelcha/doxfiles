@@ -16,8 +16,37 @@ UFBI\tUDIF entire image with MD5 checksum
 " #| trim | awk '{ print $1"\t"$3   substr($0,index($0,$4))} '
 end
 
+function __list_fs
+    echo -e "
+HFS+
+HFS+J
+HFSX
+JHFS+X
+APFS
+FAT32
+ExFAT
+UDF
+"
+    return 0
+    echo -e "
+UDF\tUniversal Disk Format ⟪UDF⟫
+MS-DOS FAT12\tMS-DOS ⟪FAT12⟫
+MS-DOS\tMS-DOS ⟪FAT⟫
+MS-DOS FAT16\tMS-DOS ⟪FAT16⟫
+MS-DOS FAT32\tMS-DOS ⟪FAT32⟫
+HFS+\tMac OS Extended
+Case-sensitive HFS+\tMac OS Extended ⟪Case-sensitive⟫
+Case-sensitive Journaled HFS+\tMac OS Extended ⟪Case-sensitive, Journaled⟫
+Journaled HFS+\tMac OS Extended ⟪Journaled⟫
+ExFAT\tExFAT
+Case-sensitive APFS\tAPFS ⟪Case-sensitive⟫
+APFS\tAPFS
+"
+end
+complete -c hdiutil --no-files -n __fish_is_first_arg
+
 complete -c hdiutil -o verbose -d 'be verbose: produce extra progress output and error diagnostics'
-complete -c hdiutil -o quiet -d 'close stdout and stderr, leaving only hdiutil hdiutil Ns \'s exit status to in…'
+complete -c hdiutil -o quiet -d 'close stdout and stderr, leaving only hdiutil hdiutil Ns ‘s exit status to in…'
 complete -c hdiutil -o debug -d 'be very verbose'
 complete -c hdiutil -o plist -d 'provide result output in plist format'
 complete -c hdiutil -o puppetstrings -d 'provide progress output that is easy for another program to parse'
@@ -33,7 +62,7 @@ complete -c hdiutil -o cacert -d 'specify a certificate authority certificate'
 complete -c hdiutil -o insecurehttp -d 'ignore SSL host validation failures'
 complete -c hdiutil -o shadow -d 'Use a shadow file in conjunction with the data in the primary image file'
 complete -c hdiutil -o readonly -d 'force the resulting device to be read-only'
-complete -c hdiutil -o readwrite -d 'attempt to override the DiskImages framework\'s decision to attach a particula…'
+complete -c hdiutil -o readwrite -d 'attempt to override the DiskImages framework‘s decision to attach a particula…'
 complete -c hdiutil -o nokernel -d 'attach with a helper process.   This is (again) the default as of Mac OS X 10'
 complete -c hdiutil -o kernel -d 'attempt to attach this image without a helper process; fail if unsupported'
 complete -c hdiutil -o notremovable -d 'prevent this image from being detached.   Only root can use this option'
@@ -60,7 +89,9 @@ complete -c hdiutil -o srcfolder -d 'br copies file-by-file the contents of sour
 complete -c hdiutil -o srcdevice -d 'br specifies that the blocks of device should be used to create a new image'
 complete -c hdiutil -o align -d 'br specifies a size to which the final data partition will be aligned'
 complete -c hdiutil -o type -d 'br type is particular to create and is used to specify the format of empty re…'
-complete -c hdiutil -o fs -d 'br where filesystem is one of several options such as HFS+, HFS+J (JHFS+), HF…'
+# complete -c hdiutil -o fs -dc 'br where filesystem is one of several options such as HFS+, HFS+J (JHFS+), HF…'
+complete -c hdiutil -o fs -f -x -a '(__list_fs)'
+
 complete -c hdiutil -o volname -d 'br The newly-created filesystem will be named "volname"'
 complete -c hdiutil -o uid -d 'the root of the newly-created volume will be owned by the given numeric user …'
 complete -c hdiutil -o gid -d 'the root of the newly-created volume will be owned by the given numeric group…'
@@ -69,7 +100,7 @@ complete -c hdiutil -o autostretch -d 'br do [not] suppress automatically making
 complete -c hdiutil -o stretch -d 'br stretch initializes HFS+ filesystem data such that it can later be stretch…'
 complete -c hdiutil -o fsargs -d 'br additional arguments to pass to whichever newfs program is implied by "fs"'
 complete -c hdiutil -o layout -d 'br Specify the partition layout of the image'
-complete -c hdiutil -o library -d 'br specify an alternate layout library.   The default is MediaKit\'s MKDrivers'
+complete -c hdiutil -o library -d 'br specify an alternate layout library.   The default is MediaKit‘s MKDrivers'
 complete -c hdiutil -o partitionType -d 'br Change the type of partition in a single-partition disk image'
 complete -c hdiutil -o ov -d 'overwrite an existing file.   The default is not to overwrite existing files'
 complete -c hdiutil -o attach -d 'attach the image after creating it'
@@ -77,14 +108,14 @@ complete -c hdiutil -o format -f -x -a '(__list_image_disks)'
 complete -c hdiutil -o segmentSize -d 'br Note that segmented images are deprecated'
 complete -c hdiutil -o crossdev -d 'do [not] cross device boundaries on the source filesystem'
 complete -c hdiutil -o scrub -d 'do [not] skip temporary files when imaging a volume'
-complete -c hdiutil -o anyowners -d 'do not fail if the user invoking hdiutil can\'t ensure correct file ownership …'
-complete -c hdiutil -o skipunreadable -d 'skip files that can\'t be read by the copying user and don\'t authenticate'
+complete -c hdiutil -o anyowners -d 'do not fail if the user invoking hdiutil can‘t ensure correct file ownership …'
+complete -c hdiutil -o skipunreadable -d 'skip files that can‘t be read by the copying user and don‘t authenticate'
 complete -c hdiutil -o atomic -d 'do [not] copy files to a temporary location and then rename them to their des…'
 complete -c hdiutil -o copyuid -d 'perform the copy as the given user.   Requires root privilege'
 complete -c hdiutil -o pmap -d 'add partition map'
 complete -c hdiutil -o tasks -d 'br When converting an image into a compressed format, specify the number of t…'
 complete -c hdiutil -o device -d 'specify a device to use for burning.   See list Ns'
-complete -c hdiutil -o testburn -d 'don\'t turn on laser (laser defaults to on)'
+complete -c hdiutil -o testburn -d 'don‘t turn on laser (laser defaults to on)'
 complete -c hdiutil -o anydevice -d 'explicitly allow burning to devices not qualified by Apple (kept for backward…'
 complete -c hdiutil -o eject -d 'do [not] eject disc after burning.  The default is to eject the disc'
 complete -c hdiutil -o verifyburn -d 'do [not] verify disc contents after burn.   The default is to verify'
@@ -93,7 +124,7 @@ complete -c hdiutil -o skipfinalfree -d 'do [not] skip final free partition'
 complete -c hdiutil -o optimizeimage -d 'do [not] optimize filesystem for burning'
 complete -c hdiutil -o forceclose -d 'do [not] force the disc to be closed after burning'
 complete -c hdiutil -o nounderrun -d 'Disable the default buffer underrun protection'
-complete -c hdiutil -o synthesize -d '[Don\'t] Synthesize a hybrid filesystem for the disc'
+complete -c hdiutil -o synthesize -d '[Don‘t] Synthesize a hybrid filesystem for the disc'
 complete -c hdiutil -o speed -d '1, 2, 4, 6, .  max br The desired x-factor Ns.  e. g'
 complete -c hdiutil -o sizequery -d 'calculate the size of disc required without burning anything'
 complete -c hdiutil -o erase -d 'prompt for optical media (DVD-RW/CD-RW) and then, if the hardware supports it…'
@@ -149,10 +180,10 @@ complete -c hdiutil -o limits -d 'Displays the minimum, current, and maximum siz
 complete -c hdiutil -o segmentCount -d 'br Specify the number of segments'
 complete -c hdiutil -o firstSegmentSize -d 'br Specify the first segment size in sectors in the same form as for "segment…'
 complete -c hdiutil -o restricted -d 'Make restricted segments for use in multi-CD restores'
-complete -c hdiutil -o simple -d 'generate MediaKit\'s minimal report: basic partition types, names, and sizes i…'
-complete -c hdiutil -o standard -d 'generate MediaKit\'s standard report, which adds partition offsets and uses 51…'
-complete -c hdiutil -o complete -d 'generate MediaKit\'s comprehensive report, with end offsets, significant free …'
-complete -c hdiutil -o diagnostic -d 'generate MediaKit\'s diagnostic report, which shows all partition schemes enco…'
+complete -c hdiutil -o simple -d 'generate MediaKit‘s minimal report: basic partition types, names, and sizes i…'
+complete -c hdiutil -o standard -d 'generate MediaKit‘s standard report, which adds partition offsets and uses 51…'
+complete -c hdiutil -o complete -d 'generate MediaKit‘s comprehensive report, with end offsets, significant free …'
+complete -c hdiutil -o diagnostic -d 'generate MediaKit‘s diagnostic report, which shows all partition schemes enco…'
 complete -c hdiutil -o endoffsets -d 'indicate last block of each partition'
 complete -c hdiutil -o nofreespace -d 'suppress all free space reporting.   Not valid with shims'
 complete -c hdiutil -o shims -d 'report free space < 32 sectors'
@@ -161,206 +192,204 @@ complete -c hdiutil -o xml -d 'br Copy resources from the XML in file'
 complete -c hdiutil -o replaceall -d 'br Delete all pre-existing resources in image'
 complete -c hdiutil -o rez -d 'emit Rez format output El Common options: "encryption", "stdinpass", and "src…'
 
-complete -c hdiutil -n '__fish_seen_subcommand_from attach' -s readonly -d 'force read-only'
-complete -c hdiutil -n '__fish_seen_subcommand_from attach' -s kernel -d 'attempt to attach the image in-kernel'
-complete -c hdiutil -n '__fish_seen_subcommand_from attach' -s mount -d 'required|optional|suppressed  mount volumes?'
-complete -c hdiutil -n '__fish_seen_subcommand_from attach' -s nomount -d 'same as -mount suppressed'
-complete -c hdiutil -n '__fish_seen_subcommand_from attach' -s mountpoint -d '<path> mount at <path> instead of inside /Volumes'
-complete -c hdiutil -n '__fish_seen_subcommand_from attach' -s mountroot -d '<path> mount volumes on <path>/<volname>'
-complete -c hdiutil -n '__fish_seen_subcommand_from attach' -s mountrandom -d '<path> mount volumes on <path>/<random>'
-complete -c hdiutil -n '__fish_seen_subcommand_from attach' -s encryption -d '<crypto method>'
-complete -c hdiutil -n '__fish_seen_subcommand_from attach' -s recover -d '<keychain-file>'
-complete -c hdiutil -n '__fish_seen_subcommand_from attach' -s imagekey -d '<key>=<value>'
-complete -c hdiutil -n '__fish_seen_subcommand_from attach' -s drivekey -d '<key>=<value>'
-complete -c hdiutil -n '__fish_seen_subcommand_from attach' -s shadow -d '<shadowfile>'
-complete -c hdiutil -n '__fish_seen_subcommand_from attach' -s cacert -d '<file | dir>'
-complete -c hdiutil -n '__fish_seen_subcommand_from detach' -s force -d 'forcibly detach'
-complete -c hdiutil -n '__fish_seen_subcommand_from eject' -s force -d 'forcibly detach'
-complete -c hdiutil -n '__fish_seen_subcommand_from verify' -s encryption -d '<crypto method>'
-complete -c hdiutil -n '__fish_seen_subcommand_from verify' -s srcimagekey -d '<key>=<value> (-imagekey is a synonym)'
-complete -c hdiutil -n '__fish_seen_subcommand_from create' -s size -d '< ?? | ??b | ??k | ??m | ??g | ??t | ??p | ??e >'
-complete -c hdiutil -n '__fish_seen_subcommand_from create' -s sectors -d '<count>'
-complete -c hdiutil -n '__fish_seen_subcommand_from create' -s megabytes -d '<count>'
-complete -c hdiutil -n '__fish_seen_subcommand_from create' -s library -d '<MKDrivers>'
-complete -c hdiutil -n '__fish_seen_subcommand_from create' -s layout -d '<layout>   [GPTSPUD or per -fs]'
-complete -c hdiutil -n '__fish_seen_subcommand_from create' -s partitionType -d '<partitionType> [per -fs]'
-complete -c hdiutil -n '__fish_seen_subcommand_from create' -s align -d '<sector alignment>  [8 sectors]'
-complete -c hdiutil -n '__fish_seen_subcommand_from create' -s fs -d '<filesystem>'
-complete -c hdiutil -n '__fish_seen_subcommand_from create' -s volname -d '<volumename>  ["untitled"]'
-complete -c hdiutil -n '__fish_seen_subcommand_from create' -s stretch -d '< ?? | ?b | ??k | ??m | ??g | ??t | ??p | ??e > (HFS+)'
-complete -c hdiutil -n '__fish_seen_subcommand_from create' -s type -d '<image type>   [UDIF]'
-complete -c hdiutil -n '__fish_seen_subcommand_from create' -s srcfolder -d '<source folder>'
-complete -c hdiutil -n '__fish_seen_subcommand_from create' -s srcowners -d 'on|off|any|auto [auto]'
-complete -c hdiutil -n '__fish_seen_subcommand_from create' -s format -d '<image type>   [UDZO]'
-complete -c hdiutil -n '__fish_seen_subcommand_from create' -s srcdevice -d '<source dev node, e.g. disk1, disk2s1>'
-complete -c hdiutil -n '__fish_seen_subcommand_from create' -s format -d '<image type>   [UDZO]'
-complete -c hdiutil -n '__fish_seen_subcommand_from create' -s segmentSize -d '< ?? | ??b | ??k | ??m | ??g | ??t | ??p | ??e > (deprecated)'
-complete -c hdiutil -n '__fish_seen_subcommand_from create' -s attach -d 'attach image after creation'
-complete -c hdiutil -n '__fish_seen_subcommand_from create' -s encryption -d '<crypto method>'
-complete -c hdiutil -n '__fish_seen_subcommand_from create' -s certificate -d '<path-to-cert-file>'
-complete -c hdiutil -n '__fish_seen_subcommand_from create' -s pubkey -d '<public-key-hash>[,pkh2,...]'
-complete -c hdiutil -n '__fish_seen_subcommand_from create' -s imagekey -d '<key>=<value>'
-complete -c hdiutil -n '__fish_seen_subcommand_from create' -s tgtimagekey -d '<key>=<value>'
-complete -c hdiutil -n '__fish_seen_subcommand_from compact' -s batteryallowed -d 'allow compacting on battery power'
-complete -c hdiutil -n '__fish_seen_subcommand_from compact' -s sleepallowed -d 'allow machine to idle sleep (cancels compact)'
-complete -c hdiutil -n '__fish_seen_subcommand_from compact' -s encryption -d '<crypto method>'
-complete -c hdiutil -n '__fish_seen_subcommand_from compact' -s srcimagekey -d '<key>=<value> (-imagekey is a synonym)'
-complete -c hdiutil -n '__fish_seen_subcommand_from compact' -s shadow -d '<shadowfile>'
-complete -c hdiutil -n '__fish_seen_subcommand_from compact' -s cacert -d '<file | dir>'
-complete -c hdiutil -n '__fish_seen_subcommand_from convert' -s ov -d 'overwrite target file(s) if it already exists'
-complete -c hdiutil -n '__fish_seen_subcommand_from convert' -s align -d '[<sector alignment>] [4 aka 2K]'
-complete -c hdiutil -n '__fish_seen_subcommand_from convert' -s segmentSize -d '< ?? | ??b | ??k | ??m | ??g | ??t | ??p | ??e > (deprecated)'
-complete -c hdiutil -n '__fish_seen_subcommand_from convert' -s tasks -d '<task count>  [8]'
-complete -c hdiutil -n '__fish_seen_subcommand_from convert' -s encryption -d '<crypto method>'
-complete -c hdiutil -n '__fish_seen_subcommand_from convert' -s certificate -d '<path-to-cert-file>'
-complete -c hdiutil -n '__fish_seen_subcommand_from convert' -s srcimagekey -d '<key>=<value> (-imagekey is a synonym)'
-complete -c hdiutil -n '__fish_seen_subcommand_from convert' -s tgtimagekey -d '<key>=<value>'
-complete -c hdiutil -n '__fish_seen_subcommand_from convert' -s shadow -d '<shadowfile>'
-complete -c hdiutil -n '__fish_seen_subcommand_from convert' -s cacert -d '<file | dir>'
-complete -c hdiutil -n '__fish_seen_subcommand_from burn' -s speed -d '<speed e.g. 1, 2, 4, 8, ... max>'
-complete -c hdiutil -n '__fish_seen_subcommand_from burn' -s device -d '<OpenFirmware path>'
-complete -c hdiutil -n '__fish_seen_subcommand_from burn' -s sizequery -d 'just calculate size of disc required'
-complete -c hdiutil -n '__fish_seen_subcommand_from burn' -s testburn -d don\'t\ turn\ on\ laser
-complete -c hdiutil -n '__fish_seen_subcommand_from burn' -s encryption -d '<crypto method>'
-complete -c hdiutil -n '__fish_seen_subcommand_from burn' -s srcimagekey -d '<key>=<value> (-imagekey is a synonym)'
-complete -c hdiutil -n '__fish_seen_subcommand_from burn' -s shadow -d '<shadowfile>'
-complete -c hdiutil -n '__fish_seen_subcommand_from burn' -s cacert -d '<file | dir>'
-complete -c hdiutil -n '__fish_seen_subcommand_from burn' -s erase -d 'erase disc (quickly)'
-complete -c hdiutil -n '__fish_seen_subcommand_from burn' -s fullerase -d 'completely erase disc'
-complete -c hdiutil -n '__fish_seen_subcommand_from burn' -s list -d 'list all burning devices, for -device'
-complete -c hdiutil -n '__fish_seen_subcommand_from info' -s s -d 'display framework and driver version only'
-complete -c hdiutil -n '__fish_seen_subcommand_from checksum' -s encryption -d '<crypto method>'
-complete -c hdiutil -n '__fish_seen_subcommand_from checksum' -s srcimagekey -d '<key>=<value> (-imagekey is a synonym)'
-complete -c hdiutil -n '__fish_seen_subcommand_from checksum' -s shadow -d '<shadowfile>'
-complete -c hdiutil -n '__fish_seen_subcommand_from checksum' -s cacert -d '<file | dir>'
-complete -c hdiutil -n '__fish_seen_subcommand_from chpass' -s recover -d '<keychain-file>'
-complete -c hdiutil -n '__fish_seen_subcommand_from chpass' -s pubkey -d '<public-key-hash>[,pkh2,...]'
-complete -c hdiutil -n '__fish_seen_subcommand_from chpass' -s srcimagekey -d '<key>=<value> (-imagekey is a synonym)'
-complete -c hdiutil -n '__fish_seen_subcommand_from imageinfo' -s format -d 'just display the image format'
-complete -c hdiutil -n '__fish_seen_subcommand_from imageinfo' -s checksum -d 'just display the image checksum'
-complete -c hdiutil -n '__fish_seen_subcommand_from imageinfo' -s encryption -d '<crypto method>'
-complete -c hdiutil -n '__fish_seen_subcommand_from imageinfo' -s srcimagekey -d '<key>=<value> (-imagekey is a synonym)'
-complete -c hdiutil -n '__fish_seen_subcommand_from imageinfo' -s shadow -d '<shadowfile>'
-complete -c hdiutil -n '__fish_seen_subcommand_from imageinfo' -s cacert -d '<file | dir>'
-complete -c hdiutil -n '__fish_seen_subcommand_from makehybrid' -s hfs -d 'Generate an HFS+ filesystem'
-complete -c hdiutil -n '__fish_seen_subcommand_from makehybrid' -s iso -d 'Generate an ISO9660 filesystem'
-complete -c hdiutil -n '__fish_seen_subcommand_from makehybrid' -s joliet -d 'Generate Joliet extensions to ISO9660'
-complete -c hdiutil -n '__fish_seen_subcommand_from makehybrid' -s udf -d 'Generate a UDF filesystem'
-complete -c hdiutil -n '__fish_seen_subcommand_from makehybrid' -s hfs-blessed-directory -d '<directory> Blessed directory'
-complete -c hdiutil -n '__fish_seen_subcommand_from makehybrid' -s hfs-openfolder -d '<directory>  First Finder open folder'
-complete -c hdiutil -n '__fish_seen_subcommand_from makehybrid' -s hfs-startupfile-size -d '<number> Startup File size in bytes'
-complete -c hdiutil -n '__fish_seen_subcommand_from makehybrid' -s hfs-volume-name -d '<string> Volume name for HFS+ filesystem'
-complete -c hdiutil -n '__fish_seen_subcommand_from makehybrid' -s hide-hfs -d '<string>  Glob expression to hide in HFS+'
-complete -c hdiutil -n '__fish_seen_subcommand_from makehybrid' -s only-hfs -d '<string>  Glob expression to only include in HFS+'
-complete -c hdiutil -n '__fish_seen_subcommand_from makehybrid' -s abstract-file -d '<file> Path to abstract file'
-complete -c hdiutil -n '__fish_seen_subcommand_from makehybrid' -s bibliography-file -d '<file> Path to bibliography file'
-complete -c hdiutil -n '__fish_seen_subcommand_from makehybrid' -s copyright-file -d '<file> Path to copyright file'
-complete -c hdiutil -n '__fish_seen_subcommand_from makehybrid' -s application -d '<string> Creator application name'
-complete -c hdiutil -n '__fish_seen_subcommand_from makehybrid' -s preparer -d '<string>  Data preparer name'
-complete -c hdiutil -n '__fish_seen_subcommand_from makehybrid' -s publisher -d '<string>  Publisher name'
-complete -c hdiutil -n '__fish_seen_subcommand_from makehybrid' -s system-id -d '<string>  System Identifier'
-complete -c hdiutil -n '__fish_seen_subcommand_from makehybrid' -s keep-mac-specific -d 'Keep Macintosh-specific files'
-complete -c hdiutil -n '__fish_seen_subcommand_from makehybrid' -s eltorito-boot -d 'Path to El Torito Boot Image'
-complete -c hdiutil -n '__fish_seen_subcommand_from makehybrid' -s hard-disk-boot -d 'Use El Torito Hard Disk emulation mode'
-complete -c hdiutil -n '__fish_seen_subcommand_from makehybrid' -s no-emul-boot -d 'Use El Torito No Emulation mode'
-complete -c hdiutil -n '__fish_seen_subcommand_from makehybrid' -s iso-volume-name -d '<string> Volume name for ISO9660 filesystem'
-complete -c hdiutil -n '__fish_seen_subcommand_from makehybrid' -s joliet-volume-name -d '<string> Volume name for Joliet'
-complete -c hdiutil -n '__fish_seen_subcommand_from makehybrid' -s hide-iso -d '<string>  Glob expression to hide in ISO9660'
-complete -c hdiutil -n '__fish_seen_subcommand_from makehybrid' -s hide-joliet -d '<string> Glob expression to hide in Joliet'
-complete -c hdiutil -n '__fish_seen_subcommand_from makehybrid' -s only-iso -d '<string>  Glob expression to only include in ISO9660'
-complete -c hdiutil -n '__fish_seen_subcommand_from makehybrid' -s only-joliet -d '<string> Glob expression to only include in Joliet'
-complete -c hdiutil -n '__fish_seen_subcommand_from makehybrid' -s udf-version -d '<string> One of "1.02", "1.50"'
-complete -c hdiutil -n '__fish_seen_subcommand_from makehybrid' -s udf-volume-name -d '<string> Volume name for UDF filesystem'
-complete -c hdiutil -n '__fish_seen_subcommand_from makehybrid' -s hide-udf -d '<string>  Glob expression to hide in UDF'
-complete -c hdiutil -n '__fish_seen_subcommand_from makehybrid' -s only-udf -d '<string>  Glob expression to only include in UDF'
-complete -c hdiutil -n '__fish_seen_subcommand_from makehybrid' -s default-volume-name -d '<string> Default volume name'
-complete -c hdiutil -n '__fish_seen_subcommand_from makehybrid' -s hide-all -d '<string>  Glob expression to hide'
-complete -c hdiutil -n '__fish_seen_subcommand_from makehybrid' -s ov -d 'Overwrite output if already present'
-complete -c hdiutil -n '__fish_seen_subcommand_from makehybrid' -s print-size -d 'Print size estimate and quit'
-complete -c hdiutil -n '__fish_seen_subcommand_from makehybrid' -s plistin -d 'Accept command-line options as a plist on stdin'
-complete -c hdiutil -n '__fish_seen_subcommand_from makehybrid' -s encryption -d '<crypto method>'
-complete -c hdiutil -n '__fish_seen_subcommand_from makehybrid' -s shadow -d '<shadowfile>'
-complete -c hdiutil -n '__fish_seen_subcommand_from makehybrid' -s cacert -d '<file | dir>'
-complete -c hdiutil -n '__fish_seen_subcommand_from mount' -s readonly -d 'force read-only'
-complete -c hdiutil -n '__fish_seen_subcommand_from mount' -s kernel -d 'attempt to attach the image in-kernel'
-complete -c hdiutil -n '__fish_seen_subcommand_from mount' -s mount -d 'required|optional|suppressed  mount volumes?'
-complete -c hdiutil -n '__fish_seen_subcommand_from mount' -s nomount -d 'same as -mount suppressed'
-complete -c hdiutil -n '__fish_seen_subcommand_from mount' -s mountpoint -d '<path> mount at <path> instead of inside /Volumes'
-complete -c hdiutil -n '__fish_seen_subcommand_from mount' -s mountroot -d '<path> mount volumes on <path>/<volname>'
-complete -c hdiutil -n '__fish_seen_subcommand_from mount' -s mountrandom -d '<path> mount volumes on <path>/<random>'
-complete -c hdiutil -n '__fish_seen_subcommand_from mount' -s encryption -d '<crypto method>'
-complete -c hdiutil -n '__fish_seen_subcommand_from mount' -s recover -d '<keychain-file>'
-complete -c hdiutil -n '__fish_seen_subcommand_from mount' -s imagekey -d '<key>=<value>'
-complete -c hdiutil -n '__fish_seen_subcommand_from mount' -s drivekey -d '<key>=<value>'
-complete -c hdiutil -n '__fish_seen_subcommand_from mount' -s shadow -d '<shadowfile>'
-complete -c hdiutil -n '__fish_seen_subcommand_from mount' -s cacert -d '<file | dir>'
-complete -c hdiutil -n '__fish_seen_subcommand_from mountvol' -s whole -d 'mount all partitions on same disk'
-complete -c hdiutil -n '__fish_seen_subcommand_from mountvol' -s notimeout -d 'no timeout when mounting'
-complete -c hdiutil -n '__fish_seen_subcommand_from mountvol' -s timeout -d '<secs> mount but timeout after <secs> seconds [default: 30]'
-complete -c hdiutil -n '__fish_seen_subcommand_from unmount' -s force -d 'force unmount'
-complete -c hdiutil -n '__fish_seen_subcommand_from unmount' -s whole -d 'unmount all partitions on same disk'
-complete -c hdiutil -n '__fish_seen_subcommand_from unmount' -s notimeout -d 'no timeout when unmounting'
-complete -c hdiutil -n '__fish_seen_subcommand_from unmount' -s timeout -d '<secs> unmount but timeout after <secs> seconds [default: 30]'
-complete -c hdiutil -n '__fish_seen_subcommand_from resize' -s size -d '< ?? | ??b | ??k | ??m | ??g | ??t | ??p | ??e | min >'
-complete -c hdiutil -n '__fish_seen_subcommand_from resize' -s sectors -d '<sector count>'
-complete -c hdiutil -n '__fish_seen_subcommand_from resize' -s imageonly -d 'only change image file size'
-complete -c hdiutil -n '__fish_seen_subcommand_from resize' -s partitiononly -d 'only change the partition size'
-complete -c hdiutil -n '__fish_seen_subcommand_from resize' -s partitionID -d '<ID>  resize partition with given <ID>'
-complete -c hdiutil -n '__fish_seen_subcommand_from resize' -s nofinalgap -d 'allow complete elimination of trailing unallocated blocks for Apple Partition Maps'
-complete -c hdiutil -n '__fish_seen_subcommand_from resize' -s limits -d for\ given\ options,\ don\'t\ resize,\ just\ print\ default\ min/current/max\ sizes
-complete -c hdiutil -n '__fish_seen_subcommand_from resize' -s alllimits -d for\ given\ options,\ don\'t\ resize,\ just\ list\ resize\ information\ for\ the\ image\ and\ all\ \(any\)\ partitions.
-complete -c hdiutil -n '__fish_seen_subcommand_from resize' -s encryption -d '<crypto method>'
-complete -c hdiutil -n '__fish_seen_subcommand_from resize' -s srcimagekey -d '<key>=<value> (-imagekey is a synonym)'
-complete -c hdiutil -n '__fish_seen_subcommand_from resize' -s shadow -d '<shadowfile>'
-complete -c hdiutil -n '__fish_seen_subcommand_from resize' -s cacert -d '<file | dir>'
-complete -c hdiutil -n '__fish_seen_subcommand_from segment' -s firstSegmentSize -d '<size> size of first segment'
-complete -c hdiutil -n '__fish_seen_subcommand_from segment' -s restricted -d 'make restricted segments'
-complete -c hdiutil -n '__fish_seen_subcommand_from segment' -s ov -d 'overwrite target file(s) if it already exists'
-complete -c hdiutil -n '__fish_seen_subcommand_from segment' -s encryption -d '<crypto method>'
-complete -c hdiutil -n '__fish_seen_subcommand_from segment' -s srcimagekey -d '<key>=<value> (-imagekey is a synonym)'
-complete -c hdiutil -n '__fish_seen_subcommand_from segment' -s tgtimagekey -d '<key>=<value>'
-complete -c hdiutil -n '__fish_seen_subcommand_from pmap' -s simple -d -\ MediaKit\'s\ minimal\ report
-complete -c hdiutil -n '__fish_seen_subcommand_from pmap' -s standard -d -\ MediaKit\'s\ standard\ report\ \(no\ free\ space\)
-complete -c hdiutil -n '__fish_seen_subcommand_from pmap' -s complete -d -\ MK\'s\ comprehensive\ report\ \(w/end\ offsets\)
-complete -c hdiutil -n '__fish_seen_subcommand_from pmap' -s diagnostic -d -\ MK\'s\ diagnostic\ mode\ \(display\ all\ schemes\)
-complete -c hdiutil -n '__fish_seen_subcommand_from pmap' -s endoffsets -d '- indicate last block of each partition'
-complete -c hdiutil -n '__fish_seen_subcommand_from pmap' -s nofreespace -d -\ don\'t\ show\ free\ space
-complete -c hdiutil -n '__fish_seen_subcommand_from pmap' -s shims -d '- show small islands of space < 32 blocks'
-complete -c hdiutil -n '__fish_seen_subcommand_from pmap' -s uuids -d '- show uuid of gpt partitions'
-complete -c hdiutil -n '__fish_seen_subcommand_from pmap' -s shadow -d '<shadowfile>'
-complete -c hdiutil -n '__fish_seen_subcommand_from pmap' -s cacert -d '<file | dir>'
-complete -c hdiutil -n '__fish_seen_subcommand_from udifderez' -s xml -d 'emit XML format output (default)'
-complete -c hdiutil -n '__fish_seen_subcommand_from udifderez' -s rez -d 'embed Rez format output'
-complete -c hdiutil -n '__fish_seen_subcommand_from udifderez' -s encryption -d '<crypto method>'
-complete -c hdiutil -n '__fish_seen_subcommand_from udifderez' -s srcimagekey -d '<key>=<value> (-imagekey is a synonym)'
-complete -c hdiutil -n '__fish_seen_subcommand_from udifrez' -s xml -d '<input> copy resources from XML-format resource file <input>'
-complete -c hdiutil -n '__fish_seen_subcommand_from udifrez' -s replaceall -d 'delete all resources in <image> first'
-complete -c hdiutil -n '__fish_seen_subcommand_from udifrez' -s encryption -d '<crypto method>'
-complete -c hdiutil -n '__fish_seen_subcommand_from udifrez' -s srcimagekey -d '<key>=<value> (-imagekey is a synonym)'
+complete -c hdiutil -n '__fish_seen_subcommand_from attach' -o readonly -d 'force read-only'
+complete -c hdiutil -n '__fish_seen_subcommand_from attach' -o kernel -d 'attempt to attach the image in-kernel'
+complete -c hdiutil -n '__fish_seen_subcommand_from attach' -o mount -d 'required|optional|suppressed  mount volumes?'
+complete -c hdiutil -n '__fish_seen_subcommand_from attach' -o nomount -d 'same as -mount suppressed'
+complete -c hdiutil -n '__fish_seen_subcommand_from attach' -o mountpoint -d '<path> mount at <path> instead of inside /Volumes'
+complete -c hdiutil -n '__fish_seen_subcommand_from attach' -o mountroot -d '<path> mount volumes on <path>/<volname>'
+complete -c hdiutil -n '__fish_seen_subcommand_from attach' -o mountrandom -d '<path> mount volumes on <path>/<random>'
+complete -c hdiutil -n '__fish_seen_subcommand_from attach' -o encryption -d '<crypto method>'
+complete -c hdiutil -n '__fish_seen_subcommand_from attach' -o recover -d '<keychain-file>'
+complete -c hdiutil -n '__fish_seen_subcommand_from attach' -o imagekey -d '<key>=<value>'
+complete -c hdiutil -n '__fish_seen_subcommand_from attach' -o drivekey -d '<key>=<value>'
+complete -c hdiutil -n '__fish_seen_subcommand_from attach' -o shadow -d '<shadowfile>'
+complete -c hdiutil -n '__fish_seen_subcommand_from attach' -o cacert -d '<file | dir>'
+complete -c hdiutil -n '__fish_seen_subcommand_from detach' -o force -d 'forcibly detach'
+complete -c hdiutil -n '__fish_seen_subcommand_from eject' -o force -d 'forcibly detach'
+complete -c hdiutil -n '__fish_seen_subcommand_from verify' -o encryption -d '<crypto method>'
+complete -c hdiutil -n '__fish_seen_subcommand_from verify' -o srcimagekey -d '<key>=<value> (-imagekey is a synonym)'
+complete -c hdiutil -n '__fish_seen_subcommand_from create' -o size -d '< ?? | ??b | ??k | ??m | ??g | ??t | ??p | ??e >'
+complete -c hdiutil -n '__fish_seen_subcommand_from create' -o sectors -d '<count>'
+complete -c hdiutil -n '__fish_seen_subcommand_from create' -o megabytes -d '<count>'
+complete -c hdiutil -n '__fish_seen_subcommand_from create' -o library -d '<MKDrivers>'
+complete -c hdiutil -n '__fish_seen_subcommand_from create' -o layout -d '<layout>   [GPTSPUD or per -fs]'
+complete -c hdiutil -n '__fish_seen_subcommand_from create' -o partitionType -d '<partitionType> [per -fs]'
+complete -c hdiutil -n '__fish_seen_subcommand_from create' -o align -d '<sector alignment>  [8 sectors]'
+complete -c hdiutil -n '__fish_seen_subcommand_from create' -o fs -d '<filesystem>'
+complete -c hdiutil -n '__fish_seen_subcommand_from create' -o volname -d '<volumename>  ["untitled"]'
+complete -c hdiutil -n '__fish_seen_subcommand_from create' -o stretch -d '< ?? | ?b | ??k | ??m | ??g | ??t | ??p | ??e > (HFS+)'
+complete -c hdiutil -n '__fish_seen_subcommand_from create' -o type -d '<image type>   [UDIF]'
+complete -c hdiutil -n '__fish_seen_subcommand_from create' -o srcfolder -d '<source folder>'
+complete -c hdiutil -n '__fish_seen_subcommand_from create' -o srcowners -d 'on|off|any|auto [auto]'
+complete -c hdiutil -n '__fish_seen_subcommand_from create' -o format -d '<image type>   [UDZO]'
+complete -c hdiutil -n '__fish_seen_subcommand_from create' -o srcdevice -d '<source dev node, e.g. disk1, disk2s1>'
+complete -c hdiutil -n '__fish_seen_subcommand_from create' -o format -d '<image type>   [UDZO]'
+complete -c hdiutil -n '__fish_seen_subcommand_from create' -o segmentSize -d '< ?? | ??b | ??k | ??m | ??g | ??t | ??p | ??e > (deprecated)'
+complete -c hdiutil -n '__fish_seen_subcommand_from create' -o attach -d 'attach image after creation'
+complete -c hdiutil -n '__fish_seen_subcommand_from create' -o encryption -d '<crypto method>'
+complete -c hdiutil -n '__fish_seen_subcommand_from create' -o certificate -d '<path-to-cert-file>'
+complete -c hdiutil -n '__fish_seen_subcommand_from create' -o pubkey -d '<public-key-hash>[,pkh2,...]'
+complete -c hdiutil -n '__fish_seen_subcommand_from create' -o imagekey -d '<key>=<value>'
+complete -c hdiutil -n '__fish_seen_subcommand_from create' -o tgtimagekey -d '<key>=<value>'
+complete -c hdiutil -n '__fish_seen_subcommand_from compact' -o batteryallowed -d 'allow compacting on battery power'
+complete -c hdiutil -n '__fish_seen_subcommand_from compact' -o sleepallowed -d 'allow machine to idle sleep (cancels compact)'
+complete -c hdiutil -n '__fish_seen_subcommand_from compact' -o encryption -d '<crypto method>'
+complete -c hdiutil -n '__fish_seen_subcommand_from compact' -o srcimagekey -d '<key>=<value> (-imagekey is a synonym)'
+complete -c hdiutil -n '__fish_seen_subcommand_from compact' -o shadow -d '<shadowfile>'
+complete -c hdiutil -n '__fish_seen_subcommand_from compact' -o cacert -d '<file | dir>'
+complete -c hdiutil -n '__fish_seen_subcommand_from convert' -o ov -d 'overwrite target file(s) if it already exists'
+complete -c hdiutil -n '__fish_seen_subcommand_from convert' -o align -d '[<sector alignment>] [4 aka 2K]'
+complete -c hdiutil -n '__fish_seen_subcommand_from convert' -o segmentSize -d '< ?? | ??b | ??k | ??m | ??g | ??t | ??p | ??e > (deprecated)'
+complete -c hdiutil -n '__fish_seen_subcommand_from convert' -o tasks -d '<task count>  [8]'
+complete -c hdiutil -n '__fish_seen_subcommand_from convert' -o encryption -d '<crypto method>'
+complete -c hdiutil -n '__fish_seen_subcommand_from convert' -o certificate -d '<path-to-cert-file>'
+complete -c hdiutil -n '__fish_seen_subcommand_from convert' -o srcimagekey -d '<key>=<value> (-imagekey is a synonym)'
+complete -c hdiutil -n '__fish_seen_subcommand_from convert' -o tgtimagekey -d '<key>=<value>'
+complete -c hdiutil -n '__fish_seen_subcommand_from convert' -o shadow -d '<shadowfile>'
+complete -c hdiutil -n '__fish_seen_subcommand_from convert' -o cacert -d '<file | dir>'
+complete -c hdiutil -n '__fish_seen_subcommand_from burn' -o speed -d '<speed e.g. 1, 2, 4, 8, ... max>'
+complete -c hdiutil -n '__fish_seen_subcommand_from burn' -o device -d '<OpenFirmware path>'
+complete -c hdiutil -n '__fish_seen_subcommand_from burn' -o sizequery -d 'just calculate size of disc required'
+complete -c hdiutil -n '__fish_seen_subcommand_from burn' -o testburn -d don‘t\ turn\ on\ laser
+complete -c hdiutil -n '__fish_seen_subcommand_from burn' -o encryption -d '<crypto method>'
+complete -c hdiutil -n '__fish_seen_subcommand_from burn' -o srcimagekey -d '<key>=<value> (-imagekey is a synonym)'
+complete -c hdiutil -n '__fish_seen_subcommand_from burn' -o shadow -d '<shadowfile>'
+complete -c hdiutil -n '__fish_seen_subcommand_from burn' -o cacert -d '<file | dir>'
+complete -c hdiutil -n '__fish_seen_subcommand_from burn' -o erase -d 'erase disc (quickly)'
+complete -c hdiutil -n '__fish_seen_subcommand_from burn' -o fullerase -d 'completely erase disc'
+complete -c hdiutil -n '__fish_seen_subcommand_from burn' -o list -d 'list all burning devices, for -device'
+complete -c hdiutil -n '__fish_seen_subcommand_from info' -o s -d 'display framework and driver version only'
+complete -c hdiutil -n '__fish_seen_subcommand_from checksum' -o encryption -d '<crypto method>'
+complete -c hdiutil -n '__fish_seen_subcommand_from checksum' -o srcimagekey -d '<key>=<value> (-imagekey is a synonym)'
+complete -c hdiutil -n '__fish_seen_subcommand_from checksum' -o shadow -d '<shadowfile>'
+complete -c hdiutil -n '__fish_seen_subcommand_from checksum' -o cacert -d '<file | dir>'
+complete -c hdiutil -n '__fish_seen_subcommand_from chpass' -o recover -d '<keychain-file>'
+complete -c hdiutil -n '__fish_seen_subcommand_from chpass' -o pubkey -d '<public-key-hash>[,pkh2,...]'
+complete -c hdiutil -n '__fish_seen_subcommand_from chpass' -o srcimagekey -d '<key>=<value> (-imagekey is a synonym)'
+complete -c hdiutil -n '__fish_seen_subcommand_from imageinfo' -o format -d 'just display the image format'
+complete -c hdiutil -n '__fish_seen_subcommand_from imageinfo' -o checksum -d 'just display the image checksum'
+complete -c hdiutil -n '__fish_seen_subcommand_from imageinfo' -o encryption -d '<crypto method>'
+complete -c hdiutil -n '__fish_seen_subcommand_from imageinfo' -o srcimagekey -d '<key>=<value> (-imagekey is a synonym)'
+complete -c hdiutil -n '__fish_seen_subcommand_from imageinfo' -o shadow -d '<shadowfile>'
+complete -c hdiutil -n '__fish_seen_subcommand_from imageinfo' -o cacert -d '<file | dir>'
+complete -c hdiutil -n '__fish_seen_subcommand_from makehybrid' -o hfs -d 'Generate an HFS+ filesystem'
+complete -c hdiutil -n '__fish_seen_subcommand_from makehybrid' -o iso -d 'Generate an ISO9660 filesystem'
+complete -c hdiutil -n '__fish_seen_subcommand_from makehybrid' -o joliet -d 'Generate Joliet extensions to ISO9660'
+complete -c hdiutil -n '__fish_seen_subcommand_from makehybrid' -o udf -d 'Generate a UDF filesystem'
+complete -c hdiutil -n '__fish_seen_subcommand_from makehybrid' -o hfs-blessed-directory -d '<directory> Blessed directory'
+complete -c hdiutil -n '__fish_seen_subcommand_from makehybrid' -o hfs-openfolder -d '<directory>  First Finder open folder'
+complete -c hdiutil -n '__fish_seen_subcommand_from makehybrid' -o hfs-startupfile-size -d '<number> Startup File size in bytes'
+complete -c hdiutil -n '__fish_seen_subcommand_from makehybrid' -o hfs-volume-name -d '<string> Volume name for HFS+ filesystem'
+complete -c hdiutil -n '__fish_seen_subcommand_from makehybrid' -o hide-hfs -d '<string>  Glob expression to hide in HFS+'
+complete -c hdiutil -n '__fish_seen_subcommand_from makehybrid' -o only-hfs -d '<string>  Glob expression to only include in HFS+'
+complete -c hdiutil -n '__fish_seen_subcommand_from makehybrid' -o abstract-file -d '<file> Path to abstract file'
+complete -c hdiutil -n '__fish_seen_subcommand_from makehybrid' -o bibliography-file -d '<file> Path to bibliography file'
+complete -c hdiutil -n '__fish_seen_subcommand_from makehybrid' -o copyright-file -d '<file> Path to copyright file'
+complete -c hdiutil -n '__fish_seen_subcommand_from makehybrid' -o application -d '<string> Creator application name'
+complete -c hdiutil -n '__fish_seen_subcommand_from makehybrid' -o preparer -d '<string>  Data preparer name'
+complete -c hdiutil -n '__fish_seen_subcommand_from makehybrid' -o publisher -d '<string>  Publisher name'
+complete -c hdiutil -n '__fish_seen_subcommand_from makehybrid' -o system-id -d '<string>  System Identifier'
+complete -c hdiutil -n '__fish_seen_subcommand_from makehybrid' -o keep-mac-specific -d 'Keep Macintosh-specific files'
+complete -c hdiutil -n '__fish_seen_subcommand_from makehybrid' -o eltorito-boot -d 'Path to El Torito Boot Image'
+complete -c hdiutil -n '__fish_seen_subcommand_from makehybrid' -o hard-disk-boot -d 'Use El Torito Hard Disk emulation mode'
+complete -c hdiutil -n '__fish_seen_subcommand_from makehybrid' -o no-emul-boot -d 'Use El Torito No Emulation mode'
+complete -c hdiutil -n '__fish_seen_subcommand_from makehybrid' -o iso-volume-name -d '<string> Volume name for ISO9660 filesystem'
+complete -c hdiutil -n '__fish_seen_subcommand_from makehybrid' -o joliet-volume-name -d '<string> Volume name for Joliet'
+complete -c hdiutil -n '__fish_seen_subcommand_from makehybrid' -o hide-iso -d '<string>  Glob expression to hide in ISO9660'
+complete -c hdiutil -n '__fish_seen_subcommand_from makehybrid' -o hide-joliet -d '<string> Glob expression to hide in Joliet'
+complete -c hdiutil -n '__fish_seen_subcommand_from makehybrid' -o only-iso -d '<string>  Glob expression to only include in ISO9660'
+complete -c hdiutil -n '__fish_seen_subcommand_from makehybrid' -o only-joliet -d '<string> Glob expression to only include in Joliet'
+complete -c hdiutil -n '__fish_seen_subcommand_from makehybrid' -o udf-version -d '<string> One of "1.02", "1.50"'
+complete -c hdiutil -n '__fish_seen_subcommand_from makehybrid' -o udf-volume-name -d '<string> Volume name for UDF filesystem'
+complete -c hdiutil -n '__fish_seen_subcommand_from makehybrid' -o hide-udf -d '<string>  Glob expression to hide in UDF'
+complete -c hdiutil -n '__fish_seen_subcommand_from makehybrid' -o only-udf -d '<string>  Glob expression to only include in UDF'
+complete -c hdiutil -n '__fish_seen_subcommand_from makehybrid' -o default-volume-name -d '<string> Default volume name'
+complete -c hdiutil -n '__fish_seen_subcommand_from makehybrid' -o hide-all -d '<string>  Glob expression to hide'
+complete -c hdiutil -n '__fish_seen_subcommand_from makehybrid' -o ov -d 'Overwrite output if already present'
+complete -c hdiutil -n '__fish_seen_subcommand_from makehybrid' -o print-size -d 'Print size estimate and quit'
+complete -c hdiutil -n '__fish_seen_subcommand_from makehybrid' -o plistin -d 'Accept command-line options as a plist on stdin'
+complete -c hdiutil -n '__fish_seen_subcommand_from makehybrid' -o encryption -d '<crypto method>'
+complete -c hdiutil -n '__fish_seen_subcommand_from makehybrid' -o shadow -d '<shadowfile>'
+complete -c hdiutil -n '__fish_seen_subcommand_from makehybrid' -o cacert -d '<file | dir>'
+complete -c hdiutil -n '__fish_seen_subcommand_from mount' -o readonly -d 'force read-only'
+complete -c hdiutil -n '__fish_seen_subcommand_from mount' -o kernel -d 'attempt to attach the image in-kernel'
+complete -c hdiutil -n '__fish_seen_subcommand_from mount' -o mount -d 'required|optional|suppressed  mount volumes?'
+complete -c hdiutil -n '__fish_seen_subcommand_from mount' -o nomount -d 'same as -mount suppressed'
+complete -c hdiutil -n '__fish_seen_subcommand_from mount' -o mountpoint -d '<path> mount at <path> instead of inside /Volumes'
+complete -c hdiutil -n '__fish_seen_subcommand_from mount' -o mountroot -d '<path> mount volumes on <path>/<volname>'
+complete -c hdiutil -n '__fish_seen_subcommand_from mount' -o mountrandom -d '<path> mount volumes on <path>/<random>'
+complete -c hdiutil -n '__fish_seen_subcommand_from mount' -o encryption -d '<crypto method>'
+complete -c hdiutil -n '__fish_seen_subcommand_from mount' -o recover -d '<keychain-file>'
+complete -c hdiutil -n '__fish_seen_subcommand_from mount' -o imagekey -d '<key>=<value>'
+complete -c hdiutil -n '__fish_seen_subcommand_from mount' -o drivekey -d '<key>=<value>'
+complete -c hdiutil -n '__fish_seen_subcommand_from mount' -o shadow -d '<shadowfile>'
+complete -c hdiutil -n '__fish_seen_subcommand_from mount' -o cacert -d '<file | dir>'
+complete -c hdiutil -n '__fish_seen_subcommand_from mountvol' -o whole -d 'mount all partitions on same disk'
+complete -c hdiutil -n '__fish_seen_subcommand_from mountvol' -o notimeout -d 'no timeout when mounting'
+complete -c hdiutil -n '__fish_seen_subcommand_from mountvol' -o timeout -d '<secs> mount but timeout after <secs> seconds [default: 30]'
+complete -c hdiutil -n '__fish_seen_subcommand_from unmount' -o force -d 'force unmount'
+complete -c hdiutil -n '__fish_seen_subcommand_from unmount' -o whole -d 'unmount all partitions on same disk'
+complete -c hdiutil -n '__fish_seen_subcommand_from unmount' -o notimeout -d 'no timeout when unmounting'
+complete -c hdiutil -n '__fish_seen_subcommand_from unmount' -o timeout -d '<secs> unmount but timeout after <secs> seconds [default: 30]'
+complete -c hdiutil -n '__fish_seen_subcommand_from resize' -o size -d '< ?? | ??b | ??k | ??m | ??g | ??t | ??p | ??e | min >'
+complete -c hdiutil -n '__fish_seen_subcommand_from resize' -o sectors -d '<sector count>'
+complete -c hdiutil -n '__fish_seen_subcommand_from resize' -o imageonly -d 'only change image file size'
+complete -c hdiutil -n '__fish_seen_subcommand_from resize' -o partitiononly -d 'only change the partition size'
+complete -c hdiutil -n '__fish_seen_subcommand_from resize' -o partitionID -d '<ID>  resize partition with given <ID>'
+complete -c hdiutil -n '__fish_seen_subcommand_from resize' -o nofinalgap -d 'allow complete elimination of trailing unallocated blocks for Apple Partition Maps'
+complete -c hdiutil -n '__fish_seen_subcommand_from resize' -o limits -d for\ given\ options,\ don‘t\ resize,\ just\ print\ default\ min/current/max\ sizes
+complete -c hdiutil -n '__fish_seen_subcommand_from resize' -o alllimits -d for\ given\ options,\ don‘t\ resize,\ just\ list\ resize\ information\ for\ the\ image\ and\ all\ \(any\)\ partitions.
+complete -c hdiutil -n '__fish_seen_subcommand_from resize' -o encryption -d '<crypto method>'
+complete -c hdiutil -n '__fish_seen_subcommand_from resize' -o srcimagekey -d '<key>=<value> (-imagekey is a synonym)'
+complete -c hdiutil -n '__fish_seen_subcommand_from resize' -o shadow -d '<shadowfile>'
+complete -c hdiutil -n '__fish_seen_subcommand_from resize' -o cacert -d '<file | dir>'
+complete -c hdiutil -n '__fish_seen_subcommand_from segment' -o firstSegmentSize -d '<size> size of first segment'
+complete -c hdiutil -n '__fish_seen_subcommand_from segment' -o restricted -d 'make restricted segments'
+complete -c hdiutil -n '__fish_seen_subcommand_from segment' -o ov -d 'overwrite target file(s) if it already exists'
+complete -c hdiutil -n '__fish_seen_subcommand_from segment' -o encryption -d '<crypto method>'
+complete -c hdiutil -n '__fish_seen_subcommand_from segment' -o srcimagekey -d '<key>=<value> (-imagekey is a synonym)'
+complete -c hdiutil -n '__fish_seen_subcommand_from segment' -o tgtimagekey -d '<key>=<value>'
+complete -c hdiutil -n '__fish_seen_subcommand_from pmap' -o simple -d -\ MediaKit‘s\ minimal\ report
+complete -c hdiutil -n '__fish_seen_subcommand_from pmap' -o standard -d -\ MediaKit‘s\ standard\ report\ \(no\ free\ space\)
+complete -c hdiutil -n '__fish_seen_subcommand_from pmap' -o complete -d -\ MK‘s\ comprehensive\ report\ \(w/end\ offsets\)
+complete -c hdiutil -n '__fish_seen_subcommand_from pmap' -o diagnostic -d -\ MK‘s\ diagnostic\ mode\ \(display\ all\ schemes\)
+complete -c hdiutil -n '__fish_seen_subcommand_from pmap' -o endoffsets -d '- indicate last block of each partition'
+complete -c hdiutil -n '__fish_seen_subcommand_from pmap' -o nofreespace -d -\ don‘t\ show\ free\ space
+complete -c hdiutil -n '__fish_seen_subcommand_from pmap' -o shims -d '- show small islands of space < 32 blocks'
+complete -c hdiutil -n '__fish_seen_subcommand_from pmap' -o uuids -d '- show uuid of gpt partitions'
+complete -c hdiutil -n '__fish_seen_subcommand_from pmap' -o shadow -d '<shadowfile>'
+complete -c hdiutil -n '__fish_seen_subcommand_from pmap' -o cacert -d '<file | dir>'
+complete -c hdiutil -n '__fish_seen_subcommand_from udifderez' -o xml -d 'emit XML format output (default)'
+complete -c hdiutil -n '__fish_seen_subcommand_from udifderez' -o rez -d 'embed Rez format output'
+complete -c hdiutil -n '__fish_seen_subcommand_from udifderez' -o encryption -d '<crypto method>'
+complete -c hdiutil -n '__fish_seen_subcommand_from udifderez' -o srcimagekey -d '<key>=<value> (-imagekey is a synonym)'
+complete -c hdiutil -n '__fish_seen_subcommand_from udifrez' -o xml -d '<input> copy resources from XML-format resource file <input>'
+complete -c hdiutil -n '__fish_seen_subcommand_from udifrez' -o replaceall -d 'delete all resources in <image> first'
+complete -c hdiutil -n '__fish_seen_subcommand_from udifrez' -o encryption -d '<crypto method>'
+complete -c hdiutil -n '__fish_seen_subcommand_from udifrez' -o srcimagekey -d '<key>=<value> (-imagekey is a synonym)'
 
-
-complete -c hdiutil --no-files -n __fish_no_arguments
-complete -c hdiutil --force-files -d " attach disk image" --condition __fish_use_subcommand
-complete -c hdiutil --force-files -a detach -d " detach disk image from system" --condition __fish_use_subcommand
-complete -c hdiutil --force-files -a detach -d " detach disk image from system" --condition __fish_use_subcommand
-complete -c hdiutil --force-files -a verify -d " compare data to internal image checksum" --condition __fish_use_subcommand
-complete -c hdiutil --force-files -a create -d " create a disk image image" --condition __fish_use_subcommand
-complete -c hdiutil --force-files -a compact -d " compacts a SPARSE (UDSP) or SPARSEBUNDLE (UDSB) disk image" --condition __fish_use_subcommand
-complete -c hdiutil --force-files -a convert -d " convert an image into a different format" --condition __fish_use_subcommand
-complete -c hdiutil --force-files -a burn -d " burn an image to optical media" --condition __fish_use_subcommand
-complete -c hdiutil --force-files -a info -d " display information about attached images" --condition __fish_use_subcommand
-complete -c hdiutil --force-files -a checksum -d " calculate checksums for images" --condition __fish_use_subcommand
-complete -c hdiutil --force-files -a chpass -d " change passphrase for a given image" --condition __fish_use_subcommand
-complete -c hdiutil --force-files -a erasekeys -d " erase encryption keys" --condition __fish_use_subcommand
-complete -c hdiutil --force-files -a imageinfo -d " print information about a given image" --condition __fish_use_subcommand
-complete -c hdiutil --force-files -a isencrypted -d " determines if a disk image is encrypted without user interaction" --condition __fish_use_subcommand
-complete -c hdiutil --force-files -a makehybrid -d " generate cross-platform hybrid images" --condition __fish_use_subcommand
-complete -c hdiutil --force-files -a attach -d " attach disk image" --condition __fish_use_subcommand
-complete -c hdiutil --force-files -a mountvol -d " mount a volume" --condition __fish_use_subcommand
-complete -c hdiutil --force-files -a unmount -d " unmount a mounted partition" --condition __fish_use_subcommand
-complete -c hdiutil --force-files -a plugins -d " display information about DiskImages plugins" --condition __fish_use_subcommand
-complete -c hdiutil --force-files -a resize -d " resize partition or image" --condition __fish_use_subcommand
-complete -c hdiutil --force-files -a segment -d " segment a UDIF disk image (deprecated)" --condition __fish_use_subcommand
-complete -c hdiutil --force-files -a pmap -d " hdiutil pmap [options] <image|device>" --condition __fish_use_subcommand
-complete -c hdiutil --force-files -a udifderez -d " list resources contained in UDIF disk image" --condition __fish_use_subcommand
-complete -c hdiutil --force-files -a udifrez -d " embed resources in a UDIF disk image" --condition __fish_use_subcommand
+complete -c hdiutil -d " attach disk image" --condition __fish_use_subcommand
+complete -c hdiutil -a detach -d " detach disk image from system" --condition __fish_use_subcommand
+complete -c hdiutil -a detach -d " detach disk image from system" --condition __fish_use_subcommand
+complete -c hdiutil -a verify -d " compare data to internal image checksum" --condition __fish_use_subcommand
+complete -c hdiutil -a create -d " create a disk image image" --condition __fish_use_subcommand
+complete -c hdiutil -a compact -d " compacts a SPARSE (UDSP) or SPARSEBUNDLE (UDSB) disk image" --condition __fish_use_subcommand
+complete -c hdiutil -a convert -d " convert an image into a different format" --condition __fish_use_subcommand
+complete -c hdiutil -a burn -d " burn an image to optical media" --condition __fish_use_subcommand
+complete -c hdiutil -a info -d " display information about attached images" --condition __fish_use_subcommand
+complete -c hdiutil -a checksum -d " calculate checksums for images" --condition __fish_use_subcommand
+complete -c hdiutil -a chpass -d " change passphrase for a given image" --condition __fish_use_subcommand
+complete -c hdiutil -a erasekeys -d " erase encryption keys" --condition __fish_use_subcommand
+complete -c hdiutil -a imageinfo -d " print information about a given image" --condition __fish_use_subcommand
+complete -c hdiutil -a isencrypted -d " determines if a disk image is encrypted without user interaction" --condition __fish_use_subcommand
+complete -c hdiutil -a makehybrid -d " generate cross-platform hybrid images" --condition __fish_use_subcommand
+complete -c hdiutil -a attach -d " attach disk image" --condition __fish_use_subcommand
+complete -c hdiutil -a mountvol -d " mount a volume" --condition __fish_use_subcommand
+complete -c hdiutil -a unmount -d " unmount a mounted partition" --condition __fish_use_subcommand
+complete -c hdiutil -a plugins -d " display information about DiskImages plugins" --condition __fish_use_subcommand
+complete -c hdiutil -a resize -d " resize partition or image" --condition __fish_use_subcommand
+complete -c hdiutil -a segment -d " segment a UDIF disk image (deprecated)" --condition __fish_use_subcommand
+complete -c hdiutil -a pmap -d " hdiutil pmap [options] <image|device>" --condition __fish_use_subcommand
+complete -c hdiutil -a udifderez -d " list resources contained in UDIF disk image" --condition __fish_use_subcommand
+complete -c hdiutil -a udifrez -d " embed resources in a UDIF disk image" --condition __fish_use_subcommand

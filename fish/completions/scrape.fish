@@ -1,0 +1,6 @@
+complete -c scrape -s h -l help -d 'show this help message and exit'
+complete -c scrape -s a -l argumentArgument -d 'to extract from tag'
+complete -c scrape -s b -l body -d 'Enclose output withandtags'
+complete -c scrape -s e -l expressionXPath -d 'query or3 selector'
+complete -c scrape -s f -l fileFile -d 'to read input from'
+complete -c scrape -s r -l rawinput -d 'Do not parsebefore feeding etree (useful for'

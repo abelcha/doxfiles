@@ -1,0 +1,11 @@
+complete -c cliduck -n __fish_no_arguments -s V -l version -d "Output cliduck's version."
+complete -c cliduck -s D -l database -d 'TEXT     Database to use.'
+complete -c cliduck -s R -l prompt -d 'TEXT       Prompt format (Default: "\\d> ").'
+complete -c cliduck -s l -l logfile -d 'FILENAME  Log every query and its results to a file.'
+complete -c cliduck -l duckclirc -d 'FILE        Location of duckclirc file.'
+complete -c cliduck -l auto-vertical-output -d 'Automatically switch to vertical output mode if the'
+complete -c cliduck -s t -l table -d 'Display batch output in table format.'
+complete -c cliduck -l csv -d 'Display batch output in CSV format.'
+complete -c cliduck -l warn -d '/ --no-warn      Warn before running a destructive query.'
+complete -c cliduck -s e -l execute -d 'TEXT      Execute command and quit.'
+complete -c cliduck -l help -d 'Show this message and exit.'

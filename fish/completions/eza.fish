@@ -125,3 +125,4 @@ complete -c eza -l git-repos -d "List each git-repos status and branch name"
 complete -c eza -l git-repos-no-status -d "List each git-repos branch name (much faster)"
 complete -c eza -s '@' -l extended -d "List each file's extended attributes and sizes"
 complete -c eza -s Z -l context -d "List each file's security context"
+complete -c leza --wraps eza

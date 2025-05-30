@@ -1,0 +1,11 @@
+complete -c duckli -n __fish_no_arguments -s V -l version -d "Output cliduck's version."
+complete -c duckli -s D -l database -d 'TEXT     Database to use.'
+complete -c duckli -s R -l prompt -d 'TEXT       Prompt format (Default: "\\d> ").'
+complete -c duckli -s l -l logfile -d 'FILENAME  Log every query and its results to a file.'
+complete -c duckli -l duckclirc -d 'FILE        Location of duckclirc file.'
+complete -c duckli -l auto-vertical-output -d 'Automatically switch to vertical output mode if the'
+complete -c duckli -s t -l table -d 'Display batch output in table format.'
+complete -c duckli -l csv -d 'Display batch output in CSV format.'
+complete -c duckli -l warn -d '/ --no-warn      Warn before running a destructive query.'
+complete -c duckli -s e -l execute -d 'TEXT      Execute command and quit.'
+complete -c duckli -l help -d 'Show this message and exit.'
