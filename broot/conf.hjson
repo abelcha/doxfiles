@@ -1,0 +1,116 @@
+{
+  cols_order: [
+    date
+    git
+    size
+    count
+    branch
+    name
+  ]
+  content_search_max_file_size: 200MB
+  default_flags: --whale-spotting --sort-by-size --sizes --no-hidden --no-dates --no-permissions  --cmd :toggle_preview
+  enable_kitty_keyboard: false
+  ext_colors: {
+    png: rgb(255,128,75)
+    rs: yellow
+  }
+  imports: [
+    verbs.hjson
+    {
+      file: skins/catppuccin-macchiato.hjson
+      luma: [
+        dark
+        unknown
+      ]
+    }
+    {
+      file: skins/white.hjson
+      luma: light
+    }
+  ]
+  lines_after_match_in_preview: 1
+  lines_before_match_in_preview: 1
+  max_panels_count: 2
+  preview_transformers: [
+    {
+      command: [
+        /me/.config/swiftpm/bin/plist-parser
+      ]
+      input_extensions: [
+        plist
+      ]
+      mode: text
+      output_extension: jsonl
+    }
+    {
+      command: [
+        less
+      ]
+      input_extensions: [
+        7z
+        rar
+        zip
+        tar
+      ]
+      mode: hex
+      output_extension: sh
+    }
+    {
+      command: [
+        aria2c
+        -S
+      ]
+      input_extensions: [
+        torrent
+      ]
+      mode: text
+      output_extension: groovy
+    }
+    {
+      command: [
+        "asprint -f"
+      ]
+      input_extensions: [
+        scpt
+      ]
+      mode: text
+      output_extension: txt
+    }
+    {
+      command: [
+        "pq cat "
+      ]
+      input_extensions: [
+        parquet
+      ]
+      mode: text
+      output_extension: jsonl
+    }
+  ]
+  search_modes: {
+    /: regex name
+    <empty>: tokens name
+  }
+  show_selection_mark: true
+  special_paths: {
+    /media: {
+      list: never
+      sum: never
+    }
+    trav: {
+      list: always
+      show: always
+      sum: never
+    }
+    ~/.config: {
+      show: always
+    }
+    ~/my-link-I-want-to-explore: {
+      list: always
+    }
+    ~/useless: {
+      show: never
+    }
+  }
+  true_colors: true
+}
