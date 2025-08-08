@@ -33,8 +33,8 @@ function psub --description 'Read from stdin into a file and output the filename
         # because $filename may be opened before the fork. Use tee to ensure it is opened
         # after the fork.
         command tee $filename >/dev/null &
-    else 
-        set filename  (gmktemp  "$tmpdir/.psub.XXXX.$(§ $_flag_suffix |§ out)")
+    else
+        set filename (umktemp  "$tmpdir/.psub.XXXX.$(§ $_flag_suffix |§ out)")
         or return 1
         # set filename "$dirname/psub$_flag_suffix"
         command cat >$filename

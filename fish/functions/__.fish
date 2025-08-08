@@ -1,3 +1,3 @@
-function __ --wraps=command
+function __ --wraps=echo
     echo $argv
 end

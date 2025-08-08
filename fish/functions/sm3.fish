@@ -1,8 +1,11 @@
-function sm3
-
+function sm3 --argument-names target
+    if not string match -rq '\)$' -- $argv[1]
+        set target "'$target'"
+    end
+    #set -S target
     echo "
 CREATE OR REPLACE TABLE ttable AS (
-FROM '$argv[1]'
+FROM $target
 );
 CREATE OR REPLACE MACRO divp(field, total) AS round((field * 100)::FLOAT /total::FLOAT);
 CREATE OR REPLACE MACRO percent(field, total) AS format(' {:^6} %', divp(field, total))::VARCHAR; 
@@ -36,12 +39,11 @@ WITH any_cte AS (FROM ttable) FROM custom_summarize();
 
 " | read -z cmd
     set args (duckescape  $argv[2..])
-
-    duckdb $DD -c '.maxrows 100' -c "$cmd" $args
-
+    
+    duckdb $DD -c '.maxrows 1000' -c "$cmd" $args
+    
     # read -z cmd
     # set args (duckescape  $argv[2..])
     # duck-c "$cmd" $args
-
-
+    
 end

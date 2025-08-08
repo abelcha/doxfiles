@@ -11,7 +11,7 @@ function dcp --wraps=duckdb
     set -l opts ""
     #echo dddest $dest dest
     if not test -z $argv[3]
-        set opts \($argv[3]\)
+        set opts \( $argv[3..] \)
     end
     set -l source $argv[1]
     if not string match -r "^\(" -- $argv[1]
@@ -20,7 +20,7 @@ function dcp --wraps=duckdb
     #echo "sourcexxxxx $source"
     if test -n "$_flag_readopts"
         set source (read_duck (extension $argv[1]) "$argv[1]" "$_flag_readopts")
-
+        
         #'read_'(extension $argv[1])'('$source','$readopts')'
     end
     #echo "SOURCE: $source =="

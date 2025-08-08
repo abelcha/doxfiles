@@ -1,3 +1,5 @@
+#!/usr/local/bin/fish
+# 
 function preview_script --argument pathx len
     set fpath (echo $pathx| anon |sd '/me/.config' '/me/config' )
     set -l script_len (wcl $fpath)

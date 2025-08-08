@@ -1,15 +1,33 @@
-function fset --wraps=set
-        set --path obj "{"
-        for v in $argv
-                #set -l cmd "set --show $v"
-                set --append obj "$v →"
-                if test (count $$v) -gt 1
-                        set --append obj "[\"$(string join '","' $$v)\"],"
-                else
-                        set --append obj "\"$(echo $$v)\","
-                end
-                #eval $cmd
+function fset --wraps=set --no-scope-shadowing
+    args --init $argv
+    set -l --append obj "{"
+    for v in (_.filter_argv_opts $argv)
+        #set -l cmd "set --show $v"
+        #echo FILTER ARG OP $v COUNT:(count $$v)
+        set --append obj "$v:"
+        #set --query $$v; and echo defoineeeeeeeeeeeeed; or echo uuuuuuuuuuuunedine
+        if not set -q $v
+            set --append obj undefined,
+        else if test (count $$v) -eq 0
+            set --append obj 'new Array(),'
+        else if test (count $$v) -gt 1
+            #echo uuu
+            set --append obj "[`$(string join '`,`' -- $$v)`],"
+        else
+            set lolilol '`'$$v'`'
+            #set -S lolilol
+            #echo nooo
+            set --append obj '`'$$v'`',
         end
-        set --append obj "}"
-        deno eval -p "$(string replace --all "→" ":" $obj)"
+        #eval $cmd
+    end
+    set --append obj "}"
+    set dump "$(string join '' $obj)"
+    if args --has t/table
+        deno eval "console.table(Object.entries($dump))"
+        return
+    end
+    #print "($)"
+    #echo bun --print "($dump)"
+    bun --print "($dump)"
 end

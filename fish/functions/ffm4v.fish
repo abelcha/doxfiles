@@ -1,4 +1,4 @@
-function ffm4v --wraps=ffmpeg --argument file
+function ffm4v --wraps=ffmpeg --argument-names file
     set output (path change-extension .m4v "$file")
-    fexec ffmpeg-m1 -hide_banner -i "$file" -c:v h264_videotoolbox "$output"
+    ffmpeg -hide_banner -i "$file" -c:v h264_videotoolbox $output $argv[2..]
 end

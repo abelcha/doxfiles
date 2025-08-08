@@ -2,13 +2,16 @@ function w --wraps=command
     argparse --ignore-unknown f/full -- $argv
     #echo "_flag_full: |$_flag_full|"
     #set -l realwich (realpath/usr/bin/which  $argv[1]))
+    #breakpoint
+    
     set xtype (fish -c "type -p $argv[1]")
+    #fset xtype
     #set ztype (fish -c "type -p $argv[1]")
     if [ (echo $xtype| wc -m) -lt 10 ]
         type $argv[1]
         return
     end
-
+    
     if not test -e "$xtype"
         echo -e (set_color --dim ) not found
         return
@@ -37,7 +40,7 @@ function w --wraps=command
     else
         echo "$source" | anon
     end
-
+    
     if grep -q ASCII (file $source|psub)
         string match --quiet -e "$realwich" "$source"; and set -l mainbin "--theme dracula"; or set -l mainbin "--color never"
         set --query _flag_full; and bat --style full $mainbin $asource; or preview_script $asource

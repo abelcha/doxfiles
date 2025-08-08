@@ -1,3 +1,3 @@
 function echo2
-    echo $argv >/dev/stderr
+    echo $argv >&2
 end
