@@ -1,18 +1,11 @@
-function ll --wraps=eza --wraps=ls
-
-        #set -l ex (path extension $argv[1])
-        if [ $DX_STRATEGY="live" ]
-                eza --long -F --total-size --no-user $argv --all
-        else if echo $argv[1] | ripgrep '(.zip|.7z|.dmg|.tar)$' -q
-                #7ll $argv[1]
-                l7z $argv[1]
-                #else if test (path_depth) -lt 3; and test -z "$DX_STRATEGY"
-                #eza --long -F --no-user $argv
-        else if test -n "$EZA_NOSIZE"
-                EZA_COLORS="da=38" eza --long -F --no-user $argv
-        else
-                timeout --foreground 3s leza --long --total-size --no-user $argv
-                test $status = 124; and EZA_NOSIZE=TRUE ll $argv
-                #echo lex
-        end
+function ll --wraps=ls --wraps=lla --wraps=lx --wraps=eza --description 'alias ll lx'
+    #lx $argv
+    #EZA_COLORS="da=38"
+    if test -z "$argv[1]"
+        timeout --foreground 0.5s leza --long -F --no-user --total-size $argv
+        test $status = 124; and leza --long -F --no-user $argv
+        return 0
+    end
+    leza --long -F --no-user --total-size $argv
+    #leza --long -F --no-user --total-size $argv
 end
