@@ -1,5 +1,8 @@
 function mv --wraps='advmv -gi' --wraps=umv
     #echo ppp
+            if not type -q umv
+        command mv $argv
+    end
     if test (count $argv) -eq 1; and test -e "$argv[1]"
         #echo uuu
         set destdir (path dirname $argv[1])
