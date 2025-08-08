@@ -1,0 +1,13 @@
+complete -c cdigest -s h -l help -d 'show this help message and exit'
+complete -c cdigest -s d -d 'MAX_DEPTH, --max-depth MAX_DEPTH'
+complete -c cdigest -s o -d '{text,json,markdown,xml,html}, --output-format {text,json,markdown,xml,html}'
+complete -c cdigest -s f -d 'FILE, --file FILE  Output file name (default: <directory_name>_codebase_digest.<format_extension>)'
+complete -c cdigest -l show-size -d 'Show file sizes in directory tree'
+complete -c cdigest -l show-ignored -d 'Show ignored files and directories in tree'
+complete -c cdigest -l ignore -d 'IGNORE [IGNORE ...]'
+complete -c cdigest -l ignore -d "'*.txt' 'temp_*' '/path/to/specific/file.py'"
+complete -c cdigest -l no-default-ignores -d 'Do not use default ignore patterns. Only use patterns specified by --ignore.'
+complete -c cdigest -l no-content -d 'Exclude file contents from the output'
+complete -c cdigest -l include-git -d 'Include .git directory in the analysis (ignored by default)'
+complete -c cdigest -l max-size -d 'MAX_SIZE   Maximum allowed text content size in KB (default: 10240 KB)'
+complete -c cdigest -l copy-to-clipboard -d 'Copy the output to clipboard after analysis'

@@ -1,0 +1,11 @@
+complete -c yek -l no-config -d 'Do not use a config file'
+complete -c yek -l config-file -d ' Path to the config file    version           Print version of yek'
+complete -c yek -l max-size -d ' Max size per chunk. e.g. "10MB" or "128K" or when using token counting mode, "100" or "128K" [default: 10MB]'
+complete -c yek -l tokens -d ' Use token mode instead of byte mode'
+complete -c yek -l json -d Enable output
+complete -c yek -l debug -d 'Enable debug output'
+complete -c yek -l output-dir -d '[ Output directory. If none is provided & stdout is a we pick a temp dir'
+complete -c yek -l output-template -d ' Output template. Defaults to ">>>> nFILE_CONTENT" [default: ">>>> nFILE_CONTENT"]'
+complete -c yek -l ignore-patterns -d ' Ignore patterns'
+complete -c yek -l unignore-patterns -d ' Unignore patterns. Yek has some built-in ignore patterns, but you can override them here.   -h,'
+complete -c yek -l help -d 'Print help'

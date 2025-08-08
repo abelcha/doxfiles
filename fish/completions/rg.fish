@@ -120,10 +120,11 @@ complete -c rg -s q -l quiet -d 'Do not print anything to stdout.'
 complete -c rg -s z -l search-zip -d 'Search in compressed files.'
 complete -c rg -l no-search-zip
 complete -c rg -s S -l smart-case -d 'Smart case search.'
-complete -c rg -l sort-files -d 'DEPRECATED'
+complete -c rg -l sort-files -d DEPRECATED
 complete -c rg -l no-sort-files
 complete -c rg -l stats -d 'Print statistics about this ripgrep search.'
 complete -c rg -l no-stats
+complete -c rg -l progress
 complete -c rg -s a -l text -d 'Search binary files as if they were text.'
 complete -c rg -l no-text
 complete -c rg -l trim -d 'Trim prefixed whitespace from matches.'
