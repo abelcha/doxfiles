@@ -8,11 +8,11 @@ function rm
     #/bin/rm -fr $argv
     #return
     #
-    if not type -q rm 
+    if not type -q rm
         command rm $argv
     end
     if string match -rq '\-[frv]+' -- $argv
-        /bin/rm $argv
+        command rm  $argv
         return
     end
     if status is-interactive
@@ -27,6 +27,6 @@ function rm
         end
     else
         #echo noninterrrrrr
-        /bin/rm $argv
+        command rm $argv
     end
 end

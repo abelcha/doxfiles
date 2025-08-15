@@ -34,18 +34,18 @@ function duck3 --wraps=duckdb
         #echo NOLOMIT
         #fset olimit
         #args --has copy/partition; or set --append olimit (args l/limit=1000 --format "LIMIT {}")
-        
+
     end
     #echo =================== $xcmd
-    #echo2 -- duckdb '-c "'$outputOpts $preOpts\" -c " $xcmd " \" ( echo $dcmd | sqlformat - -k upper -i lower | chroma -l postgresql --style vulcan --unbuffered ) \"
+    #echo2 -- duckdb '-c "'$outputOpts $preOpts\" -c " $xcmd " \" ( echo $dcmd | chroma -l postgresql --style vulcan --unbuffered ) \"
     #echo ============= duckdb -c \"$xcmd\" ============
     #echo duckdb $outputOpts '-c "'$preOpts"'" -c " $xcmd $olimit"
     #echo -n --
     set --append zcmd $preOpts $outputOpts -c ".echo on" -c $xcmd
-    echo -- duckdb $zcmd | sqlformat - -k upper -i lower | chroma -l postgresql --style vulcan --unbuffered >/dev/stderr
+    echo -- duckdb $zcmd | chroma -l postgresql --style vulcan --unbuffered >/dev/stderr
     fset zcmd
     duckdb $zcmd
     #duckdb $outputOpts -c ".echo on" -c $xcmd $olimit
     #status $cmd 
-    
+
 end

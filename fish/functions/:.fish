@@ -1,3 +1,0 @@
-function : --wraps=§
-    § $argv
-end

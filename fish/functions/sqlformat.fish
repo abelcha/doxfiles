@@ -1,3 +1,0 @@
-function sqlformat
-    ucat -
-end

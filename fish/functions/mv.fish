@@ -1,6 +1,6 @@
 function mv --wraps='advmv -gi' --wraps=umv
     #echo ppp
-            if not type -q umv
+    if not type -q umv
         command mv $argv
     end
     if test (count $argv) -eq 1; and test -e "$argv[1]"
@@ -10,7 +10,9 @@ function mv --wraps='advmv -gi' --wraps=umv
         set pstr (echo (set_color cyan)mv(set_color normal --dim) $argv[1] (set_color normal) "$(path dirname $argv[1])/" )
         read --local destname --prompt-str "$pstr" --shell --command "$basen"; or echo "aborded..." && return
         dryrun mv \"$argv[1]\" "$(path resolve "$destdir/$(string trim -c '' "$destname")")"
-    else
+    else if type -q umv
         umv --interactive --progress --verbose $argv
+    else
+        mv $argv 
     end
 end

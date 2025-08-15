@@ -21,7 +21,7 @@ function duck2 --wraps=duckdb
     end
     set outputflag (§ $_flag_output |§= "-$_flag_output" )
     set dcmd (§ $_flag_limit |§= "$argv LIMIT $_flag_limit"|§ "$argv")
-    
+
     set dcmd (§ $_flag_copy |§= "COPY ( $dcmd) TO $_flag_copy" |§ $dcmd)
     if not test -z "$_flag_format"
         set --append arropts "FORMAT $_flag_format"
@@ -32,7 +32,7 @@ function duck2 --wraps=duckdb
     if not test -z "$_flag_pattern"
         set --append arropts "FILENAME_PATTERN $_flag_pattern"
     end
-    
+
     if not test -z "$_flag_compression"
         set --append arropts "compression $_flag_compression"
     end
@@ -42,13 +42,13 @@ function duck2 --wraps=duckdb
         #set -S partopts
         set --append arropts "PARTITION_BY ( $_flag_partition ), OVERWRITE_OR_IGNORE"
     end
-    
+
     #set -S arropts
     if not test -z "$arropts[1]"
         set cparams (string join ','  $arropts)
         set dcmd "$dcmd ( $cparams )"
     end
-    echo2 -- duckdb $output -c \" (echo $dcmd | sqlformat - -k upper -i lower | chroma -l postgresql --style vulcan --unbuffered ) \"
+    echo2 -- duckdb $output -c \" (echo $dcmd | chroma -l postgresql --style vulcan --unbuffered ) \"
     #echo duckdb $output -c \"$argv[-1]\" >/dev/stderr
     #set -q DUCK_VERBOSE; and echo duckdb $output -c $argv
     #echo duckdb $output $argv
@@ -57,5 +57,5 @@ function duck2 --wraps=duckdb
         return
     end
     duckdb $outputflag -c " $dcmd "
-    
+
 end
