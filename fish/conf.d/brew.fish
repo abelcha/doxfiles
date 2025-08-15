@@ -1,15 +1,18 @@
 if test (uname) = Darwin
     if test -e /opt/homebrew/bin/brew
-        eval (/opt/homebrew/bin/brew shellenv)
+        # eval ( /opt/homebrew/bin/brew shellenv)
     else if test -e /usr/local/bin/brew
-        eval (/usr/local/bin/brew shellenv)
+        eval ( /usr/local/bin/brew shellenv)
     end
 end
 
 if type -q brew
-    set -gx CPATH (brew --prefix)"/include"
-    set -gx LIBRARY_PATH (brew --prefix)"/lib"
-    set -gx LD_LIBRARY_PATH (brew --prefix)"/lib"
+    if not set --query HOMEBREW_PREFIX
+        set -gx HOMEBREW_PREFIX (brew --prefix)
+    end
+    set -gx CPATH "$HOMEBREW_PREFIX/include"
+    set -gx LIBRARY_PATH "$HOMEBREW_PREFIX/lib"
+    set -gx LD_LIBRARY_PATH "$HOMEBREW_PREFIX/lib"
 
     # if test -d (brew --prefix)"/share/fish/completions" 
     #     set -gx fish_complete_path $fish_complete_path (brew --prefix)/share/fish/completions

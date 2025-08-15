@@ -1,4 +1,29 @@
-# alias swift-format "swift format"
+# alias swift-format "swift format
+
+alias lld "ll  --sort date"
+alias ld lld
+alias lls "ll  --sort size"
+alias lll "eza --long -F --total-size --no-user --blocksize"
+alias croc "croc --yes"
+alias fish_gencomp "$__fish_data_dir/tools/create_manpage_completions.py"
+alias xc " bkt -- xh --follow"
+alias x "xh --follow"
+alias codi code
+alias comv "git commit --no-verify -m"
+alias rrg "rg --no-ignore"
+alias parallel "command parallel --ungroup --eta --progress --bar"
+alias csv "csvlens --delimiter auto"
+alias chroma "command chroma --formatter=terminal256 --style trac --lexer"
+alias unz unzstd
+alias pu pueue
+alias r rclone
+alias sherlock "bun run /me/datasets/sherlock/cli.ts"
+alias wtest "bun-release test --watch --bail"
+alias ld lld
+alias __ echo
+alias chexec "chmod 777"
+alias dus "du -sh"
+alias 7z 7zz
 alias npx bunx
 alias codi="/Applications/VisualStudioCode-Insiders.app/Contents/Resources/app/bin/code"
 alias codi /Applications/Trae.app/Contents/Resources/app/bin/marscode
