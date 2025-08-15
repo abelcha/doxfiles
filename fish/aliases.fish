@@ -1,0 +1,1 @@
+/me/config/fish/conf.d/aliases.fish

@@ -1,7 +1,4 @@
-# tick
 # set -gx base16_fish_shell_disable_prompt_colors TRUE
-
-# # set tick (ticker)
 
 string replace --regex '^(\w+)=(.+)$' 'set -gx $1 "$2"' <~/.env | source
 
@@ -49,7 +46,6 @@ set regphonefr '(0033|\+33|0)[6-7](\d\d[^\-\.\s]?){4}'
 set regphone2 '(33|0033|\+33|0)\W?[67](\d{8}|(\.\d\d){4}|(\s\d\d){4})'
 set regfr 'fr(ance|ench)?'
 set regemail '[\w\d\-\_\.]+@\w+\.\w{2,3}'
-# tick afff
 # fish_add_path /Applications/VisualStudioCode-Insiders.app/Contents/Resources/app/bin/
 fish_add_path /Applications/Trae.app/Contents/Resources/app/bin
 # fish_add_path /Volumes/mods/bun/bin
@@ -58,7 +54,6 @@ fish_add_path /Applications/Trae.app/Contents/Resources/app/bin
 # fish_add_path $PHOME/.local/nvim/mason/bin
 # set --append fish_complete_path /opt/homebrew/completions/fish/
 # set --append fish_complete_path /opt/homebrew/share/fish/vendor_completions.d/
-# tick ggggg
 
 # source $PHOME/.venv/bin/activate.fish
 
@@ -90,7 +85,6 @@ end
 #     end
 #     # <<< conda initialize <<<
 
-#     # tick
 # end
 
 # uv
@@ -131,3 +125,5 @@ set -gx CPPFLAGS "-I/opt/homebrew/opt/ruby@3.3/include"
 
 # For pkg-config to find ruby@3.3 you may need to set:
 set -gx PKG_CONFIG_PATH "/opt/homebrew/opt/ruby@3.3/lib/pkgconfig"
+
+# source (fnm env |psub -s fish)
