@@ -107,9 +107,10 @@ function tldr_auto
     echo
     hr '♦︎'
     if test (which $xcmd[1]|rg coreutils)
-        tldr (string replace -r '^[gu]' '' -- "$xcmd[1] -p linux" )
-        # set xcmd[1] "-p linux $xcmd[1]"
-        #    set -S cmd
+        fset coreutil
+        # tldr (string replace -r '^[gu]' '' -- "$xcmd[1] -p linux" )
+        set cmx (_ (string split '' gcsplit)[2..])
+        tldr -p linux $cmx
     else
         tldr $xcmd[1] $xcmd[2] 2>/dev/null; or tldr $xcmd[1]
     end
@@ -125,19 +126,7 @@ function history_merge
 end
 
 function run_preview
-    # if commandline
     set -l cmdz (__actual_cmd_token)
-    # set -l fullbuff (commandline --current-buffer)
-    # set -S fullbuff
-    # if set -S fullbuff | rg '[^1]\selements'
-    #     string join \n $fullbuff | fish
-    #     # echo gt1111
-    #     return
-    # end
-    # if [ "$cmd[1]" = while ]
-    # echo reeeeeed
-    # return
-    # end
     if echo "$cmdz" | rg -w 'rm|cp|mv|mkdir' --quiet
         # echo
         echo
@@ -146,8 +135,6 @@ function run_preview
     else if test -n "$cmdz"
         echo
         hr '•°•°•°•°°'
-        # exec "echo; hr '✰'"
-        # echo "|$(commandline --current-buffer)|"
         set fullcmd (commandline $argv)
         if set -S fullcmd | rg '[^1]\selements' --quiet
             h1 "$fullcmd"
@@ -176,7 +163,10 @@ function geninline -a cmd
     commandline -f repaint
     echo
     hr '* . ﹢ ˖ ✦ ¸ . ﹢ °'
-    echo $cmd (__actual_cmd_token) | fish
+    #echo geninline
+    # echo "|$cmd|" (__actual_cmd_token)
+    eval $cmd (__actual_cmd_token)
+    #echo $cmd (__actual_cmd_token) | fish
     commandline -f repaint
 end
 function genuine -a cmd
@@ -248,6 +238,10 @@ end
 function bindump -a key fn
     bind $key "echo; $fn ;commandline -f repaint"
 end
+function goxman
+    # echo2 "man $(path basename $arg)"
+    man (path basename $argv)
+end
 
 function fish_user_key_bindings
     echo "mi cd mv cp cat codm" | read -g --export -a POP_CMD
@@ -265,16 +259,19 @@ function fish_user_key_bindings
     bind alt-\$ transpose-words
     bind ctrl-r _atuin_search
     bind ctrl-R _atuin_hist
-    bind alt-ß '_fish_xxx_current_dir br'
+    bind alt-ß 'commandline --insert /me/'
+    bind alt-B '_fish_xxx_current_dir br'
     bind ctrl-alt-l '_fish_xxx_current_dir lls'
     bind ctrl-l '_fish_xxx_current_path ll'
     bind alt-l '_fish_xxx_current_dir lld'
-    bind alt-ƒ _fzf_search_directory
+    if test -z "$VSCODE_INJECTION"
+        bind alt-f _fzf_search_directory
+    end
     bind \eOR complete-and-search
     bind \eOQ complete-and-search
     bind alt-O genxmi
     bind alt-A 'commandline -f expand-abbr'
-    bind alt-m 'genuine man'
+    bind alt-m 'genuine goxman'
     # bind alt-\# insertnull
     bind alt-K fish_key_reader
     bind alt-H help_auto
@@ -285,7 +282,9 @@ function fish_user_key_bindings
     # bind alt-r run_preview
     bind alt-r 'run_preview --current-job'
     bind alt-R 'run_preview --current-buffer --cut-at-cursor'
-    bind alt-c 'genfn cheat ash'
+    # bind alt-c 'genfn cheat ash'
+    bind alt-c 'echo -n (commandline)|pbcopy'
+    bind alt-x 'echo -n (commandline)|pbcopy && commandline --replace ""'
     bind alt-C 'genuine compfind'
     bind alt-u 'genuine funcis'
     bind \e\e\[B history-prefix-search-forward
@@ -294,9 +293,20 @@ function fish_user_key_bindings
     bind \e\[O history_save
     bind \e\[I history_merge
     bind \e\[1\;5B nextd
-    bind \e\[1\;5A _atuin_bind_up
+    bind \e\[1\;5A _atuin_search
     bind alt-minus history-token-search-forward
     bind alt-_ history-token-search-backward
     bind ctrl-f 'hx ~/config/fish/config.fish && _reload_fish'
     bind alt-backspace backward-kill-word
+    bind alt-\} 'commandline --insert ['
+    bind alt-% 'commandline --insert ]'
+    bind alt-right forward-word
+    bind alt-left backward-word
+    if not test -z "$VSCODE_INJECTION"
+        # bind alt-\| 'commandline  --insert \|'
+        # bind alt-\| "commandline --insert (btoa XAo=)"
+        # bind alt-\} 'commandline --insert \]'
+        # bind alt-% 'commandline --insert \['
+
+    end
 end

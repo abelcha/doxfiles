@@ -1,8 +1,8 @@
 function leza
     if type -f -q leza
-        leza $argv
+        command leza $argv
     else if type -f -q eza
-        eza $argv
+        command eza $argv
     else
         echo eza not installed
     end

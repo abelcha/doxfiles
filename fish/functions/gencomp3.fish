@@ -234,6 +234,9 @@ function gencomp3 --wraps=gencomp --description 'generate completions for fish-s
     string match -q "*{}*" -- "$use_command"
     or set -l is_subcmd_parse_mode false
     set -lq _flag_S; and test is_subcmd_parse_mode = false; and echo "XXXX gencomp: subcommand parsing requires a place holder in $use_command"
+    if set -q _flag_S
+        echo "complete -c $argv[1] -f -n '__fish_use_subcommand' #BASENOFILE"
+    end
     # set -S is_subcmd_parse_mode
     switch "$action"
         case edit

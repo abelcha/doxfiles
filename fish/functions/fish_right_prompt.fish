@@ -4,6 +4,11 @@ function fish_right_prompt
         echo -n (set_color red)"✘ $cmd_status"
     end
 
+    if test (tput cols) -lt 60
+        echo (set_color green) (prompt_pwd)
+        return
+    end
+
     if not command -sq git
         set_color normal
         return
@@ -85,7 +90,7 @@ function fish_right_prompt
     #  B  |    |    |    | m  | r  | m  | u  |    |    |    |
     #  ?  |    |    |    | m  | r  | m  | u  |    |    | t  |
     #  _  |    |    | d  | m  | r  | m  | u  |    |    |    |
-    set -l porcelain_status (command git status --porcelain 2>/dev/null | string sub -l2)
+    set -l porcelain_status (bkt --cache-dir --stale=5mn -- command git status --porcelain 2>/dev/null | string sub -l2)
 
     set -l status_added 0
     if string match -qr '[ACDMT][ MT]|[ACMT]D' $porcelain_status

@@ -19,8 +19,11 @@ function w --wraps=command
     set source (realpath "$xtype"|choose 0)
     echo -n "$xtype" | anon
     test -L "$xtype"; and echo -n (set_color blue) " -> $(realpath $source|anon)"
-    echo
-    if [ -e "$source" -a "$(head $source|uchardet)" != unknown ]
+    #echo2 ggggggggg
+    #echo2 "[$(file $source)] [$source]"
+    if string match -rq ': text/' -- (file -I $source)
+        #if [ -e "$source" -a "$(head $source|uchardet)" != unknown ]
+        #echo2 preview_script "[$source]" "[$(head $source|uchardet)]"
         preview_script $source
         #string match --quiet -e "$xfile" "$source"; and set -l mainbin "--theme dracula"; or set -l mainbin "--color never"
         #set --query _flag_full; and bat --style full $xfile $asource; or preview_script $asource
@@ -41,7 +44,8 @@ function w --wraps=command
         echo "$source" | anon
     end
     
-    if grep -q ASCII (file $source|psub)
+    if string match -r ASCII -- (file $source)
+        #echo2 ASCII
         string match --quiet -e "$realwich" "$source"; and set -l mainbin "--theme dracula"; or set -l mainbin "--color never"
         set --query _flag_full; and bat --style full $mainbin $asource; or preview_script $asource
     end

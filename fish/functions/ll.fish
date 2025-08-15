@@ -1,4 +1,4 @@
-function ll --wraps=ls --wraps=lla --wraps=lx --wraps=eza --description 'alias ll lx'
+function ll --wraps=eza
     #lx $argv
     #EZA_COLORS="da=38"
     if test -z "$argv[1]"
