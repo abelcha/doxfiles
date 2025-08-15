@@ -1,3 +1,0 @@
-function '%'
-    math $argv
-end
