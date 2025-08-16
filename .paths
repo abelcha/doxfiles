@@ -1,0 +1,4 @@
+/mods/golang/bin
+/mods/cache/.bun/bin
+/mods/deno/bin
+/mods/bin
