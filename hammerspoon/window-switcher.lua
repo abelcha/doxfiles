@@ -1,3 +1,23 @@
+local yaml = require("yaml") -- Ensure you have a YAML parser library installed
+
+local configPath = os.getenv("XDG_CONFIG_HOME") .. "/keyshift.yaml"
+local configFile = io.open(configPath, "r")
+local configData = configFile:read("*a")
+configFile:close()
+
+local parsedConfig = yaml.parse(configData)
+
+GCodeEditorsEnum = parsedConfig.bundle_ids.editors or {
+    "com.microsoft.VSCode", "com.vscodium", "io.lapce"
+}
+
+GBrowserEnum = parsedConfig.bundle_ids.browsers or {
+    "com.apple.Safari", "com.google.Chrome", "org.mozilla.firefox"
+}
+
+GTerminalsEnum = parsedConfig.bundle_ids.terminals or {
+    "io.alacritty", "com.github.wez.wezterm"
+}
 
 
 local function isAppFromList(app, appList)
@@ -183,4 +203,15 @@ end)
 -- Cmd+F2: Cycle through all code editor windows
 hs.hotkey.bind({"cmd"}, "F2", function()
     cycleWindows(GCodeEditorsEnum, true, "Code Editor")
+end)
+
+
+hs.hotkey.bind({"cmd", "shift"}, "P", function()
+    local focusedBundleID = hs.application.frontmostApplication():bundleID()
+    if hs.fnutils.contains(GCodeEditorsEnum, focusedBundleID) then
+        hs.eventtap.keyStroke({}, "F1")
+        return
+    else
+        hs.eventtap.keyStroke({"control", "shift"}, "P")
+    end
 end)
