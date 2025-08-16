@@ -1,4 +1,3 @@
-abbr --add ghc --position anywhere --regex 'https?(.+)' --function gclone
 
 abbr --add gda --position anywhere --regex '[ba]\/.+\.\w+' --function git_diff_abr
 # https://github.com/pynappo/dotfiles/blob/ebc81db4a96575b053a9ff1eebd0b8a73c8ce703/.config/fish/config.fish#L65
@@ -238,6 +237,34 @@ function dict --argument-names id action key value
     end
 end
 
+
+function gclone
+    #echo $argv
+    #return
+    set repo (string match --groups-only --regex 'github\.com\/([^\/]+)\/([^\/]+?)(?:\.git)?$'  -- "$argv")
+    set repowner "$repo[1]/$repo[2]"
+    set cmd (commandline --tokens-raw )
+    #echo --------
+    #set --show cmd
+    #echo -----------
+    if [ "$cmd[1]" = fsimrep ]
+        echo $repowner
+    else if test -z "$cmd[2]"
+        echo gh repo clone $repowner "&&" cd $repo[-1]
+    else if [ "$cmd[2]" = clone ]
+        echo https://github.com/$repowner
+    else
+        echo $argv
+    end
+    
+    #string replace --regex 'github.com/([^\/]+/[^\/]+)' 'github.com/$1' -- $argv[1]
+    #set xx $argv
+    #fset xx
+end
+
+abbr --add ghc --position anywhere --regex 'https?(.+)' --function gclone
+
+
 set -g dmap
 
 dict dmap set d /me/dev/
@@ -285,5 +312,5 @@ dict dmap set se /dev/stderr
 dict dmap set so /dev/stdout
 dict dmap set su /dev/null
 dict dmap set va /opt/v/
-dict dmap set cl /opt/homebrew/Cellar/
-dict dmap set br /opt/homebrew/
+dict dmap set cl $HOMEBREW_PREFIX/Cellar/
+dict dmap set br $HOMEBREW_PREFIX/homebrew/
