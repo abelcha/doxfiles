@@ -4,7 +4,7 @@
 # Some verbs here are examples and not enabled by default: you
 #  need to uncomment them if you want to use them.
 #
-# Documentation at https::w//dystro:wy.org/broot/verbs/
+# Documentation at https://dystroy.org/broot/verbs/
 ###############################################################
 
 verbs: [
@@ -23,32 +23,13 @@ verbs: [
     #  a content search.
     # Examples depending on your favourite editor:
     #    execution: "nvim +{line} {file}"
-    # execution: "hx {file}:{line}"
+    #    execution: "helix {file}:{line}"
     {
         invocation: edit
         shortcut: e
         key: enter
         apply_to: text_file
-        execution: "hx {file}:{line}"
-        leave_broot: false
-    }
-
-     {
-        name: csvlens
-        invocation: csvlens
-        shortcut: c
-        key: enter
-        apply_to: file
-        execution: "csvlens {file}"
-        leave_broot: false
-    }
-     {
-        name: tabview
-        invocation: tabview
-        shortcut: tab
-        key: enter
-        apply_to: file
-        execution: "tabview {file}"
+        execution: "$EDITOR {file}"
         leave_broot: false
     }
 
@@ -98,11 +79,11 @@ verbs: [
     # By default, `rm` does the system rm, and completely removes
     # the file. If you prefer to have the file moved to the system
     # trash, you may use the ':trash' internal with the verb below:
-     {
-         invocation: "rm"
-         internal: "trash"
-         leave_broot: false
-     }
+    # {
+    #     invocation: "rm"
+    #     internal: "trash"
+    #     leave_broot: false
+    # }
 
     # This verb lets you launch a terminal on ctrl-T
     # (on exit you'll be back in broot)
@@ -139,10 +120,6 @@ verbs: [
     # }
 
     # A popular set of shortcuts for going up and down:
-    {
-        key: ctrl-p
-        execution: ":toggle_preview"
-    }
     #
     # {
     #     key: ctrl-k
@@ -164,33 +141,28 @@ verbs: [
         key: right
         execution: ":panel_right"
     }
+    {
+        key: left
+        execution: ":back"
+    }
     # If you develop using git, you might like to often switch
     # to the git status filter:
     # {
     #     key: alt-g
     #     execution: ":toggle_git_status"
     # }
-    {
-        key: alt-s
-        shortcut: s
-        execution: ":toggle_sizes"
-    }
-       {
-        key: alt-s
-        shortcut: ss
-        execution: ":sort_by_size"
-    }
-    ## You can reproduce the bindings of Norton Commander
-     #on copying or moving to the other panel:
-     {
-         key: F5
-         external: "cp -r {file} {other-panel-directory}"
-         leave_broot: false
-     }
-     {
-         key: F6
-         external: "mv {file} {other-panel-directory}"
-         leave_broot: false
-     }
+
+    # You can reproduce the bindings of Norton Commander
+    # on copying or moving to the other panel:
+    # {
+    #     key: F5
+    #     external: "cp -r {file} {other-panel-directory}"
+    #     leave_broot: false
+    # }
+    # {
+    #     key: F6
+    #     external: "mv {file} {other-panel-directory}"
+    #     leave_broot: false
+    # }
 ]
 
