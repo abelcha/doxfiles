@@ -17,7 +17,7 @@ function w --wraps=command
     echo -n "$xtype" | anon
     test -L "$xtype"; and echo -n (set_color blue) " -> $(realpath $source|anon)"
     echo
-    if string match -rq ': text/' -- (file -I $source)
+    if string match -rq ': text/' -- (file --mime $source)
         preview_script $source
     end
 end
