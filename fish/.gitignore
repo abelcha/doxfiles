@@ -5,3 +5,4 @@ _funcs
 generated_completions
 .DS_Store
 conf.d/secrets.fish
+**/.trash
