@@ -90,7 +90,7 @@ function fish_right_prompt
     #  B  |    |    |    | m  | r  | m  | u  |    |    |    |
     #  ?  |    |    |    | m  | r  | m  | u  |    |    | t  |
     #  _  |    |    | d  | m  | r  | m  | u  |    |    |    |
-    set -l porcelain_status (bkt --cache-dir --stale=5mn -- command git status --porcelain 2>/dev/null | string sub -l2)
+    set -l porcelain_status (type -q bkt;and bkt --cache-dir --stale=5mn -- command git status --porcelain 2>/dev/null | string sub -l2;or command git status --porcelain 2>/dev/null | string sub -l2)
 
     set -l status_added 0
     if string match -qr '[ACDMT][ MT]|[ACMT]D' $porcelain_status
