@@ -2,6 +2,12 @@
 
 string replace --regex '^(\w+)=(.+)$' 'set -gx $1 "$2"' <~/.env | source
 
+fish_add_path (command cat .paths)
+
+if test -f "~/.paths"
+    fish_add_path (command cat ~/.paths)
+end
+
 if type -q batpipe
     batpipe | source
 end
@@ -16,7 +22,6 @@ set regemail '[\w\d\-\_\.]+@\w+\.\w{2,3}'
 fish_add_path /Applications/Trae.app/Contents/Resources/app/bin
 fish_add_path /me/.lmstudio/bin
 fish_add_path /Applications/Xcode-beta.app/Contents/Developer/usr/bin/
-fish_add_path /mods/bin
 # source (fnm env |psub -s fish)
 set BREW_COMPLETE_PATH $HOMEBREW_PREFIX/share/fish/vendor_completions.d
 
