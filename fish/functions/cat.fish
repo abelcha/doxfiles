@@ -14,8 +14,12 @@ function cat --wraps=bat
         echo2 missing filename
         return
     end
-    if type -q bat
+    if not type -q bat
         command cat $filepath
+        return 0
+    end
+    if string match -rq cargo ( type -p  bat)
+        command bat $filepath
         return 0
     end
     if [ (count $filepath) -gt 1 ]
