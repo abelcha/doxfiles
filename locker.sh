@@ -5,7 +5,7 @@ read --prompt-str "pass> " -s -l pass
 
 if [ "$argv[1]" = "encrypt" ]
     for file in $files
-        7z a -p"$pass" -mhe=on -t7z $file.7z fish/conf.d/secrets.fish $file
+        7z a -bb0 -p"$pass" -mhe=on -t7z $file.7z  $file
     end
     # echo "encrypt"
 end
