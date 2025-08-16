@@ -19,10 +19,6 @@ set regphone2 '(33|0033|\+33|0)\W?[67](\d{8}|(\.\d\d){4}|(\s\d\d){4})'
 set regfr 'fr(ance|ench)?'
 set regemail '[\w\d\-\_\.]+@\w+\.\w{2,3}'
 
-fish_add_path /Applications/Trae.app/Contents/Resources/app/bin
-fish_add_path /me/.lmstudio/bin
-fish_add_path /Applications/Xcode-beta.app/Contents/Developer/usr/bin/
-# source (fnm env |psub -s fish)
 set BREW_COMPLETE_PATH $HOMEBREW_PREFIX/share/fish/vendor_completions.d
 
 if not contains -- $BREW_COMPLETE_PATH $fish_complete_path
