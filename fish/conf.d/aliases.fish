@@ -1,6 +1,7 @@
 # alias swift-format "swift format
-
+alias untracked "git ls-files --others --exclude-standard"
 alias aicommit "OPENAI_API_KEY=\$OPENAI_API_KEY command aicommit"
+alias comai aicommit
 alias xz "command xz --fast"
 alias croc "croc --yes"
 alias fish_gencomp "$__fish_data_dir/tools/create_manpage_completions.py"

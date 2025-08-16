@@ -1,5 +1,4 @@
 function cat --wraps=bat
-
     if test -n "$VSCODE_INJECTION"
         command cat $argv
         return
@@ -8,59 +7,58 @@ function cat --wraps=bat
         command cat $argv
         return 0
     end
-    set -l dotspl (string split '.' $argv[-1])
-    set -l decompname (string join -n '.' $dotspl[1..-2])
-    set decoder --decode
-    switch ( echo $dotspl[-1] )
-        case png jpeg jpg gif mp4 webp svg ico heif pdf
-            set --append decoder imgcat
-        case zst gz lz4 xz
-            set --append decoder zstdcat
-        case zng zjson zson
-            set --append decoder zq
-        case hjson
-            set --append decoder "hjson-cli -j"
-        case xlsx
-            set --append decoder xls2csv
-        case '*'
-            set --erase decoder
+    for p in $argv
+        test -f "$p"; and set --append filepath "$p"
     end
-    echo2 "========DECODER [$decoder]========"
-    set formatter ""
-    switch ( echo $dotspl[-1] )
+    if test -z "$filepath"
+        echo2 missing filename
+        return
+    end
+    if [ (count $filepath) -gt 1 ]
+        command bat $filepath
+        return 0
+    end
+    set -l dotspl (string split '.' $filepath)
+    set -l decompname (string join -n '.' $dotspl[1..-2])
+    set -l extension $dotspl[-1]
+    switch ( echo $extension )
+        case png jpeg jpg gif mp4 webp svg ico heif pdf
+            set decode imgcat
+        case zst gz lz4 xz
+            set decode zstdcat
+            set language $dotspl[-2]
+        case zng zjson zson
+            set decode zq
+        case hjson
+            set decode "bunx hjson-cli -j"
+            set language json
+        case xlsx
+            set decode "uvx xlsx2csv -"
+            set language csv
+        case '*'
+            set --erase decode
+    end
+    if [ $extension = json ]
+        set format jfmt
+    end
+    switch ( echo $extension )
         case md
             glow --pager $argv
         case zng zjson zson
             zq $argv
-        case json
-            if type -q jfmt
-                #echo2 loooooool
-                 jfmt $argv 2>/dev/null | bat --theme TwoDark $argv --language JSON --file-name $decompname
-            else
-                bat --theme TwoDark $argv
-            end
-            #    case png jpeg jpg gif mp4 webp svg ico heif pdf
-            #         imgcat $argv
-        case xlsx
-            xls2csv $argv | csvlens
         case plist
             cat (plist-parser $argv[1]|psub -s ".$(path basename $argv[1]).json" )
-        case bson
-            bsondump $argv[1] | jq --monochrome-output | bat --color always --theme Coldark-Dark --language java
         case torrent
             aria2c -S $argv[1] | bat --language groovy
         case msg
-            extract_msg --dump-stdout $argv
+            uvx extract_msg --dump-stdout $argv
         case '*'
-            #   echo2 heeere
-            if test -n '$argv[1]' -a -d '$argv[1]'
-                lld $argv
-            else if test (string match -r '^http' -- "$argv[1]")
-                x $argv
+            if test -n "$filepath" -a -d "$filepath"
+                lld $filepath
+            else if test (string match -r '^http' -- "$filepath")
+                x $filepath
             else
-                # test -z "$decoder" || set --append argv $decoder
-                echo2 bat $argv --force-colorization --style full --theme OneHalfDark
-                bat $argv $decoder --force-colorization --style full --theme OneHalfDark
+                bat $argv (fprops decode format language ) --force-colorization --style full --theme OneHalfDark
             end
     end
 end

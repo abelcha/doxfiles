@@ -27,6 +27,10 @@ function fset --wraps=set --no-scope-shadowing
         deno eval "console.table(Object.entries($dump))"
         return
     end
+    if args --has p/props
+        bun --print "Object.entries($dump).filter(e => e[1]).map(([k, v]) => (k.length === 1 ? '-'+k : '--'+k ) + (v === 'true' ? '' :  ('=' + v))).join('\\n')"
+        return
+    end
     #print "($)"
     #echo bun --print "($dump)"
     bun --print "($dump)"
