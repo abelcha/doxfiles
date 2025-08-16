@@ -283,8 +283,8 @@ function fish_user_key_bindings
     bind alt-r 'run_preview --current-job'
     bind alt-R 'run_preview --current-buffer --cut-at-cursor'
     # bind alt-c 'genfn cheat ash'
-    bind alt-c 'echo -n (commandline)|pbcopy'
-    bind alt-x 'echo -n (commandline)|pbcopy && commandline --replace ""'
+    bind alt-c 'echo -n (commandline)|copy'
+    bind alt-x 'echo -n (commandline)|copy && commandline --replace ""'
     bind alt-C 'genuine compfind'
     bind alt-u 'genuine funcis'
     bind \e\e\[B history-prefix-search-forward

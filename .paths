@@ -3,3 +3,4 @@
 /mods/deno/bin
 /mods/bin
 /mods/volta/bin
+/mods/cargo/bin/
