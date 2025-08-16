@@ -2,10 +2,10 @@
 
 string replace --regex '^(\w+)=(.+)$' 'set -gx $1 "$2"' <~/.env | source
 
-fish_add_path (command cat .paths)
+fish_add_path (command cat $XDG_CONFIG_HOME/.paths)
 
 if test -f "~/.paths"
-    fish_add_path (command cat ~/.paths)
+    fish_add_path (command cat $HOME/.paths)
 end
 
 if type -q batpipe

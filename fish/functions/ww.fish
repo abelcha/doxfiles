@@ -27,7 +27,7 @@ function ww --wraps='type '
             set vers (args v/version --format "[<(wv $asource --only-matching)>]")
         end
         if test -L $source #; and [ $file != $asource ]
-            echo $asource $vers " -> "(set_color brcyan )$rasource" $(set_color  --dim ) #($(file -b $source))"
+            echo $asource $vers " -> "(set_color brcyan )$rasource" $(set_color  --dim ) #($(file -b $source))"(set_color normal)
         else if test -e "$file"
             echo (set_color --bold normal )"$asource" $vers # $(set_color  --dim )($(file -b $source))
         end

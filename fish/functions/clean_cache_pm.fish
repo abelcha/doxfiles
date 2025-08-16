@@ -1,18 +1,20 @@
 function clean_cache_pm
     function cleandir
-        echo "trashing $(du -sh $argv) ..."
-        trash "$argv/*"
+        if test -e
+            echo "trashing $(du -sh $argv) ..."
+            rm "$argv/*"
+        end
     end
-
+    
     function runcom
         if type -q $argv[1]
             echo "running $argv"
             command $argv
         end
     end
-
+    
     cleandir ~/Library/Caches
-    cleandir  ~/Library/Developer/Xcode/DerivedData
+    cleandir ~/Library/Developer/Xcode/DerivedData
     runcom npm cache clean --force
     runcom yarn cache clean
     runcom pnpm store prune
@@ -33,9 +35,9 @@ function clean_cache_pm
     runcom gradle --stop
     runcom trash ~/.gradle/caches/
     runcom dotnet nuget locals all --clear
-    runcom brew cask cleanup
     runcom flutter clean
     runcom docker system prune -a
     runcom docker system prune
-
+    runcom uv cache clean
+    runcom bun pm cache rm --global
 end

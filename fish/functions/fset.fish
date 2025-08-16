@@ -1,5 +1,5 @@
 function fset --wraps=set --no-scope-shadowing
-    args --init $argv
+    #args --init $argv
     set -l --append obj "{"
     for v in (_.filter_argv_opts $argv)
         #set -l cmd "set --show $v"
@@ -23,11 +23,11 @@ function fset --wraps=set --no-scope-shadowing
     end
     set --append obj "}"
     set dump "$(string join '' $obj)"
-    if args --has t/table
+    if contains -- --table $argv
         deno eval "console.table(Object.entries($dump))"
         return
     end
-    if args --has p/props
+    if contains -- --props $argv
         bun --print "Object.entries($dump).filter(e => e[1]).map(([k, v]) => (k.length === 1 ? '-'+k : '--'+k ) + (v === 'true' ? '' :  ('=' + v))).join('\\n')"
         return
     end

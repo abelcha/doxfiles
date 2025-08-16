@@ -2,3 +2,4 @@
 /mods/cache/.bun/bin
 /mods/deno/bin
 /mods/bin
+/mods/volta/bin
