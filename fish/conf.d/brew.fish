@@ -4,6 +4,8 @@ if test (uname) = Darwin
     else if test -e /usr/local/bin/brew
         eval ( /usr/local/bin/brew shellenv)
     end
+else
+    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 end
 
 if type -q brew
