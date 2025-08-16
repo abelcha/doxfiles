@@ -277,7 +277,7 @@ dict dmap set t /tmp/
 dict dmap set p /me/projects/
 dict dmap set w /me/dev/P2/examples/corewar/
 dict dmap set v /Volumes/
-dict dmap set l /Volumes/datalake/
+dict dmap set l /datalake/
 dict dmap set tt /Volumes/T9
 dict dmap set s /me/datasets/sherlock/
 dict dmap set e /me/datasets/entreprise/
