@@ -1,5 +1,6 @@
 # alias swift-format "swift format
 
+alias xz "command xz --fast"
 alias lld "ll  --sort date"
 alias ld lld
 alias lls "ll  --sort size"
@@ -9,7 +10,6 @@ alias fish_gencomp "$__fish_data_dir/tools/create_manpage_completions.py"
 alias xc " bkt -- xh --follow"
 alias x "xh --follow"
 alias codi code
-alias comv "git commit --no-verify -m"
 alias rrg "rg --no-ignore"
 alias parallel "command parallel --ungroup --eta --progress --bar"
 alias csv "csvlens --delimiter auto"

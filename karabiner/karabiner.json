@@ -1,31 +1,22 @@
 {
-    "global": {
-        "show_in_menu_bar": false
-    },
+    "global": { "show_in_menu_bar": false },
     "profiles": [
         {
             "complex_modifications": {
                 "rules": [
                     {
                         "description": "left_control",
+                        "enabled": false,
                         "manipulators": [
                             {
                                 "from": {
                                     "key_code": "left_arrow",
-                                    "modifiers": {
-                                        "mandatory": [
-                                            "control"
-                                        ]
-                                    }
+                                    "modifiers": { "mandatory": ["control"] }
                                 },
                                 "to": [
                                     {
                                         "key_code": "left_arrow",
-                                        "modifiers": [
-                                            "option",
-                                            "command",
-                                            "shift"
-                                        ]
+                                        "modifiers": ["option", "command", "shift"]
                                     }
                                 ],
                                 "type": "basic"
@@ -33,20 +24,12 @@
                             {
                                 "from": {
                                     "key_code": "right_arrow",
-                                    "modifiers": {
-                                        "mandatory": [
-                                            "control"
-                                        ]
-                                    }
+                                    "modifiers": { "mandatory": ["control"] }
                                 },
                                 "to": [
                                     {
                                         "key_code": "right_arrow",
-                                        "modifiers": [
-                                            "option",
-                                            "command",
-                                            "shift"
-                                        ]
+                                        "modifiers": ["option", "command", "shift"]
                                     }
                                 ],
                                 "type": "basic"
@@ -54,20 +37,12 @@
                             {
                                 "from": {
                                     "key_code": "up_arrow",
-                                    "modifiers": {
-                                        "mandatory": [
-                                            "control"
-                                        ]
-                                    }
+                                    "modifiers": { "mandatory": ["control"] }
                                 },
                                 "to": [
                                     {
                                         "key_code": "up_arrow",
-                                        "modifiers": [
-                                            "option",
-                                            "command",
-                                            "shift"
-                                        ]
+                                        "modifiers": ["option", "command", "shift"]
                                     }
                                 ],
                                 "type": "basic"
@@ -75,20 +50,12 @@
                             {
                                 "from": {
                                     "key_code": "down_arrow",
-                                    "modifiers": {
-                                        "mandatory": [
-                                            "control"
-                                        ]
-                                    }
+                                    "modifiers": { "mandatory": ["control"] }
                                 },
                                 "to": [
                                     {
                                         "key_code": "down_arrow",
-                                        "modifiers": [
-                                            "option",
-                                            "command",
-                                            "shift"
-                                        ]
+                                        "modifiers": ["option", "command", "shift"]
                                     }
                                 ],
                                 "type": "basic"
@@ -102,50 +69,28 @@
                             {
                                 "from": {
                                     "key_code": "open_bracket",
-                                    "modifiers": {
-                                        "mandatory": [
-                                            "control"
-                                        ]
-                                    }
+                                    "modifiers": { "mandatory": ["control"] }
                                 },
-                                "to": [
-                                    {
-                                        "key_code": "open_bracket"
-                                    }
-                                ],
+                                "to": [{ "key_code": "open_bracket" }],
                                 "type": "basic"
                             },
                             {
                                 "from": {
                                     "key_code": "open_bracket",
-                                    "modifiers": {
-                                        "mandatory": [
-                                            "right_shift"
-                                        ]
-                                    }
+                                    "modifiers": { "mandatory": ["right_shift"] }
                                 },
-                                "to": [
-                                    {
-                                        "key_code": "non_us_backslash"
-                                    }
-                                ],
+                                "to": [{ "key_code": "non_us_backslash" }],
                                 "type": "basic"
                             },
                             {
                                 "from": {
                                     "key_code": "close_bracket",
-                                    "modifiers": {
-                                        "mandatory": [
-                                            "right_shift"
-                                        ]
-                                    }
+                                    "modifiers": { "mandatory": ["right_shift"] }
                                 },
                                 "to": [
                                     {
                                         "key_code": "non_us_backslash",
-                                        "modifiers": [
-                                            "right_shift"
-                                        ]
+                                        "modifiers": ["right_shift"]
                                     }
                                 ],
                                 "type": "basic"
@@ -153,66 +98,36 @@
                             {
                                 "from": {
                                     "key_code": "open_bracket",
-                                    "modifiers": {
-                                        "optional": [
-                                            "any"
-                                        ]
-                                    }
+                                    "modifiers": { "optional": ["any"] }
                                 },
-                                "to": [
-                                    {
-                                        "key_code": "5"
-                                    }
-                                ],
+                                "to": [{ "key_code": "5" }],
                                 "type": "basic"
                             },
                             {
                                 "from": {
                                     "key_code": "close_bracket",
-                                    "modifiers": {
-                                        "optional": [
-                                            "any"
-                                        ]
-                                    }
+                                    "modifiers": { "optional": ["any"] }
                                 },
-                                "to": [
-                                    {
-                                        "key_code": "hyphen"
-                                    }
-                                ],
+                                "to": [{ "key_code": "hyphen" }],
                                 "type": "basic"
                             },
                             {
                                 "from": {
                                     "key_code": "quote",
-                                    "modifiers": {
-                                        "optional": [
-                                            "any"
-                                        ]
-                                    }
+                                    "modifiers": { "optional": ["any"] }
                                 },
-                                "to": [
-                                    {
-                                        "key_code": "close_bracket"
-                                    }
-                                ],
+                                "to": [{ "key_code": "close_bracket" }],
                                 "type": "basic"
                             },
                             {
                                 "from": {
                                     "key_code": "backslash",
-                                    "modifiers": {
-                                        "mandatory": [
-                                            "right_shift"
-                                        ]
-                                    }
+                                    "modifiers": { "mandatory": ["right_shift"] }
                                 },
                                 "to": [
                                     {
                                         "key_code": "quote",
-                                        "modifiers": [
-                                            "right_shift"
-                                        ]
+                                        "modifiers": ["right_shift"]
                                     }
                                 ],
                                 "type": "basic"
@@ -220,92 +135,56 @@
                             {
                                 "from": {
                                     "key_code": "5",
-                                    "modifiers": {
-                                        "optional": [
-                                            "any"
-                                        ]
-                                    }
+                                    "modifiers": { "optional": ["any"] }
                                 },
-                                "to": [
-                                    {
-                                        "key_code": "vk_none"
-                                    }
-                                ],
+                                "to": [{ "key_code": "vk_none" }],
                                 "type": "basic"
                             },
                             {
                                 "from": {
                                     "key_code": "hyphen",
-                                    "modifiers": {
-                                        "optional": [
-                                            "any"
-                                        ]
-                                    }
+                                    "modifiers": { "optional": ["any"] }
                                 },
-                                "to": [
-                                    {
-                                        "key_code": "vk_none"
-                                    }
-                                ],
+                                "to": [{ "key_code": "vk_none" }],
                                 "type": "basic"
                             }
                         ]
                     },
                     {
                         "description": "Swap @ and < on AZERTY MacBook Pro",
+                        "enabled": false,
                         "manipulators": [
                             {
                                 "from": {
                                     "key_code": "grave_accent_and_tilde",
-                                    "modifiers": {
-                                        "optional": [
-                                            "any"
-                                        ]
-                                    }
+                                    "modifiers": { "optional": ["any"] }
                                 },
-                                "to": [
-                                    {
-                                        "key_code": "non_us_backslash"
-                                    }
-                                ],
+                                "to": [{ "key_code": "non_us_backslash" }],
                                 "type": "basic"
                             },
                             {
                                 "from": {
                                     "key_code": "non_us_backslash",
-                                    "modifiers": {
-                                        "optional": [
-                                            "any"
-                                        ]
-                                    }
+                                    "modifiers": { "optional": ["any"] }
                                 },
-                                "to": [
-                                    {
-                                        "key_code": "grave_accent_and_tilde"
-                                    }
-                                ],
+                                "to": [{ "key_code": "grave_accent_and_tilde" }],
                                 "type": "basic"
                             }
                         ]
                     },
                     {
                         "description": "Tilde one keystroke.",
+                        "enabled": false,
                         "manipulators": [
                             {
                                 "from": {
                                     "key_code": "n",
-                                    "modifiers": {
-                                        "mandatory": [
-                                            "left_alt"
-                                        ]
-                                    }
+                                    "modifiers": { "mandatory": ["left_alt"] }
                                 },
                                 "to": [
                                     {
                                         "key_code": "n",
-                                        "modifiers": [
-                                            "left_alt"
-                                        ],
+                                        "modifiers": ["left_alt"],
                                         "repeat": false
                                     },
                                     {
@@ -319,11 +198,10 @@
                     },
                     {
                         "description": "Backtick one keystroke.",
+                        "enabled": false,
                         "manipulators": [
                             {
-                                "from": {
-                                    "key_code": "backslash"
-                                },
+                                "from": { "key_code": "backslash" },
                                 "to": [
                                     {
                                         "key_code": "backslash",
@@ -340,11 +218,10 @@
                     },
                     {
                         "description": "Accent circumflex one keystroke.",
+                        "enabled": false,
                         "manipulators": [
                             {
-                                "from": {
-                                    "key_code": "open_bracket"
-                                },
+                                "from": { "key_code": "open_bracket" },
                                 "to": [
                                     {
                                         "key_code": "open_bracket",
@@ -363,9 +240,7 @@
             },
             "name": "Default profile",
             "selected": true,
-            "virtual_hid_keyboard": {
-                "keyboard_type_v2": "iso"
-            }
+            "virtual_hid_keyboard": { "keyboard_type_v2": "iso" }
         }
     ]
 }

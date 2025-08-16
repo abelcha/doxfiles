@@ -1,15 +1,16 @@
 # Default model (gpt-3.5-turbo, gpt-4, ggml-gpt4all-j...).
 # default-model: mistralai/mistral-medium #:ixtral-8x7b-32768
 # default-model: smc
-# default-model: mistral-medium-latest
+default-model: deepseek-chat
 # default-model: gpt-4
-# default-model: claude-3-5-sonnet-20240620  #llama-3-sonar-small-32k-online
-default-model: grok-beta
-
-# Text to append when using the -f flag.
+# default-model: grok-beta  #llama-3-sonar-small-32k-online
+# default-model: x-ai/grok-2-1212
+# default-model: ds-chat
+# default-model: anthropic/claude-3-haiku:beta
+ # Text to append when using the -f flag.
 format-text:
   markdown: 'Format the response as markdown without enclosing backticks.'
-#  json: 'Format the response as json without enclosing backticks.'
+ # json: 'Format the response as json without enclosing backticks.'
 # List of predefined system messages that can be used as roles.
 roles:
   "default": []
@@ -42,54 +43,1308 @@ status-text: Generating
 # Default character limit on input to model.
 max-input-chars: 12250
 # Maximum number of tokens in response.
-max-tokens: 40000
+# max-tokens: 40000
 theme: catppuccin
 # Aliases and endpoints for OpenAI compatible REST API.
 apis:
+  openrouter:
+    base-url: https://openrouter.ai/api/v1
+    api-key-env: OPENROUTER_API_KEY
+    models:
+      eleutherai/llemma_7b:
+        max-input-char: 4096
+        created: "2025-04-14"
+        moderated: false
+        alias: '["llemma_7b"]'
+        description: Llemma 7B is a language model for mathematics. It was initialized with Code Llama 7B weights, and trained on the Proof-Pile-2 for 200B tokens. Llemma models are particularly strong at chain-of-thought
+      alfredpros/codellama-7b-instruct-solidity:
+        max-input-char: 4096
+        created: "2025-04-14"
+        moderated: false
+        alias: '["codellama-7b-instruct-solidity"]'
+        description: A finetuned 7 billion parameters Code LLaMA - Instruct model to generate Solidity smart contract using 4-bit QLoRA finetuning provided by PEFT library.
+      arliai/qwq-32b-arliai-rpr-v1:free:
+        max-input-char: null
+        created: "2025-04-13"
+        moderated: false
+        alias: '["qwq-32b-arliai-rpr-v1:free"]'
+        description: 'QwQ-32B-ArliAI-RpR-v1 is a 32B parameter model fine-tuned from Qwen/QwQ-32B using a curated creative writing and roleplay dataset originally developed for the RPMax series. It is designed to maintain '
+      agentica-org/deepcoder-14b-preview:free:
+        max-input-char: null
+        created: "2025-04-13"
+        moderated: false
+        alias: '["deepcoder-14b-preview:free"]'
+        description: DeepCoder-14B-Preview is a 14B parameter code generation model fine-tuned from DeepSeek-R1-Distill-Qwen-14B using reinforcement learning with GRPO+ and iterative context lengthening. It is optimized f
+      moonshotai/kimi-vl-a3b-thinking:free:
+        max-input-char: null
+        created: "2025-04-10"
+        moderated: false
+        alias: '["kimi-vl-a3b-thinking:free"]'
+        description: Kimi-VL is a lightweight Mixture-of-Experts vision-language model that activates only 2.8B parameters per step while delivering strong performance on multimodal reasoning and long-context tasks. The K
+      x-ai/grok-3-mini-beta:
+        max-input-char: null
+        created: "2025-04-09"
+        moderated: false
+        alias: '["grok-3-mini-beta"]'
+        description: Grok 3 Mini is a lightweight, smaller thinking model. Unlike traditional models that generate answers immediately, Grok 3 Mini thinks before responding. It’s ideal for reasoning-heavy tasks that don’t
+      x-ai/grok-3-beta:
+        max-input-char: null
+        created: "2025-04-09"
+        moderated: false
+        alias: '["grok-3-beta"]'
+        description: Grok 3 is the latest model from xAI. It's their flagship model that excels at enterprise use cases like data extraction, coding, and text summarization. Possesses deep domain knowledge in finance, hea
+      nvidia/llama-3.1-nemotron-nano-8b-v1:free:
+        max-input-char: null
+        created: "2025-04-08"
+        moderated: false
+        alias: '["llama-3.1-nemotron-nano-8b-v1:free"]'
+        description: Llama-3.1-Nemotron-Nano-8B-v1 is a compact large language model (LLM) derived from Meta's Llama-3.1-8B-Instruct, specifically optimized for reasoning tasks, conversational interactions, retrieval-augm
+      nvidia/llama-3.3-nemotron-super-49b-v1:free:
+        max-input-char: null
+        created: "2025-04-08"
+        moderated: false
+        alias: '["llama-3.3-nemotron-super-49b-v1:free"]'
+        description: Llama-3.3-Nemotron-Super-49B-v1 is a large language model (LLM) optimized for advanced reasoning, conversational interactions, retrieval-augmented generation (RAG), and tool-calling tasks. Derived fro
+      nvidia/llama-3.1-nemotron-ultra-253b-v1:free:
+        max-input-char: null
+        created: "2025-04-08"
+        moderated: false
+        alias: '["llama-3.1-nemotron-ultra-253b-v1:free"]'
+        description: Llama-3.1-Nemotron-Ultra-253B-v1 is a large language model (LLM) optimized for advanced reasoning, human-interactive chat, retrieval-augmented generation (RAG), and tool-calling tasks. Derived from Me
+      tokyotech-llm/llama-3.1-swallow-8b-instruct-v0.3:
+        max-input-char: 4096
+        created: "2025-04-07"
+        moderated: false
+        alias: '["llama-3.1-swallow-8b-instruct-v0.3"]'
+        description: Llama 3.1 Swallow 8B is a large language model that was built by continual pre-training on the Meta Llama 3.1 8B. Llama 3.1 Swallow enhanced the Japanese language capabilities of the original Llama 3.
+      meta-llama/llama-4-maverick:free:
+        max-input-char: null
+        created: "2025-04-05"
+        moderated: false
+        alias: '["llama-4-maverick:free"]'
+        description: Llama 4 Maverick 17B Instruct (128E) is a high-capacity multimodal language model from Meta, built on a mixture-of-experts (MoE) architecture with 128 experts and 17 billion active parameters per forw
+      meta-llama/llama-4-maverick:
+        max-input-char: 8192
+        created: "2025-04-05"
+        moderated: false
+        alias: '["llama-4-maverick"]'
+        description: Llama 4 Maverick 17B Instruct (128E) is a high-capacity multimodal language model from Meta, built on a mixture-of-experts (MoE) architecture with 128 experts and 17 billion active parameters per forw
+      meta-llama/llama-4-scout:free:
+        max-input-char: null
+        created: "2025-04-05"
+        moderated: false
+        alias: '["llama-4-scout:free"]'
+        description: 'Llama 4 Scout 17B Instruct (16E) is a mixture-of-experts (MoE) language model developed by Meta, activating 17 billion parameters out of a total of 109B. It supports native multimodal input (text and '
+      meta-llama/llama-4-scout:
+        max-input-char: 8192
+        created: "2025-04-05"
+        moderated: false
+        alias: '["llama-4-scout"]'
+        description: 'Llama 4 Scout 17B Instruct (16E) is a mixture-of-experts (MoE) language model developed by Meta, activating 17 billion parameters out of a total of 109B. It supports native multimodal input (text and '
+      all-hands/openhands-lm-32b-v0.1:
+        max-input-char: 4096
+        created: "2025-04-02"
+        moderated: false
+        alias: '["openhands-lm-32b-v0.1"]'
+        description: OpenHands LM v0.1 is a 32B open-source coding model fine-tuned from Qwen2.5-Coder-32B-Instruct using reinforcement learning techniques outlined in SWE-Gym. It is optimized for autonomous software deve
+      scb10x/llama3.1-typhoon2-8b-instruct:
+        max-input-char: null
+        created: "2025-03-28"
+        moderated: false
+        alias: '["llama3.1-typhoon2-8b-instruct"]'
+        description: Llama3.1-Typhoon2-8B-Instruct is a Thai-English instruction-tuned model with 8 billion parameters, built on Llama 3.1. It significantly improves over its base model in Thai reasoning, instruction-foll
+      scb10x/llama3.1-typhoon2-70b-instruct:
+        max-input-char: null
+        created: "2025-03-28"
+        moderated: false
+        alias: '["llama3.1-typhoon2-70b-instruct"]'
+        description: Llama3.1-Typhoon2-70B-Instruct is a Thai-English instruction-tuned language model with 70 billion parameters, built on Llama 3.1. It demonstrates strong performance across general instruction-followin
+      allenai/molmo-7b-d:free:
+        max-input-char: null
+        created: "2025-03-26"
+        moderated: false
+        alias: '["molmo-7b-d:free"]'
+        description: Molmo is a family of open vision-language models developed by the Allen Institute for AI. Molmo models are trained on PixMo, a dataset of 1 million, highly-curated image-text pairs. It has state-of-th
+      bytedance-research/ui-tars-72b:free:
+        max-input-char: null
+        created: "2025-03-26"
+        moderated: false
+        alias: '["ui-tars-72b:free"]'
+        description: UI-TARS 72B is an open-source multimodal AI model designed specifically for automating browser and desktop tasks through visual interaction and control. The model is built with a specialized vision ar
+      qwen/qwen2.5-vl-3b-instruct:free:
+        max-input-char: null
+        created: "2025-03-26"
+        moderated: false
+        alias: '["qwen2.5-vl-3b-instruct:free"]'
+        description: 'Qwen2.5 VL 3B is a multimodal LLM from the Qwen Team with the following key enhancements: -  - - SoTA understanding of images of various resolution & ratio: Qwen2.5-VL achieves state-of-the-art performanc'
+      qwen/qwen2.5-vl-32b-instruct:free:
+        max-input-char: null
+        created: "2025-03-24"
+        moderated: false
+        alias: '["qwen2.5-vl-32b-instruct:free"]'
+        description: Qwen2.5-VL-32B is a multimodal vision-language model fine-tuned through reinforcement learning for enhanced mathematical reasoning, structured outputs, and visual problem-solving capabilities. It exce
+      qwen/qwen2.5-vl-32b-instruct:
+        max-input-char: null
+        created: "2025-03-24"
+        moderated: false
+        alias: '["qwen2.5-vl-32b-instruct"]'
+        description: Qwen2.5-VL-32B is a multimodal vision-language model fine-tuned through reinforcement learning for enhanced mathematical reasoning, structured outputs, and visual problem-solving capabilities. It exce
+      featherless/qwerky-72b:free:
+        max-input-char: 4096
+        created: "2025-03-20"
+        moderated: false
+        alias: '["qwerky-72b:free"]'
+        description: Qwerky-72B is a linear-attention RWKV variant of the Qwen 2.5 72B model, optimized to significantly reduce computational cost at scale. Leveraging linear attention, it achieves substantial inference s
+      open-r1/olympiccoder-7b:free:
+        max-input-char: null
+        created: "2025-03-15"
+        moderated: false
+        alias: '["olympiccoder-7b:free"]'
+        description: OlympicCoder-7B is an open-source language model fine-tuned on the CodeForces-CoTs dataset, consisting of nearly 100,000 high-quality chain-of-thought examples from competitive programming contexts. O
+      open-r1/olympiccoder-32b:free:
+        max-input-char: null
+        created: "2025-03-15"
+        moderated: false
+        alias: '["olympiccoder-32b:free"]'
+        description: OlympicCoder-32B is a high-performing open-source model fine-tuned using the CodeForces-CoTs dataset, containing approximately 100,000 chain-of-thought programming samples. It excels at complex compet
+      steelskull/l3.3-electra-r1-70b:
+        max-input-char: 131072
+        created: "2025-03-15"
+        moderated: false
+        alias: '["l3.3-electra-r1-70b"]'
+        description: 'L3.3-Electra-R1-70 is the newest release of the Unnamed series. Built on a DeepSeek R1 Distill base, Electra-R1 integrates various models together to provide an intelligent and coherent model capable '
+      ai21/jamba-1.6-large:
+        max-input-char: 4096
+        created: "2025-03-13"
+        moderated: false
+        alias: '["jamba-1.6-large"]'
+        description: AI21 Jamba Large 1.6 is a high-performance hybrid foundation model combining State Space Models (Mamba) with Transformer attention mechanisms. Developed by AI21, it excels in extremely long-context ha
+      ai21/jamba-1.6-mini:
+        max-input-char: 4096
+        created: "2025-03-13"
+        moderated: false
+        alias: '["jamba-1.6-mini"]'
+        description: 'AI21 Jamba Mini 1.6 is a hybrid foundation model combining State Space Models (Mamba) with Transformer attention mechanisms. With 12 billion active parameters (52 billion total), this model excels in '
+      cohere/command-a:
+        max-input-char: 8192
+        created: "2025-03-13"
+        moderated: false
+        alias: '["command-a"]'
+        description: Command A is an open-weights 111B parameter model with a 256k context window focused on delivering great performance across agentic, multilingual, and coding use cases. - Compared to other leading propr
+      rekaai/reka-flash-3:free:
+        max-input-char: null
+        created: "2025-03-12"
+        moderated: false
+        alias: '["reka-flash-3:free"]'
+        description: Reka Flash 3 is a general-purpose, instruction-tuned large language model with 21 billion parameters, developed by Reka. It excels at general chat, coding tasks, instruction-following, and function ca
+      thedrummer/anubis-pro-105b-v1:
+        max-input-char: 131072
+        created: "2025-03-10"
+        moderated: false
+        alias: '["anubis-pro-105b-v1"]'
+        description: Anubis Pro 105B v1 is an expanded and refined variant of Meta’s Llama 3.3 70B, featuring 50% additional layers and further fine-tuning to leverage its increased capacity. Designed for advanced narrati
+      latitudegames/wayfarer-large-70b-llama-3.3:
+        max-input-char: 131072
+        created: "2025-03-10"
+        moderated: false
+        alias: '["wayfarer-large-70b-llama-3.3"]'
+        description: Wayfarer Large 70B is a roleplay and text-adventure model fine-tuned from Meta’s Llama-3.3-70B-Instruct. Specifically optimized for narrative-driven, challenging scenarios, it introduces realistic sta
+      thedrummer/skyfall-36b-v2:
+        max-input-char: 32768
+        created: "2025-03-10"
+        moderated: false
+        alias: '["skyfall-36b-v2"]'
+        description: Skyfall 36B v2 is an enhanced iteration of Mistral Small 2501, specifically fine-tuned for improved creativity, nuanced writing, role-playing, and coherent storytelling.
+      microsoft/phi-4-multimodal-instruct:
+        max-input-char: null
+        created: "2025-03-08"
+        moderated: false
+        alias: '["phi-4-multimodal-instruct"]'
+        description: 'Phi-4 Multimodal Instruct is a versatile 5.6B parameter foundation model that combines advanced reasoning and instruction-following capabilities across both text and visual inputs, providing accurate '
+      perplexity/sonar-reasoning-pro:
+        max-input-char: null
+        created: "2025-03-07"
+        moderated: false
+        alias: '["sonar-reasoning-pro"]'
+        description: 'Note: Sonar Pro pricing includes Perplexity search pricing. See [details here](https://docs.perplexity.ai/guides/pricing#detailed-pricing-breakdown-for-sonar-reasoning-pro-and-sonar-pro) -  - Sonar Reason'
+      perplexity/sonar-pro:
+        max-input-char: 8000
+        created: "2025-03-07"
+        moderated: false
+        alias: '["sonar-pro"]'
+        description: 'Note: Sonar Pro pricing includes Perplexity search pricing. See [details here](https://docs.perplexity.ai/guides/pricing#detailed-pricing-breakdown-for-sonar-reasoning-pro-and-sonar-pro) -  - For enterpri'
+      perplexity/sonar-deep-research:
+        max-input-char: null
+        created: "2025-03-07"
+        moderated: false
+        alias: '["sonar-deep-research"]'
+        description: 'Sonar Deep Research is a research-focused model designed for multi-step retrieval, synthesis, and reasoning across complex topics. It autonomously searches, reads, and evaluates sources, refining its '
+      qwen/qwq-32b:free:
+        max-input-char: 40000
+        created: "2025-03-05"
+        moderated: false
+        alias: '["qwq-32b:free"]'
+        description: QwQ is the reasoning model of the Qwen series. Compared with conventional instruction-tuned models, QwQ, which is capable of thinking and reasoning, can achieve significantly enhanced performance in d
+      qwen/qwq-32b:
+        max-input-char: null
+        created: "2025-03-05"
+        moderated: false
+        alias: '["qwq-32b"]'
+        description: QwQ is the reasoning model of the Qwen series. Compared with conventional instruction-tuned models, QwQ, which is capable of thinking and reasoning, can achieve significantly enhanced performance in d
+      moonshotai/moonlight-16b-a3b-instruct:free:
+        max-input-char: null
+        created: "2025-02-28"
+        moderated: false
+        alias: '["moonlight-16b-a3b-instruct:free"]'
+        description: Moonlight-16B-A3B-Instruct is a 16B-parameter Mixture-of-Experts (MoE) language model developed by Moonshot AI. It is optimized for instruction-following tasks with 3B activated parameters per inferen
+      nousresearch/deephermes-3-llama-3-8b-preview:free:
+        max-input-char: null
+        created: "2025-02-28"
+        moderated: false
+        alias: '["deephermes-3-llama-3-8b-preview:free"]'
+        description: DeepHermes 3 Preview is the latest version of our flagship Hermes series of LLMs by Nous Research, and one of the first models in the world to unify Reasoning (long chains of thought that improve answ
+      anthropic/claude-3.7-sonnet:
+        max-input-char: 64000
+        created: "2025-02-24"
+        moderated: false
+        alias: '["claude-3.7-sonnet"]'
+        description: Claude 3.7 Sonnet is an advanced large language model with improved reasoning, coding, and problem-solving capabilities. It introduces a hybrid reasoning approach, allowing users to choose between rap
+      anthropic/claude-3.7-sonnet:thinking:
+        max-input-char: 64000
+        created: "2025-02-24"
+        moderated: false
+        alias: '["claude-3.7-sonnet:thinking"]'
+        description: Claude 3.7 Sonnet is an advanced large language model with improved reasoning, coding, and problem-solving capabilities. It introduces a hybrid reasoning approach, allowing users to choose between rap
+      anthropic/claude-3.7-sonnet:beta:
+        max-input-char: 128000
+        created: "2025-02-24"
+        moderated: false
+        alias: '["claude-3.7-sonnet:beta"]'
+        description: Claude 3.7 Sonnet is an advanced large language model with improved reasoning, coding, and problem-solving capabilities. It introduces a hybrid reasoning approach, allowing users to choose between rap
+      perplexity/r1-1776:
+        max-input-char: null
+        created: "2025-02-19"
+        moderated: false
+        alias: '["r1-1776"]'
+        description: R1 1776 is a version of DeepSeek-R1 that has been post-trained to remove censorship constraints related to topics restricted by the Chinese government. The model retains its original reasoning capabil
+      meta-llama/llama-guard-3-8b:
+        max-input-char: null
+        created: "2025-02-12"
+        moderated: false
+        alias: '["llama-guard-3-8b"]'
+        description: Llama Guard 3 is a Llama-3.1-8B pretrained model, fine-tuned for content safety classification. Similar to previous versions, it can be used to classify content in both LLM inputs (prompt classificati
+      qwen/qwen-vl-plus:
+        max-input-char: 1500
+        created: "2025-02-05"
+        moderated: false
+        alias: '["qwen-vl-plus"]'
+        description: Qwen's Enhanced Large Visual Language Model. Significantly upgraded for detailed recognition capabilities and text recognition abilities, supporting ultra-high pixel resolutions up to millions of pixe
+      aion-labs/aion-1.0:
+        max-input-char: 32768
+        created: "2025-02-04"
+        moderated: false
+        alias: '["aion-1.0"]'
+        description: Aion-1.0 is a multi-model system designed for high performance across various tasks, including reasoning and coding. It is built on DeepSeek-R1, augmented with additional models and techniques such as
+      aion-labs/aion-1.0-mini:
+        max-input-char: 32768
+        created: "2025-02-04"
+        moderated: false
+        alias: '["aion-1.0-mini"]'
+        description: Aion-1.0-Mini 32B parameter model is a distilled version of the DeepSeek-R1 model, designed for strong performance in reasoning domains such as mathematics, coding, and logic. It is a modified variant
+      aion-labs/aion-rp-llama-3.1-8b:
+        max-input-char: 32768
+        created: "2025-02-04"
+        moderated: false
+        alias: '["aion-rp-llama-3.1-8b"]'
+        description: Aion-RP-Llama-3.1-8B ranks the highest in the character evaluation portion of the RPBench-Auto benchmark, a roleplaying-specific variant of Arena-Hard-Auto, where LLMs evaluate each other’s responses.
+      qwen/qwen-vl-max:
+        max-input-char: 1500
+        created: "2025-02-01"
+        moderated: false
+        alias: '["qwen-vl-max"]'
+        description: 'Qwen VL Max is a visual understanding model with 7500 tokens context length. It excels in delivering optimal performance for a broader spectrum of complex tasks. - '
+      qwen/qwen-turbo:
+        max-input-char: 8192
+        created: "2025-02-01"
+        moderated: false
+        alias: '["qwen-turbo"]'
+        description: Qwen-Turbo, based on Qwen2.5, is a 1M context model that provides fast speed and low cost, suitable for simple tasks.
+      qwen/qwen2.5-vl-72b-instruct:free:
+        max-input-char: 2048
+        created: "2025-02-01"
+        moderated: false
+        alias: '["qwen2.5-vl-72b-instruct:free"]'
+        description: Qwen2.5-VL is proficient in recognizing common objects such as flowers, birds, fish, and insects. It is also highly capable of analyzing texts, charts, icons, graphics, and layouts within images.
+      qwen/qwen2.5-vl-72b-instruct:
+        max-input-char: 128000
+        created: "2025-02-01"
+        moderated: false
+        alias: '["qwen2.5-vl-72b-instruct"]'
+        description: Qwen2.5-VL is proficient in recognizing common objects such as flowers, birds, fish, and insects. It is also highly capable of analyzing texts, charts, icons, graphics, and layouts within images.
+      qwen/qwen-plus:
+        max-input-char: 8192
+        created: "2025-02-01"
+        moderated: false
+        alias: '["qwen-plus"]'
+        description: Qwen-Plus, based on the Qwen2.5 foundation model, is a 131K context model with a balanced performance, speed, and cost combination.
+      qwen/qwen-max:
+        max-input-char: 8192
+        created: "2025-02-01"
+        moderated: false
+        alias: '["qwen-max"]'
+        description: Qwen-Max, based on Qwen2.5, provides the best inference performance among [Qwen models](/qwen), especially for complex multi-step tasks. It's a large-scale MoE model that has been pretrained on over 2
+      perplexity/sonar-reasoning:
+        max-input-char: null
+        created: "2025-01-29"
+        moderated: false
+        alias: '["sonar-reasoning"]'
+        description: Sonar Reasoning is a reasoning model provided by Perplexity based on [DeepSeek R1](/deepseek/deepseek-r1). -  - It allows developers to utilize long chain of thought with built-in web search. Sonar Reason
+      perplexity/sonar:
+        max-input-char: null
+        created: "2025-01-27"
+        moderated: false
+        alias: '["sonar"]'
+        description: Sonar is lightweight, affordable, fast, and simple to use — now featuring citations and the ability to customize sources. It is designed for companies seeking to integrate lightweight question-and-ans
+      liquid/lfm-7b:
+        max-input-char: null
+        created: "2025-01-25"
+        moderated: false
+        alias: '["lfm-7b"]'
+        description: LFM-7B, a new best-in-class language model. LFM-7B is designed for exceptional chat capabilities, including languages like Arabic and Japanese. Powered by the Liquid Foundation Model (LFM) architectur
+      liquid/lfm-3b:
+        max-input-char: null
+        created: "2025-01-25"
+        moderated: false
+        alias: '["lfm-3b"]'
+        description: Liquid's LFM 3B delivers incredible performance for its size. It positions itself as first place among 3B parameter transformers, hybrids, and RNN models It is also on par with Phi-3.5-mini on multipl
+      sophosympatheia/rogue-rose-103b-v0.2:free:
+        max-input-char: null
+        created: "2025-01-18"
+        moderated: false
+        alias: '["rogue-rose-103b-v0.2:free"]'
+        description: Rogue Rose demonstrates strong capabilities in roleplaying and storytelling applications, potentially surpassing other models in the 103-120B parameter range. While it occasionally exhibits inconsiste
+      minimax/minimax-01:
+        max-input-char: 1000192
+        created: "2025-01-15"
+        moderated: false
+        alias: '["minimax-01"]'
+        description: MiniMax-01 is a combines MiniMax-Text-01 for text generation and MiniMax-VL-01 for image understanding. It has 456 billion parameters, with 45.9 billion parameters activated per inference, and can han
+      microsoft/phi-4:
+        max-input-char: 8192
+        created: "2025-01-10"
+        moderated: false
+        alias: '["phi-4"]'
+        description: '[Microsoft Research](/microsoft) Phi-4 is designed to perform well in complex reasoning tasks and can operate efficiently in situations with limited memory or where quick responses are needed.  -  - At 14'
+      sao10k/l3.1-70b-hanami-x1:
+        max-input-char: null
+        created: "2025-01-08"
+        moderated: false
+        alias: '["l3.1-70b-hanami-x1"]'
+        description: This is [Sao10K](/sao10k)'s experiment over [Euryale v2.2](/sao10k/l3.1-euryale-70b).
+      sao10k/l3.3-euryale-70b:
+        max-input-char: 8192
+        created: "2024-12-18"
+        moderated: false
+        alias: '["l3.3-euryale-70b"]'
+        description: Euryale L3.3 70B is a model focused on creative roleplay from [Sao10k](https://ko-fi.com/sao10k). It is the successor of [Euryale L3 70B v2.2](/models/sao10k/l3-euryale-70b).
+      eva-unit-01/eva-llama-3.33-70b:
+        max-input-char: 4096
+        created: "2024-12-16"
+        moderated: false
+        alias: '["eva-llama-3.33-70b"]'
+        description: EVA Llama 3.33 70b is a roleplay and storywriting specialist model. It is a full-parameter finetune of [Llama-3.3-70B-Instruct](https://openrouter.ai/meta-llama/llama-3.3-70b-instruct) on mixture of s
+      x-ai/grok-2-vision-1212:
+        max-input-char: null
+        created: "2024-12-15"
+        moderated: false
+        alias: '["grok-2-vision-1212"]'
+        description: Grok 2 Vision 1212 advances image-based AI with stronger visual comprehension, refined instruction-following, and multilingual support. From object recognition to style analysis, it empowers developer
+      x-ai/grok-2-1212:
+        max-input-char: null
+        created: "2024-12-15"
+        moderated: false
+        alias: '["grok-2-1212"]'
+        description: Grok 2 1212 introduces significant enhancements to accuracy, instruction adherence, and multilingual support, making it a powerful and flexible choice for developers seeking a highly steerable, intell
+      cohere/command-r7b-12-2024:
+        max-input-char: 4000
+        created: "2024-12-14"
+        moderated: false
+        alias: '["command-r7b-12-2024"]'
+        description: Command R7B (12-2024) is a small, fast update of the Command R+ model, delivered in December 2024. It excels at RAG, tool use, agents, and similar tasks requiring complex reasoning and multiple steps.
+      meta-llama/llama-3.3-70b-instruct:free:
+        max-input-char: 8000
+        created: "2024-12-06"
+        moderated: false
+        alias: '["llama-3.3-70b-instruct:free"]'
+        description: The Meta Llama 3.3 multilingual large language model (LLM) is a pretrained and instruction tuned generative model in 70B (text in/text out). The Llama 3.3 instruction tuned text only model is optimize
+      meta-llama/llama-3.3-70b-instruct:
+        max-input-char: 16384
+        created: "2024-12-06"
+        moderated: false
+        alias: '["llama-3.3-70b-instruct"]'
+        description: The Meta Llama 3.3 multilingual large language model (LLM) is a pretrained and instruction tuned generative model in 70B (text in/text out). The Llama 3.3 instruction tuned text only model is optimize
+      amazon/nova-lite-v1:
+        max-input-char: 5120
+        created: "2024-12-05"
+        moderated: false
+        alias: '["nova-lite-v1"]'
+        description: Amazon Nova Lite 1.0 is a very low-cost multimodal model from Amazon that focused on fast processing of image, video, and text inputs to generate text output. Amazon Nova Lite can handle real-time cus
+      amazon/nova-micro-v1:
+        max-input-char: 5120
+        created: "2024-12-05"
+        moderated: false
+        alias: '["nova-micro-v1"]'
+        description: Amazon Nova Micro 1.0 is a text-only model that delivers the lowest latency responses in the Amazon Nova family of models at a very low cost. With a context length of 128K tokens and optimized for spe
+      amazon/nova-pro-v1:
+        max-input-char: 5120
+        created: "2024-12-05"
+        moderated: false
+        alias: '["nova-pro-v1"]'
+        description: Amazon Nova Pro 1.0 is a capable multimodal model from Amazon focused on providing a combination of accuracy, speed, and cost for a wide range of tasks. As of December 2024, it achieves state-of-the-a
+      qwen/qwq-32b-preview:free:
+        max-input-char: null
+        created: "2024-11-28"
+        moderated: false
+        alias: '["qwq-32b-preview:free"]'
+        description: QwQ-32B-Preview is an experimental research model focused on AI reasoning capabilities developed by the Qwen Team. As a preview release, it demonstrates promising analytical abilities while having sev
+      qwen/qwq-32b-preview:
+        max-input-char: null
+        created: "2024-11-28"
+        moderated: false
+        alias: '["qwq-32b-preview"]'
+        description: QwQ-32B-Preview is an experimental research model focused on AI reasoning capabilities developed by the Qwen Team. As a preview release, it demonstrates promising analytical abilities while having sev
+      eva-unit-01/eva-qwen-2.5-72b:
+        max-input-char: 131072
+        created: "2024-11-21"
+        moderated: false
+        alias: '["eva-qwen-2.5-72b"]'
+        description: 'EVA Qwen2.5 72B is a roleplay and storywriting specialist model. It''s a full-parameter finetune of Qwen2.5-72B on mixture of synthetic and natural data. -  - It uses Celeste 70B 0.1 data mixture, greatly '
+      x-ai/grok-vision-beta:
+        max-input-char: null
+        created: "2024-11-19"
+        moderated: false
+        alias: '["grok-vision-beta"]'
+        description: 'Grok Vision Beta is xAI''s experimental language model with vision capability. -  - '
+      infermatic/mn-inferor-12b:
+        max-input-char: 4096
+        created: "2024-11-13"
+        moderated: false
+        alias: '["mn-inferor-12b"]'
+        description: Inferor 12B is a merge of top roleplay models, expert on immersive narratives and storytelling. -  - This model was merged using the [Model Stock](https://arxiv.org/abs/2403.19522) merge method using [ant
+      qwen/qwen-2.5-coder-32b-instruct:free:
+        max-input-char: null
+        created: "2024-11-11"
+        moderated: false
+        alias: '["qwen-2.5-coder-32b-instruct:free"]'
+        description: 'Qwen2.5-Coder is the latest series of Code-Specific Qwen large language models (formerly known as CodeQwen). Qwen2.5-Coder brings the following improvements upon CodeQwen1.5: -  - - Significantly improvem'
+      qwen/qwen-2.5-coder-32b-instruct:
+        max-input-char: 8192
+        created: "2024-11-11"
+        moderated: false
+        alias: '["qwen-2.5-coder-32b-instruct"]'
+        description: 'Qwen2.5-Coder is the latest series of Code-Specific Qwen large language models (formerly known as CodeQwen). Qwen2.5-Coder brings the following improvements upon CodeQwen1.5: -  - - Significantly improvem'
+      raifle/sorcererlm-8x22b:
+        max-input-char: null
+        created: "2024-11-08"
+        moderated: false
+        alias: '["sorcererlm-8x22b"]'
+        description: SorcererLM is an advanced RP and storytelling model, built as a Low-rank 16-bit LoRA fine-tuned on [WizardLM-2 8x22B](/microsoft/wizardlm-2-8x22b). -  - - Advanced reasoning and emotional intelligence for
+      eva-unit-01/eva-qwen-2.5-32b:
+        max-input-char: 4096
+        created: "2024-11-08"
+        moderated: false
+        alias: '["eva-qwen-2.5-32b"]'
+        description: EVA Qwen2.5 32B is a roleplaying/storywriting specialist model. It's a full-parameter finetune of Qwen2.5-32B on mixture of synthetic and natural data. -  - It uses Celeste 70B 0.1 data mixture, greatly e
+      thedrummer/unslopnemo-12b:
+        max-input-char: null
+        created: "2024-11-08"
+        moderated: false
+        alias: '["unslopnemo-12b"]'
+        description: UnslopNemo v4.1 is the latest addition from the creator of Rocinante, designed for adventure writing and role-play scenarios.
+      anthropic/claude-3.5-haiku:beta:
+        max-input-char: 8192
+        created: "2024-11-04"
+        moderated: false
+        alias: '["claude-3.5-haiku:beta"]'
+        description: Claude 3.5 Haiku features offers enhanced capabilities in speed, coding accuracy, and tool use. Engineered to excel in real-time applications, it delivers quick response times that are essential for d
+      anthropic/claude-3.5-haiku:
+        max-input-char: 8192
+        created: "2024-11-04"
+        moderated: true
+        alias: '["claude-3.5-haiku"]'
+        description: '* Claude 3.5 Haiku features offers enhanced capabilities in speed, coding accuracy, and tool use. Engineered to excel in real-time applications, it delivers quick response times that are essential for d'
+      anthropic/claude-3.5-haiku-20241022:beta:
+        max-input-char: 8192
+        created: "2024-11-04"
+        moderated: false
+        alias: '["claude-3.5-haiku-20241022:beta"]'
+        description: Claude 3.5 Haiku features enhancements across all skill sets including coding, tool use, and reasoning. As the fastest model in the Anthropic lineup, it offers rapid response times suitable for applic
+      anthropic/claude-3.5-haiku-20241022:
+        max-input-char: 8192
+        created: "2024-11-04"
+        moderated: true
+        alias: '["claude-3.5-haiku-20241022"]'
+        description: '* Claude 3.5 Haiku features enhancements across all skill sets including coding, tool use, and reasoning. As the fastest model in the Anthropic lineup, it offers rapid response times suitable for applic'
+      neversleep/llama-3.1-lumimaid-70b:
+        max-input-char: 2048
+        created: "2024-10-22"
+        moderated: false
+        alias: '["llama-3.1-lumimaid-70b"]'
+        description: Lumimaid v0.2 70B is a finetune of [Llama 3.1 70B](/meta-llama/llama-3.1-70b-instruct) with a "HUGE step up dataset wise" compared to Lumimaid v0.1. Sloppy chats output were purged. -  - Usage of this mod
+      anthracite-org/magnum-v4-72b:
+        max-input-char: 1024
+        created: "2024-10-22"
+        moderated: false
+        alias: '["magnum-v4-72b"]'
+        description: This is a series of models designed to replicate the prose quality of the Claude 3 models, specifically Sonnet(https://openrouter.ai/anthropic/claude-3.5-sonnet) and Opus(https://openrouter.ai/anthrop
+      anthropic/claude-3.5-sonnet:beta:
+        max-input-char: 8192
+        created: "2024-10-22"
+        moderated: false
+        alias: '["claude-3.5-sonnet:beta"]'
+        description: 'New Claude 3.5 Sonnet delivers better-than-Opus capabilities, faster-than-Sonnet speeds, at the same Sonnet prices. Sonnet is particularly good at: -  - - Coding: Scores ~49% on SWE-Bench Verified, higher'
+      anthropic/claude-3.5-sonnet:
+        max-input-char: 8192
+        created: "2024-10-22"
+        moderated: true
+        alias: '["claude-3.5-sonnet"]'
+        description: '* New Claude 3.5 Sonnet delivers better-than-Opus capabilities, faster-than-Sonnet speeds, at the same Sonnet prices. Sonnet is particularly good at: -  - - Coding: Scores ~49% on SWE-Bench Verified, higher'
+      x-ai/grok-beta:
+        max-input-char: null
+        created: "2024-10-20"
+        moderated: false
+        alias: '["grok-beta"]'
+        description: 'Grok Beta is xAI''s experimental language model with state-of-the-art reasoning capabilities, best for complex and multi-step use cases. -  - It is the successor of [Grok 2](https://x.ai/blog/grok-2) with '
+      qwen/qwen-2.5-7b-instruct:free:
+        max-input-char: 32768
+        created: "2024-10-16"
+        moderated: false
+        alias: '["qwen-2.5-7b-instruct:free"]'
+        description: 'Qwen2.5 7B is the latest series of Qwen large language models. Qwen2.5 brings the following improvements upon Qwen2: -  - - Significantly more knowledge and has greatly improved capabilities in coding and'
+      qwen/qwen-2.5-7b-instruct:
+        max-input-char: 8192
+        created: "2024-10-16"
+        moderated: false
+        alias: '["qwen-2.5-7b-instruct"]'
+        description: 'Qwen2.5 7B is the latest series of Qwen large language models. Qwen2.5 brings the following improvements upon Qwen2: -  - - Significantly more knowledge and has greatly improved capabilities in coding and'
+      nvidia/llama-3.1-nemotron-70b-instruct:free:
+        max-input-char: null
+        created: "2024-10-15"
+        moderated: false
+        alias: '["llama-3.1-nemotron-70b-instruct:free"]'
+        description: NVIDIA's Llama 3.1 Nemotron 70B is a language model designed for generating precise and useful responses. Leveraging [Llama 3.1 70B](/models/meta-llama/llama-3.1-70b-instruct) architecture and Reinfor
+      nvidia/llama-3.1-nemotron-70b-instruct:
+        max-input-char: 131000
+        created: "2024-10-15"
+        moderated: false
+        alias: '["llama-3.1-nemotron-70b-instruct"]'
+        description: NVIDIA's Llama 3.1 Nemotron 70B is a language model designed for generating precise and useful responses. Leveraging [Llama 3.1 70B](/models/meta-llama/llama-3.1-70b-instruct) architecture and Reinfor
+      inflection/inflection-3-productivity:
+        max-input-char: 1024
+        created: "2024-10-11"
+        moderated: false
+        alias: '["inflection-3-productivity"]'
+        description: Inflection 3 Productivity is optimized for following instructions. It is better for tasks requiring JSON output or precise adherence to provided guidelines. It has access to recent news. -  - For emotiona
+      inflection/inflection-3-pi:
+        max-input-char: 1024
+        created: "2024-10-11"
+        moderated: false
+        alias: '["inflection-3-pi"]'
+        description: Inflection 3 Pi powers Inflection's [Pi](https://pi.ai) chatbot, including backstory, emotional intelligence, productivity, and safety. It has access to recent news, and excels in scenarios like custo
+      thedrummer/rocinante-12b:
+        max-input-char: null
+        created: "2024-09-30"
+        moderated: false
+        alias: '["rocinante-12b"]'
+        description: 'Rocinante 12B is designed for engaging storytelling and rich prose. -  - Early testers have reported: - - Expanded vocabulary with unique and expressive word choices - - Enhanced creativity for vivid narrativ'
+      anthracite-org/magnum-v2-72b:
+        max-input-char: null
+        created: "2024-09-30"
+        moderated: false
+        alias: '["magnum-v2-72b"]'
+        description: 'From the maker of [Goliath](https://openrouter.ai/models/alpindale/goliath-120b), Magnum 72B is the seventh in a family of models designed to achieve the prose quality of the Claude 3 models, notably '
+      liquid/lfm-40b:
+        max-input-char: null
+        created: "2024-09-30"
+        moderated: false
+        alias: '["lfm-40b"]'
+        description: Liquid's 40.3B Mixture of Experts (MoE) model. Liquid Foundation Models (LFMs) are large neural networks built with computational units rooted in dynamic systems. -  - LFMs are general-purpose AI models t
+      meta-llama/llama-3.2-3b-instruct:free:
+        max-input-char: 20000
+        created: "2024-09-25"
+        moderated: false
+        alias: '["llama-3.2-3b-instruct:free"]'
+        description: 'Llama 3.2 3B is a 3-billion-parameter multilingual large language model, optimized for advanced natural language processing tasks like dialogue generation, reasoning, and summarization. Designed with '
+      meta-llama/llama-3.2-3b-instruct:
+        max-input-char: 131000
+        created: "2024-09-25"
+        moderated: false
+        alias: '["llama-3.2-3b-instruct"]'
+        description: 'Llama 3.2 3B is a 3-billion-parameter multilingual large language model, optimized for advanced natural language processing tasks like dialogue generation, reasoning, and summarization. Designed with '
+      meta-llama/llama-3.2-1b-instruct:free:
+        max-input-char: 131072
+        created: "2024-09-25"
+        moderated: false
+        alias: '["llama-3.2-1b-instruct:free"]'
+        description: 'Llama 3.2 1B is a 1-billion-parameter language model focused on efficiently performing natural language tasks, such as summarization, dialogue, and multilingual text analysis. Its smaller size allows '
+      meta-llama/llama-3.2-1b-instruct:
+        max-input-char: null
+        created: "2024-09-25"
+        moderated: false
+        alias: '["llama-3.2-1b-instruct"]'
+        description: 'Llama 3.2 1B is a 1-billion-parameter language model focused on efficiently performing natural language tasks, such as summarization, dialogue, and multilingual text analysis. Its smaller size allows '
+      meta-llama/llama-3.2-90b-vision-instruct:
+        max-input-char: 4096
+        created: "2024-09-25"
+        moderated: false
+        alias: '["llama-3.2-90b-vision-instruct"]'
+        description: The Llama 90B Vision model is a top-tier, 90-billion-parameter multimodal model designed for the most challenging visual reasoning and language tasks. It offers unparalleled accuracy in image captioni
+      meta-llama/llama-3.2-11b-vision-instruct:free:
+        max-input-char: 2048
+        created: "2024-09-25"
+        moderated: false
+        alias: '["llama-3.2-11b-vision-instruct:free"]'
+        description: Llama 3.2 11B Vision is a multimodal model with 11 billion parameters, designed to handle tasks combining visual and textual data. It excels in tasks such as image captioning and visual question answe
+      meta-llama/llama-3.2-11b-vision-instruct:
+        max-input-char: 8192
+        created: "2024-09-25"
+        moderated: false
+        alias: '["llama-3.2-11b-vision-instruct"]'
+        description: Llama 3.2 11B Vision is a multimodal model with 11 billion parameters, designed to handle tasks combining visual and textual data. It excels in tasks such as image captioning and visual question answe
+      qwen/qwen-2.5-72b-instruct:free:
+        max-input-char: null
+        created: "2024-09-19"
+        moderated: false
+        alias: '["qwen-2.5-72b-instruct:free"]'
+        description: 'Qwen2.5 72B is the latest series of Qwen large language models. Qwen2.5 brings the following improvements upon Qwen2: -  - - Significantly more knowledge and has greatly improved capabilities in coding an'
+      qwen/qwen-2.5-72b-instruct:
+        max-input-char: 8192
+        created: "2024-09-19"
+        moderated: false
+        alias: '["qwen-2.5-72b-instruct"]'
+        description: 'Qwen2.5 72B is the latest series of Qwen large language models. Qwen2.5 brings the following improvements upon Qwen2: -  - - Significantly more knowledge and has greatly improved capabilities in coding an'
+      qwen/qwen-2.5-vl-72b-instruct:
+        max-input-char: null
+        created: "2024-09-18"
+        moderated: false
+        alias: '["qwen-2.5-vl-72b-instruct"]'
+        description: 'Qwen2.5 VL 72B is a multimodal LLM from the Qwen Team with the following key enhancements: -  - - SoTA understanding of images of various resolution & ratio: Qwen2.5-VL achieves state-of-the-art performan'
+      neversleep/llama-3.1-lumimaid-8b:
+        max-input-char: 2048
+        created: "2024-09-15"
+        moderated: false
+        alias: '["llama-3.1-lumimaid-8b"]'
+        description: Lumimaid v0.2 8B is a finetune of [Llama 3.1 8B](/models/meta-llama/llama-3.1-8b-instruct) with a "HUGE step up dataset wise" compared to Lumimaid v0.1. Sloppy chats output were purged. -  - Usage of this
+      cohere/command-r-plus-08-2024:
+        max-input-char: 4000
+        created: "2024-08-30"
+        moderated: false
+        alias: '["command-r-plus-08-2024"]'
+        description: 'command-r-plus-08-2024 is an update of the [Command R+](/models/cohere/command-r-plus) with roughly 50% higher throughput and 25% lower latencies as compared to the previous Command R+ version, while '
+      cohere/command-r-08-2024:
+        max-input-char: 4000
+        created: "2024-08-30"
+        moderated: false
+        alias: '["command-r-08-2024"]'
+        description: 'command-r-08-2024 is an update of the [Command R](/models/cohere/command-r) with improved performance for multilingual retrieval-augmented generation (RAG) and tool use. More broadly, it is better at '
+      qwen/qwen-2.5-vl-7b-instruct:free:
+        max-input-char: 64000
+        created: "2024-08-28"
+        moderated: false
+        alias: '["qwen-2.5-vl-7b-instruct:free"]'
+        description: 'Qwen2.5 VL 7B is a multimodal LLM from the Qwen Team with the following key enhancements: -  - - SoTA understanding of images of various resolution & ratio: Qwen2.5-VL achieves state-of-the-art performanc'
+      qwen/qwen-2.5-vl-7b-instruct:
+        max-input-char: null
+        created: "2024-08-28"
+        moderated: false
+        alias: '["qwen-2.5-vl-7b-instruct"]'
+        description: 'Qwen2.5 VL 7B is a multimodal LLM from the Qwen Team with the following key enhancements: -  - - SoTA understanding of images of various resolution & ratio: Qwen2.5-VL achieves state-of-the-art performanc'
+      sao10k/l3.1-euryale-70b:
+        max-input-char: 8192
+        created: "2024-08-28"
+        moderated: false
+        alias: '["l3.1-euryale-70b"]'
+        description: Euryale L3.1 70B v2.2 is a model focused on creative roleplay from [Sao10k](https://ko-fi.com/sao10k). It is the successor of [Euryale L3 70B v2.1](/models/sao10k/l3-euryale-70b).
+      ai21/jamba-1-5-mini:
+        max-input-char: 4096
+        created: "2024-08-23"
+        moderated: false
+        alias: '["jamba-1-5-mini"]'
+        description: Jamba 1.5 Mini is the world's first production-grade Mamba-based model, combining SSM and Transformer architectures for a 256K context window and high efficiency. -  - It works with 9 languages and can ha
+      ai21/jamba-1-5-large:
+        max-input-char: 4096
+        created: "2024-08-23"
+        moderated: false
+        alias: '["jamba-1-5-large"]'
+        description: Jamba 1.5 Large is part of AI21's new family of open models, offering superior speed, efficiency, and quality. -  - It features a 256K effective context window, the longest among open models, enabling imp
+      microsoft/phi-3.5-mini-128k-instruct:
+        max-input-char: null
+        created: "2024-08-21"
+        moderated: false
+        alias: '["phi-3.5-mini-128k-instruct"]'
+        description: 'Phi-3.5 models are lightweight, state-of-the-art open models. These models were trained with Phi-3 datasets that include both synthetic data and the filtered, publicly available websites data, with a '
+      nousresearch/hermes-3-llama-3.1-70b:
+        max-input-char: 131000
+        created: "2024-08-18"
+        moderated: false
+        alias: '["hermes-3-llama-3.1-70b"]'
+        description: Hermes 3 is a generalist language model with many improvements over [Hermes 2](/models/nousresearch/nous-hermes-2-mistral-7b-dpo), including advanced agentic capabilities, much better roleplaying, rea
+      nousresearch/hermes-3-llama-3.1-405b:
+        max-input-char: 131000
+        created: "2024-08-16"
+        moderated: false
+        alias: '["hermes-3-llama-3.1-405b"]'
+        description: Hermes 3 is a generalist language model with many improvements over Hermes 2, including advanced agentic capabilities, much better roleplaying, reasoning, multi-turn conversation, long context coheren
+      sao10k/l3-lunaris-8b:
+        max-input-char: null
+        created: "2024-08-13"
+        moderated: false
+        alias: '["l3-lunaris-8b"]'
+        description: Lunaris 8B is a versatile generalist and roleplaying model based on Llama 3. It's a strategic merge of multiple models, designed to balance creativity with improved logic and general knowledge. -  - Creat
+      aetherwiing/mn-starcannon-12b:
+        max-input-char: 4096
+        created: "2024-08-13"
+        moderated: false
+        alias: '["mn-starcannon-12b"]'
+        description: Starcannon 12B v2 is a creative roleplay and story writing model, based on Mistral Nemo, using [nothingiisreal/mn-celeste-12b](/nothingiisreal/mn-celeste-12b) as a base, with [intervitens/mini-magnum-
+      meta-llama/llama-3.1-405b:
+        max-input-char: null
+        created: "2024-08-02"
+        moderated: false
+        alias: '["llama-3.1-405b"]'
+        description: Meta's latest class of model (Llama 3.1) launched with a variety of sizes & flavors. This is the base 405B pre-trained version. -  - It has demonstrated strong performance compared to leading closed-sourc
+      nothingiisreal/mn-celeste-12b:
+        max-input-char: 4096
+        created: "2024-08-02"
+        moderated: false
+        alias: '["mn-celeste-12b"]'
+        description: A specialized story writing and roleplaying model based on Mistral's NeMo 12B Instruct. Fine-tuned on curated datasets including Reddit Writing Prompts and Opus Instruct 25K. -  - This model excels at cre
+      perplexity/llama-3.1-sonar-small-128k-online:
+        max-input-char: null
+        created: "2024-08-01"
+        moderated: false
+        alias: '["llama-3.1-sonar-small-128k-online"]'
+        description: Llama 3.1 Sonar is Perplexity's latest model family. It surpasses their earlier Sonar models in cost-efficiency, speed, and performance. -  - This is the online version of the [offline chat model](/models
+      perplexity/llama-3.1-sonar-large-128k-online:
+        max-input-char: null
+        created: "2024-08-01"
+        moderated: false
+        alias: '["llama-3.1-sonar-large-128k-online"]'
+        description: Llama 3.1 Sonar is Perplexity's latest model family. It surpasses their earlier Sonar models in cost-efficiency, speed, and performance. -  - This is the online version of the [offline chat model](/models
+      meta-llama/llama-3.1-8b-instruct:free:
+        max-input-char: 4096
+        created: "2024-07-23"
+        moderated: false
+        alias: '["llama-3.1-8b-instruct:free"]'
+        description: Meta's latest class of model (Llama 3.1) launched with a variety of sizes & flavors. This 8B instruct-tuned version is fast and efficient. -  - It has demonstrated strong performance compared to leading c
+      meta-llama/llama-3.1-8b-instruct:
+        max-input-char: 8192
+        created: "2024-07-23"
+        moderated: false
+        alias: '["llama-3.1-8b-instruct"]'
+        description: Meta's latest class of model (Llama 3.1) launched with a variety of sizes & flavors. This 8B instruct-tuned version is fast and efficient. -  - It has demonstrated strong performance compared to leading c
+      meta-llama/llama-3.1-405b-instruct:
+        max-input-char: 8192
+        created: "2024-07-23"
+        moderated: false
+        alias: '["llama-3.1-405b-instruct"]'
+        description: 'The highly anticipated 400B class of Llama3 is here! Clocking in at 128k context with impressive eval scores, the Meta AI team continues to push the frontier of open-source LLMs. -  - Meta''s latest class '
+      meta-llama/llama-3.1-70b-instruct:
+        max-input-char: 8192
+        created: "2024-07-23"
+        moderated: false
+        alias: '["llama-3.1-70b-instruct"]'
+        description: Meta's latest class of model (Llama 3.1) launched with a variety of sizes & flavors. This 70B instruct-tuned version is optimized for high quality dialogue usecases. -  - It has demonstrated strong perfor
+      alpindale/magnum-72b:
+        max-input-char: 1024
+        created: "2024-07-11"
+        moderated: false
+        alias: '["magnum-72b"]'
+        description: From the maker of [Goliath](https://openrouter.ai/models/alpindale/goliath-120b), Magnum 72B is the first in a new family of models designed to achieve the prose quality of the Claude 3 models, notabl
+      01-ai/yi-large:
+        max-input-char: 4096
+        created: "2024-06-25"
+        moderated: false
+        alias: '["yi-large"]'
+        description: 'The Yi Large model was designed by 01.AI with the following usecases in mind: knowledge search, data classification, human-like chat bots, and customer service. -  - It stands out for its multilingual pro'
+      ai21/jamba-instruct:
+        max-input-char: 4096
+        created: "2024-06-25"
+        moderated: false
+        alias: '["jamba-instruct"]'
+        description: The Jamba-Instruct model, introduced by AI21 Labs, is an instruction-tuned variant of their hybrid SSM-Transformer Jamba model, specifically optimized for enterprise applications. -  - - 256K Context Wind
+      anthropic/claude-3.5-sonnet-20240620:beta:
+        max-input-char: 8192
+        created: "2024-06-20"
+        moderated: false
+        alias: '["claude-3.5-sonnet-20240620:beta"]'
+        description: 'Claude 3.5 Sonnet delivers better-than-Opus capabilities, faster-than-Sonnet speeds, at the same Sonnet prices. Sonnet is particularly good at: -  - - Coding: Autonomously writes, edits, and runs code wit'
+      anthropic/claude-3.5-sonnet-20240620:
+        max-input-char: 8192
+        created: "2024-06-20"
+        moderated: true
+        alias: '["claude-3.5-sonnet-20240620"]'
+        description: '* Claude 3.5 Sonnet delivers better-than-Opus capabilities, faster-than-Sonnet speeds, at the same Sonnet prices. Sonnet is particularly good at: -  - - Coding: Autonomously writes, edits, and runs code wit'
+      sao10k/l3-euryale-70b:
+        max-input-char: 8192
+        created: "2024-06-18"
+        moderated: false
+        alias: '["l3-euryale-70b"]'
+        description: Euryale 70B v2.1 is a model focused on creative roleplay from [Sao10k](https://ko-fi.com/sao10k). -  - - Better prompt adherence. - - Better anatomy / spatial awareness. - - Adapts much better to unique and c
+      cognitivecomputations/dolphin-mixtral-8x22b:
+        max-input-char: null
+        created: "2024-06-08"
+        moderated: false
+        alias: '["dolphin-mixtral-8x22b"]'
+        description: Dolphin 2.9 is designed for instruction following, conversational, and coding. This model is a finetune of [Mixtral 8x22B Instruct](/models/mistralai/mixtral-8x22b-instruct). It features a 64k context
+      qwen/qwen-2-72b-instruct:
+        max-input-char: 4096
+        created: "2024-06-07"
+        moderated: false
+        alias: '["qwen-2-72b-instruct"]'
+        description: Qwen2 72B is a transformer-based model that excels in language understanding, multilingual capabilities, coding, mathematics, and reasoning. -  - It features SwiGLU activation, attention QKV bias, and gro
+      nousresearch/hermes-2-pro-llama-3-8b:
+        max-input-char: 131000
+        created: "2024-05-27"
+        moderated: false
+        alias: '["hermes-2-pro-llama-3-8b"]'
+        description: Hermes 2 Pro is an upgraded, retrained version of Nous Hermes 2, consisting of an updated and cleaned version of the OpenHermes 2.5 Dataset, as well as a newly introduced Function Calling and JSON Mod
+      microsoft/phi-3-mini-128k-instruct:
+        max-input-char: null
+        created: "2024-05-26"
+        moderated: false
+        alias: '["phi-3-mini-128k-instruct"]'
+        description: Phi-3 Mini is a powerful 3.8B parameter model designed for advanced language understanding, reasoning, and instruction following. Optimized through supervised fine-tuning and preference adjustments, i
+      microsoft/phi-3-medium-128k-instruct:
+        max-input-char: null
+        created: "2024-05-24"
+        moderated: false
+        alias: '["phi-3-medium-128k-instruct"]'
+        description: Phi-3 128K Medium is a powerful 14-billion parameter model designed for advanced language understanding, reasoning, and instruction following. Optimized through supervised fine-tuning and preference a
+      neversleep/llama-3-lumimaid-70b:
+        max-input-char: 2048
+        created: "2024-05-16"
+        moderated: false
+        alias: '["llama-3-lumimaid-70b"]'
+        description: The NeverSleep team is back, with a Llama 3 70B finetune trained on their curated roleplay data. Striking a balance between eRP and RP, Lumimaid was designed to be serious, yet uncensored when necessa
+      meta-llama/llama-guard-2-8b:
+        max-input-char: null
+        created: "2024-05-13"
+        moderated: false
+        alias: '["llama-guard-2-8b"]'
+        description: This safeguard model has 8B parameters and is based on the Llama 3 family. Just like is predecessor, [LlamaGuard 1](https://huggingface.co/meta-llama/LlamaGuard-7b), it can do both prompt and response
+      neversleep/llama-3-lumimaid-8b:extended:
+        max-input-char: 2048
+        created: "2024-05-04"
+        moderated: false
+        alias: '["llama-3-lumimaid-8b:extended"]'
+        description: The NeverSleep team is back, with a Llama 3 8B finetune trained on their curated roleplay data. Striking a balance between eRP and RP, Lumimaid was designed to be serious, yet uncensored when necessar
+      neversleep/llama-3-lumimaid-8b:
+        max-input-char: 2048
+        created: "2024-05-04"
+        moderated: false
+        alias: '["llama-3-lumimaid-8b"]'
+        description: The NeverSleep team is back, with a Llama 3 8B finetune trained on their curated roleplay data. Striking a balance between eRP and RP, Lumimaid was designed to be serious, yet uncensored when necessar
+      sao10k/fimbulvetr-11b-v2:
+        max-input-char: 4096
+        created: "2024-04-21"
+        moderated: false
+        alias: '["fimbulvetr-11b-v2"]'
+        description: Creative writing model, routed with permission. It's fast, it keeps the conversation going, and it stays in character. -  - If you submit a raw prompt, you can use Alpaca or Vicuna formats.
+      meta-llama/llama-3-8b-instruct:
+        max-input-char: 8192
+        created: "2024-04-18"
+        moderated: false
+        alias: '["llama-3-8b-instruct"]'
+        description: Meta's latest class of model (Llama 3) launched with a variety of sizes & flavors. This 8B instruct-tuned version was optimized for high quality dialogue usecases. -  - It has demonstrated strong performa
+      meta-llama/llama-3-70b-instruct:
+        max-input-char: 8192
+        created: "2024-04-18"
+        moderated: false
+        alias: '["llama-3-70b-instruct"]'
+        description: Meta's latest class of model (Llama 3) launched with a variety of sizes & flavors. This 70B instruct-tuned version was optimized for high quality dialogue usecases. -  - It has demonstrated strong perform
+      microsoft/wizardlm-2-8x22b:
+        max-input-char: 8192
+        created: "2024-04-16"
+        moderated: false
+        alias: '["wizardlm-2-8x22b"]'
+        description: WizardLM-2 8x22B is Microsoft AI's most advanced Wizard model. It demonstrates highly competitive performance compared to leading proprietary models, and it consistently outperforms all existing state
+      microsoft/wizardlm-2-7b:
+        max-input-char: null
+        created: "2024-04-16"
+        moderated: false
+        alias: '["wizardlm-2-7b"]'
+        description: WizardLM-2 7B is the smaller variant of Microsoft AI's latest Wizard model. It is the fastest and achieves comparable performance with existing 10x larger opensource leading models -  - It is a finetune o
+      cohere/command-r-plus:
+        max-input-char: 4000
+        created: "2024-04-04"
+        moderated: false
+        alias: '["command-r-plus"]'
+        description: Command R+ is a new, 104B-parameter LLM from Cohere. It's useful for roleplay, general consumer usecases, and Retrieval Augmented Generation (RAG). -  - It offers multilingual support for ten key language
+      cohere/command-r-plus-04-2024:
+        max-input-char: 4000
+        created: "2024-04-02"
+        moderated: false
+        alias: '["command-r-plus-04-2024"]'
+        description: Command R+ is a new, 104B-parameter LLM from Cohere. It's useful for roleplay, general consumer usecases, and Retrieval Augmented Generation (RAG). -  - It offers multilingual support for ten key language
+      sophosympatheia/midnight-rose-70b:
+        max-input-char: null
+        created: "2024-03-22"
+        moderated: false
+        alias: '["midnight-rose-70b"]'
+        description: A merge with a complex family tree, this model was crafted for roleplaying and storytelling. Midnight Rose is a successor to Rogue Rose and Aurora Nights and improves upon them both. It wants to produ
+      cohere/command:
+        max-input-char: 4000
+        created: "2024-03-14"
+        moderated: false
+        alias: '["command"]'
+        description: 'Command is an instruction-following conversational model that performs language tasks with high quality, more reliably and with a longer context than our base generative models. -  - Use of this model is '
+      cohere/command-r:
+        max-input-char: 4000
+        created: "2024-03-14"
+        moderated: false
+        alias: '["command-r"]'
+        description: 'Command-R is a 35B parameter model that performs conversational language tasks at a higher quality, more reliably, and with a longer context than previous models. It can be used for complex workflows '
+      anthropic/claude-3-haiku:beta:
+        max-input-char: 4096
+        created: "2024-03-13"
+        moderated: false
+        alias: '["claude-3-haiku:beta"]'
+        description: Claude 3 Haiku is Anthropic's fastest and most compact model for - near-instant responsiveness. Quick and accurate targeted performance. -  - See the launch announcement and benchmark results [here](https:/
+      anthropic/claude-3-haiku:
+        max-input-char: 4096
+        created: "2024-03-13"
+        moderated: true
+        alias: '["claude-3-haiku"]'
+        description: '* Claude 3 Haiku is Anthropic''s fastest and most compact model for - near-instant responsiveness. Quick and accurate targeted performance. -  - See the launch announcement and benchmark results [here](https:/'
+      anthropic/claude-3-opus:beta:
+        max-input-char: 4096
+        created: "2024-03-05"
+        moderated: false
+        alias: '["claude-3-opus:beta"]'
+        description: Claude 3 Opus is Anthropic's most powerful model for highly complex tasks. It boasts top-level performance, intelligence, fluency, and understanding. -  - See the launch announcement and benchmark results
+      anthropic/claude-3-opus:
+        max-input-char: 4096
+        created: "2024-03-05"
+        moderated: true
+        alias: '["claude-3-opus"]'
+        description: '* Claude 3 Opus is Anthropic''s most powerful model for highly complex tasks. It boasts top-level performance, intelligence, fluency, and understanding. -  - See the launch announcement and benchmark results'
+      anthropic/claude-3-sonnet:beta:
+        max-input-char: 4096
+        created: "2024-03-05"
+        moderated: false
+        alias: '["claude-3-sonnet:beta"]'
+        description: 'Claude 3 Sonnet is an ideal balance of intelligence and speed for enterprise workloads. Maximum utility at a lower price, dependable, balanced for scaled deployments. -  - See the launch announcement and '
+      anthropic/claude-3-sonnet:
+        max-input-char: 4096
+        created: "2024-03-05"
+        moderated: true
+        alias: '["claude-3-sonnet"]'
+        description: '* Claude 3 Sonnet is an ideal balance of intelligence and speed for enterprise workloads. Maximum utility at a lower price, dependable, balanced for scaled deployments. -  - See the launch announcement and '
+      cohere/command-r-03-2024:
+        max-input-char: 4000
+        created: "2024-03-02"
+        moderated: false
+        alias: '["command-r-03-2024"]'
+        description: 'Command-R is a 35B parameter model that performs conversational language tasks at a higher quality, more reliably, and with a longer context than previous models. It can be used for complex workflows '
+      nousresearch/nous-hermes-2-mixtral-8x7b-dpo:
+        max-input-char: 2048
+        created: "2024-01-16"
+        moderated: false
+        alias: '["nous-hermes-2-mixtral-8x7b-dpo"]'
+        description: Nous Hermes 2 Mixtral 8x7B DPO is the new flagship Nous Research model trained over the [Mixtral 8x7B MoE LLM](/models/mistralai/mixtral-8x7b). -  - The model was trained on over 1,000,000 entries of prim
+
   openai:
     base-url: https://api.openai.com/v1
-    api-key-env: OPENAI_API_KEY
+    api-key-env: OPENAI_KEY1
     models:
-      gpt-4o: 
-        aliases: ["openai:gpt-4o"]
-        max-input-chars: 124500
-      gpt-4:
-        aliases: ["openai:gpt-4"]
-        max-input-chars: 124500
-      gpt-4-0125-preview:
-        aliases: ["openai:gpt-4-0125-preview"]
-        max-input-chars: 1392000
-      gpt-4-32k:
-        aliases: ["openai:gpt-4-32k"]
-        max-input-chars: 98000
+      gpt-4.1:
+        max-input-char: 32768
+        created: "2025-04-14"
+        moderated: true
+        alias: '["gpt-4.1"]'
+        description: '* GPT-4.1 is a flagship large language model optimized for advanced instruction following, real-world software engineering, and long-context reasoning. It supports a 1 million token context window and o'
+      gpt-4.1-mini:
+        max-input-char: 32768
+        created: "2025-04-14"
+        moderated: true
+        alias: '["gpt-4.1-mini"]'
+        description: '* GPT-4.1 Mini is a mid-sized model delivering performance competitive with GPT-4o at substantially lower latency and cost. It retains a 1 million token context window and scores 45.1% on hard instructi'
+      gpt-4.1-nano:
+        max-input-char: 32768
+        created: "2025-04-14"
+        moderated: true
+        alias: '["gpt-4.1-nano"]'
+        description: '* For tasks that demand low latency, GPT‑4.1 nano is the fastest and cheapest model in the GPT-4.1 series. It delivers exceptional performance at a small size with its 1 million token context window, an'
+      o1-pro:
+        max-input-char: 100000
+        created: "2025-03-19"
+        moderated: true
+        alias: '["o1-pro"]'
+        description: '* The o1 series of models are trained with reinforcement learning to think before they answer and perform complex reasoning. The o1-pro model uses more compute to think harder and provide consistently b'
+      gpt-4o-mini-search-preview:
+        max-input-char: 16384
+        created: "2025-03-12"
+        moderated: true
+        alias: '["gpt-4o-mini-search-preview"]'
+        description: '* GPT-4o mini Search Preview is a specialized model for web search in Chat Completions. It is trained to understand and execute web search queries.'
+      gpt-4o-search-preview:
+        max-input-char: 16384
+        created: "2025-03-12"
+        moderated: true
+        alias: '["gpt-4o-search-preview"]'
+        description: '* GPT-4o Search Previewis a specialized model for web search in Chat Completions. It is trained to understand and execute web search queries.'
+      gpt-4.5-preview:
+        max-input-char: 16384
+        created: "2025-02-27"
+        moderated: true
+        alias: '["gpt-4.5-preview"]'
+        description: '* GPT-4.5 (Preview) is a research preview of OpenAI’s latest language model, designed to advance capabilities in reasoning, creativity, and multi-turn conversation. It builds on previous iterations with'
+      o3-mini-high:
+        max-input-char: 100000
+        created: "2025-02-12"
+        moderated: true
+        alias: '["o3-mini-high"]'
+        description: '* OpenAI o3-mini-high is the same model as [o3-mini](/o3-mini) with reasoning_effort set to high.  -  - o3-mini is a cost-efficient language model optimized for STEM reasoning tasks, particularly exc'
+      o3-mini:
+        max-input-char: 100000
+        created: "2025-01-31"
+        moderated: true
+        alias: '["o3-mini"]'
+        description: '* OpenAI o3-mini is a cost-efficient language model optimized for STEM reasoning tasks, particularly excelling in science, mathematics, and coding. -  - This model supports the `reasoning_effort` parameter,'
+      o1:
+        max-input-char: 100000
+        created: "2024-12-17"
+        moderated: true
+        alias: '["o1"]'
+        description: '* The latest and strongest model family from OpenAI, o1 is designed to spend more time thinking before responding. The o1 model series is trained with large-scale reinforcement learning to reason using '
+      gpt-4o-2024-11-20:
+        max-input-char: 16384
+        created: "2024-11-20"
+        moderated: true
+        alias: '["gpt-4o-2024-11-20"]'
+        description: '* The 2024-11-20 version of GPT-4o offers a leveled-up creative writing ability with more natural, engaging, and tailored writing to improve relevance & readability. It’s also better at working with upl'
+      o1-mini-2024-09-12:
+        max-input-char: 65536
+        created: "2024-09-12"
+        moderated: true
+        alias: '["o1-mini-2024-09-12"]'
+        description: '* The latest and strongest model family from OpenAI, o1 is designed to spend more time thinking before responding. -  - The o1 models are optimized for math, science, programming, and other STEM-related tas'
+      o1-preview:
+        max-input-char: 32768
+        created: "2024-09-12"
+        moderated: true
+        alias: '["o1-preview"]'
+        description: '* The latest and strongest model family from OpenAI, o1 is designed to spend more time thinking before responding. -  - The o1 models are optimized for math, science, programming, and other STEM-related tas'
+      o1-preview-2024-09-12:
+        max-input-char: 32768
+        created: "2024-09-12"
+        moderated: true
+        alias: '["o1-preview-2024-09-12"]'
+        description: '* The latest and strongest model family from OpenAI, o1 is designed to spend more time thinking before responding. -  - The o1 models are optimized for math, science, programming, and other STEM-related tas'
+      o1-mini:
+        max-input-char: 65536
+        created: "2024-09-12"
+        moderated: true
+        alias: '["o1-mini"]'
+        description: '* The latest and strongest model family from OpenAI, o1 is designed to spend more time thinking before responding. -  - The o1 models are optimized for math, science, programming, and other STEM-related tas'
+      chatgpt-4o-latest:
+        max-input-char: 16384
+        created: "2024-08-14"
+        moderated: true
+        alias: '["chatgpt-4o-latest"]'
+        description: '* OpenAI ChatGPT 4o is continually updated by OpenAI to point to the current version of GPT-4o used by ChatGPT. It therefore differs slightly from the API version of [GPT-4o](/models/gpt-4o) in t'
+      gpt-4o-2024-08-06:
+        max-input-char: 16384
+        created: "2024-08-06"
+        moderated: true
+        alias: '["gpt-4o-2024-08-06"]'
+        description: '* The 2024-08-06 version of GPT-4o offers improved performance in structured outputs, with the ability to supply a JSON schema in the respone_format. Read more [here](https://openai.com/index/introducin'
+      gpt-4o-mini-2024-07-18:
+        max-input-char: 16384
+        created: "2024-07-18"
+        moderated: true
+        alias: '["gpt-4o-mini-2024-07-18"]'
+        description: '* GPT-4o mini is OpenAI''s newest model after [GPT-4 Omni](/models/gpt-4o), supporting both text and image inputs with text outputs. -  - As their most advanced small model, it is many multiples more '
       gpt-4o-mini:
-        aliases: ["openai:gpt4-mini"]
-        max-input-chars: 12250
-      gpt-3.5:
-        aliases: ["35"]
-        max-input-chars: 12250
+        max-input-char: 16384
+        created: "2024-07-18"
+        moderated: true
+        alias: '["gpt-4o-mini"]'
+        description: '* GPT-4o mini is OpenAI''s newest model after [GPT-4 Omni](/models/gpt-4o), supporting both text and image inputs with text outputs. -  - As their most advanced small model, it is many multiples more '
+      gpt-4o-2024-05-13:
+        max-input-char: 4096
+        created: "2024-05-13"
+        moderated: true
+        alias: '["gpt-4o-2024-05-13"]'
+        description: '* GPT-4o ("o" for "omni") is OpenAI''s latest AI model, supporting both text and image inputs with text outputs. It maintains the intelligence level of [GPT-4 Turbo](/models/gpt-4-turbo) while bei'
+      gpt-4o:
+        max-input-char: 16384
+        created: "2024-05-13"
+        moderated: true
+        alias: '["gpt-4o"]'
+        description: '* GPT-4o ("o" for "omni") is OpenAI''s latest AI model, supporting both text and image inputs with text outputs. It maintains the intelligence level of [GPT-4 Turbo](/models/gpt-4-turbo) while bei'
+      gpt-4o:extended:
+        max-input-char: 64000
+        created: "2024-05-13"
+        moderated: true
+        alias: '["gpt-4o:extended"]'
+        description: '* GPT-4o ("o" for "omni") is OpenAI''s latest AI model, supporting both text and image inputs with text outputs. It maintains the intelligence level of [GPT-4 Turbo](/models/gpt-4-turbo) while bei'
+      gpt-4-turbo:
+        max-input-char: 4096
+        created: "2024-04-09"
+        moderated: true
+        alias: '["gpt-4-turbo"]'
+        description: '* The latest GPT-4 Turbo model with vision capabilities. Vision requests can now use JSON mode and function calling. -  - Training data: up to December 2023.'
+      gpt-3.5-turbo-0613:
+        max-input-char: 4096
+        created: "2024-01-25"
+        moderated: false
+        alias: '["gpt-3.5-turbo-0613"]'
+        description: GPT-3.5 Turbo is OpenAI's fastest model. It can understand and generate natural language or code, and is optimized for chat and traditional completion tasks. -  - Training data up to Sep 2021.
+      gpt-4-turbo-preview:
+        max-input-char: 4096
+        created: "2024-01-25"
+        moderated: true
+        alias: '["gpt-4-turbo-preview"]'
+        description: '* The preview GPT-4 model with improved instruction following, JSON mode, reproducible outputs, parallel function calling, and more. Training data: up to Dec 2023. -  - **Note:** heavily rate limited by Ope'
+      gpt-4-1106-preview:
+        max-input-char: 4096
+        created: "2023-11-06"
+        moderated: true
+        alias: '["gpt-4-1106-preview"]'
+        description: '* The latest GPT-4 Turbo model with vision capabilities. Vision requests can now use JSON mode and function calling. -  - Training data: up to April 2023.'
+      gpt-3.5-turbo-1106:
+        max-input-char: 4096
+        created: "2023-11-06"
+        moderated: true
+        alias: '["gpt-3.5-turbo-1106"]'
+        description: '* An older GPT-3.5 Turbo model with improved instruction following, JSON mode, reproducible outputs, parallel function calling, and more. Training data: up to Sep 2021.'
+      gpt-3.5-turbo-instruct:
+        max-input-char: 4096
+        created: "2023-09-28"
+        moderated: true
+        alias: '["gpt-3.5-turbo-instruct"]'
+        description: '* This model is a variant of GPT-3.5 Turbo tuned for instructional prompts and omitting chat-related optimizations. Training data: up to Sep 2021.'
+      gpt-4-32k-0314:
+        max-input-char: 4096
+        created: "2023-08-28"
+        moderated: true
+        alias: '["gpt-4-32k-0314"]'
+        description: '* GPT-4-32k is an extended version of GPT-4, with the same capabilities but quadrupled context length, allowing for processing up to 40 pages of text in a single pass. This is particularly beneficial fo'
+      gpt-3.5-turbo-16k:
+        max-input-char: 4096
+        created: "2023-08-28"
+        moderated: true
+        alias: '["gpt-3.5-turbo-16k"]'
+        description: '* This model offers four times the context length of gpt-3.5-turbo, allowing it to support approximately 20 pages of text in a single request at a higher cost. Training data: up to Sep 2021.'
+      gpt-4-32k:
+        max-input-char: 4096
+        created: "2023-08-28"
+        moderated: true
+        alias: '["gpt-4-32k"]'
+        description: '* GPT-4-32k is an extended version of GPT-4, with the same capabilities but quadrupled context length, allowing for processing up to 40 pages of text in a single pass. This is particularly beneficial fo'
+      gpt-3.5-turbo-0125:
+        max-input-char: 4096
+        created: "2023-05-28"
+        moderated: true
+        alias: '["gpt-3.5-turbo-0125"]'
+        description: '* The latest GPT-3.5 Turbo model with improved instruction following, JSON mode, reproducible outputs, parallel function calling, and more. Training data: up to Sep 2021. -  - This version has a higher accu'
+      gpt-4:
+        max-input-char: 4096
+        created: "2023-05-28"
+        moderated: true
+        alias: '["gpt-4"]'
+        description: '* OpenAI''s flagship model, GPT-4 is a large-scale multimodal language model capable of solving difficult problems with greater accuracy than previous models due to its broader general knowledge and adva'
+      gpt-3.5-turbo:
+        max-input-char: 4096
+        created: "2023-05-28"
+        moderated: true
+        alias: '["gpt-3.5-turbo"]'
+        description: '* GPT-3.5 Turbo is OpenAI''s fastest model. It can understand and generate natural language or code, and is optimized for chat and traditional completion tasks. -  - Training data up to Sep 2021.'
+      gpt-4-0314:
+        max-input-char: 4096
+        created: "2023-05-28"
+        moderated: true
+        alias: '["gpt-4-0314"]'
+        description: '* GPT-4-0314 is the first version of GPT-4 released, with a context length of 8,192 tokens, and was supported until June 14. Training data: up to Sep 2021.'
+
+  #     gpt-4o: 
+  #       aliases: ["openai:gpt-4o"]
+  #       max-input-chars: 124500
+  #     gpt-4:
+  #       aliases: ["openai:gpt-4"]
+  #       max-input-chars: 124500
+  #     gpt-4-0125-preview:
+  #       aliases: ["openai:gpt-4-0125-preview"]
+  #       max-input-chars: 1392000
+  #     gpt-4-32k:
+  #       aliases: ["openai:gpt-4-32k"]
+  #       max-input-chars: 98000
+  #     gpt-4o-mini:
+  #       aliases: ["openai:gpt4-mini"]
+  #       max-input-chars: 12250
+  #     gpt-3.5:
+  #       aliases: ["35"]
+  #       max-input-chars: 12250
   anthropic:
     base-url: https://api.anthropic.com/v1
-    # api-key-env: CLAUDE_KEY
+    api-key-env: ANTHROPIC_API_KEY
     models:
+      claude-3-7-sonnet-20250219:
+        description: "Claude 3.7 Sonnet 2025-02-24T00:00:00Z"
+        max-input-chars: 16000
+        alias: ["3-7-sonnet-20250219"]
+      claude-3-5-sonnet-20241022:
+        description: "Claude 3.5 Sonnet (New) 2024-10-22T00:00:00Z"
+        max-input-chars: 16000
+        alias: ["3-5-sonnet-20241022"]
+      claude-3-5-haiku-20241022:
+        description: "Claude 3.5 Haiku 2024-10-22T00:00:00Z"
+        max-input-chars: 16000
+        alias: ["3-5-haiku-20241022"]
       claude-3-5-sonnet-20240620:
-        aliases: ["anthropic:claude-3.5"]
-        max-input-chars: 30000
+        description: "Claude 3.5 Sonnet (Old) 2024-06-20T00:00:00Z"
+        max-input-chars: 16000
+        alias: ["3-5-sonnet-20240620"]
       claude-3-haiku-20240307:
-        aliases: ["anthropic:claude-3-haiku"]
-        max-input-chars: 16384
+        description: "Claude 3 Haiku 2024-03-07T00:00:00Z"
+        max-input-chars: 16000
+        alias: ["3-haiku-20240307"]
+      claude-3-opus-20240229:
+        description: "Claude 3 Opus 2024-02-29T00:00:00Z"
+        max-input-chars: 16000
+        alias: ["3-opus-20240229"]
       claude-3-sonnet-20240229:
-        aliases: ["anthropic:claude-3-sonnet"]
-        max-input-chars: 16384
-      claude-3-opus-20240229:	
-        aliases: ["anthropic:claude-3-opus"]
-        max-input-chars: 16384
+        description: "Claude 3 Sonnet 2024-02-29T00:00:00Z"
+        max-input-chars: 16000
+        alias: ["3-sonnet-20240229"]
+      claude-2.1:
+        description: "Claude 2.1 2023-11-21T00:00:00Z"
+        max-input-chars: 16000
+        alias: ["2.1"]
+      claude-2.0:
+        description: "Claude 2.0 2023-07-11T00:00:00Z"
+        max-input-chars: 16000
+        alias: ["2.0"]
+          # claude-3-5-sonnet-20240620:
+          #   aliases: ["anthropic:claude-3.5"]
+          #   max-input-chars: 30000
+          # claude-3-haiku-20240307:
+          #   aliases: ["anthropic:claude-3-haiku"]
+          #   max-input-chars: 16384
+          # claude-3-sonnet-20240229:
+          #   aliases: ["anthropic:claude-3-sonnet"]
+          #   max-input-chars: 16384
+          # claude-3-opus-20240229:	
+          #   aliases: ["anthropic:claude-3-opus"]
+          #   max-input-chars: 16384
   mistral:
     base-url: https://api.mistral.ai/v1
     api-key-env: MISTRAL_KEY
     models:
       mistral-medium-latest:
-        alias: ["mistral-medium"]
+        aliases: ["yoyo"]
         max-input-chars: 300000
       mistral-large-latest:
         alias: ["mistral-large"]
@@ -112,68 +1367,186 @@ apis:
       open-mistral-7b:
         alias: ["mistral-7b"]
         max-input-chars: 30000
-  # perplexity:
-  #   base-url: https://api.perplexity.ai
-  #   api-key:
-  #   api-key-env: PERPLEXITY_API_KEY
+  # xai:
+  #   base-url: https://api.x.ai/v1
+  #   api-key-env: XAI_API_KEY
   #   models:
-  #     llama-3-sonar-small-32k:
-  #       max-input-chars: 16384
-  #     llama-3-sonar-small-32k-online:
-  #       max-input-chars: 16384
-  #       fallback: gpt-4o
-  #     llama-3-sonar-large-32k-chat:
-  #       max-input-chars: 16384
-  #     llama-3-sonar-large-32k-online:
-  #       max-input-chars: 16384
-  #     llama-3-8b-instruct:
-  #       max-input-chars: 16384
-  #     llama-3-70b-instruct:
-  #       max-input-chars: 16384
-  #     mixtral-8x7b-instruct:
-  #       max-input-chars: 16384
-  # https://api.groq.com/openai/v1/chat/completion
-  xai:
-    base-url: https://api.x.ai/v1
-    api-key-env: XAI_API_KEY
-    models:
-      grok-beta:
-        aliases: ["xai-grok"]
-        max-input-chars: 12250
-  groq:
-    base-url: https://api.groq.com/openai/v1
-    api-key-env: GROQ_API_KEY
-    models:
-      mixtral-8x7b-32768:
-        aliases: ["groq:mixtral-8x32k"]
-        max-input-chars: 98000
-      gemma-7b-it:
-        aliases: ["groq:gemma-7b"]
-        max-input-chars: 98000
-      llama3-70b-8192:
-        aliases: ["groq:llama3-70b"]     
-        max-input-chars: 98000
-      llama2-70b-4096:
-        aliases: ["groq:llama2-70b"]
-        max-input-chars: 12250
-  ollama:
-    base-url: http://localhost:11434/api
-    models:
-     llama3:
-        aliases: ["ollama3"]
-        max-input-chars: 650000
-     gemma:
-        aliases: ["ogemma"]
-        max-input-chars: 650000
-  # openrouter:
-  #   # Set to 'azure-ad' to use Active Directory
-  #   # Azure OpenAI setup: https://learn.microsoft.com/en-us/azure/cognitive-services/openai/how-to/create-resource
-  #   base-url: https://openrouter.ai/api/v1
-  #   api-key-env: OPENROUTER_KEY
+  #     grok-beta:
+  #       aliases: ["xai-grok"]
+  #       max-input-chars: 12250
+  # groq:
+  #   base-url: https://api.groq.com/openai/v1
+  #   api-key-env: GROQ_API_KEY
   #   models:
-  #     mistralai/mistral-large:
-  #       max-input-chars: 114500
-  #     mistralai/mistral-medium:
+  #     mixtral-8x7b-32768:
+  #       aliases: ["groq:mixtral-8x32k"]
+  #       max-input-chars: 98000
+  #     gemma-7b-it:
+  #       aliases: ["groq:gemma-7b"]
+  #       max-input-chars: 98000
+  #     llama3-70b-8192:
+  #       aliases: ["groq:llama3-70b"]     
+  #       max-input-chars: 98000
+  #     llama2-70b-4096:
+  #       aliases: ["groq:llama2-70b"]
   #       max-input-chars: 12250
-  #     mistralai/mistral-tiny:
-  #       max-input-chars: 12250
+  # ollama:
+  #   base-url: http://localhost:11434/api
+  #   models:
+  #    llama3:
+  #       aliases: ["ollama3"]
+  #       max-input-chars: 650000
+  #    gemma:
+  #       aliases: ["ogemma"]
+  #       max-input-chars: 650000
+  deepseek:
+    base-url: https://api.deepseek.com/
+    api-key-env: DEEPSEEK_API_KEY
+    models: #https://platform.deepseek.com/api-docs/api/list-models/
+      deepseek-chat:
+        aliases: ["ds-chat"]
+        max-input-chars: 384000
+      deepseek-code:
+        aliases: ["ds-code"]
+        max-input-chars: 384000
+  google:
+      api-key-env: GEMINI_API_KEY
+      models: # https://ai.google.dev/gemini-api/docs/models/gemini
+        gemini-2.5-pro:
+          max-input-char: 65535
+          created: "2025-04-04"
+          moderated: false
+          alias: '["gemini-2.5-pro-preview-03-25"]'
+          description: Gemini 2.5 Pro is Google’s state-of-the-art AI model designed for advanced reasoning, coding, mathematics, and scientific tasks. It employs “thinking” capabilities, enabling it to reason through respo
+        gemini-2.5-pro-preview-03-25:
+          max-input-char: 65535
+          created: "2025-04-04"
+          moderated: false
+          alias: '["gemini-2.5-pro-preview-03-25"]'
+          description: Gemini 2.5 Pro is Google’s state-of-the-art AI model designed for advanced reasoning, coding, mathematics, and scientific tasks. It employs “thinking” capabilities, enabling it to reason through respo
+        gemini-2.5-pro-exp-03-25:free:
+          max-input-char: 65535
+          created: "2025-03-25"
+          moderated: false
+          alias: '["gemini-2.5-pro-exp-03-25:free"]'
+          description: Gemini 2.5 Pro is Google’s state-of-the-art AI model designed for advanced reasoning, coding, mathematics, and scientific tasks. It employs “thinking” capabilities, enabling it to reason through respo
+        gemma-3-1b-it:free:
+          max-input-char: 8192
+          created: "2025-03-14"
+          moderated: false
+          alias: '["gemma-3-1b-it:free"]'
+          description: Gemma 3 1B is the smallest of the new Gemma 3 family. It handles context windows up to 32k tokens, understands over 140 languages, and offers improved math, reasoning, and chat capabilities, including
+        gemma-3-4b-it:free:
+          max-input-char: 8192
+          created: "2025-03-13"
+          moderated: false
+          alias: '["gemma-3-4b-it:free"]'
+          description: 'Gemma 3 introduces multimodality, supporting vision-language input and text outputs. It handles context windows up to 128k tokens, understands over 140 languages, and offers improved math, reasoning, '
+        gemma-3-4b-it:
+          max-input-char: null
+          created: "2025-03-13"
+          moderated: false
+          alias: '["gemma-3-4b-it"]'
+          description: 'Gemma 3 introduces multimodality, supporting vision-language input and text outputs. It handles context windows up to 128k tokens, understands over 140 languages, and offers improved math, reasoning, '
+        gemma-3-12b-it:free:
+          max-input-char: 8192
+          created: "2025-03-13"
+          moderated: false
+          alias: '["gemma-3-12b-it:free"]'
+          description: 'Gemma 3 introduces multimodality, supporting vision-language input and text outputs. It handles context windows up to 128k tokens, understands over 140 languages, and offers improved math, reasoning, '
+        gemma-3-12b-it:
+          max-input-char: null
+          created: "2025-03-13"
+          moderated: false
+          alias: '["gemma-3-12b-it"]'
+          description: 'Gemma 3 introduces multimodality, supporting vision-language input and text outputs. It handles context windows up to 128k tokens, understands over 140 languages, and offers improved math, reasoning, '
+        gemma-3-27b-it:free:
+          max-input-char: 8192
+          created: "2025-03-12"
+          moderated: false
+          alias: '["gemma-3-27b-it:free"]'
+          description: 'Gemma 3 introduces multimodality, supporting vision-language input and text outputs. It handles context windows up to 128k tokens, understands over 140 languages, and offers improved math, reasoning, '
+        gemma-3-27b-it:
+          max-input-char: 8192
+          created: "2025-03-12"
+          moderated: false
+          alias: '["gemma-3-27b-it"]'
+          description: 'Gemma 3 introduces multimodality, supporting vision-language input and text outputs. It handles context windows up to 128k tokens, understands over 140 languages, and offers improved math, reasoning, '
+        gemini-2.0-flash-lite-001:
+          max-input-char: 8192
+          created: "2025-02-25"
+          moderated: false
+          alias: '["gemini-2.0-flash-lite-001"]'
+          description: Gemini 2.0 Flash Lite offers a significantly faster time to first token (TTFT) compared to [Gemini Flash 1.5](/gemini-flash-1.5), while maintaining quality on par with larger models like [Gemin
+        gemini-2.0-flash-001:
+          max-input-char: 8192
+          created: "2025-02-05"
+          moderated: false
+          alias: '["gemini-2.0-flash-001"]'
+          description: Gemini Flash 2.0 offers a significantly faster time to first token (TTFT) compared to [Gemini Flash 1.5](/gemini-flash-1.5), while maintaining quality on par with larger models like [Gemini Pro
+        gemini-2.0-flash-thinking-exp:free:
+          max-input-char: 65536
+          created: "2025-01-22"
+          moderated: false
+          alias: '["gemini-2.0-flash-thinking-exp:free"]'
+          description: Gemini 2.0 Flash Thinking Experimental (01-21) is a snapshot of Gemini 2.0 Flash Thinking Experimental. -  - Gemini 2.0 Flash Thinking Mode is an experimental model that's trained to generate the "thinkin
+        gemini-2.0-flash-thinking-exp-1219:free:
+          max-input-char: 8000
+          created: "2024-12-19"
+          moderated: false
+          alias: '["gemini-2.0-flash-thinking-exp-1219:free"]'
+          description: Gemini 2.0 Flash Thinking Mode is an experimental model that's trained to generate the "thinking process" the model goes through as part of its response. As a result, Thinking Mode is capable of stron
+        gemini-2.0-flash-exp:free:
+          max-input-char: 8192
+          created: "2024-12-11"
+          moderated: false
+          alias: '["gemini-2.0-flash-exp:free"]'
+          description: Gemini Flash 2.0 offers a significantly faster time to first token (TTFT) compared to [Gemini Flash 1.5](/gemini-flash-1.5), while maintaining quality on par with larger models like [Gemini Pro
+        learnlm-1.5-pro-experimental:free:
+          max-input-char: 8192
+          created: "2024-11-21"
+          moderated: false
+          alias: '["learnlm-1.5-pro-experimental:free"]'
+          description: An experimental version of [Gemini 1.5 Pro](/gemini-pro-1.5) from Google.
+        gemini-flash-1.5-8b:
+          max-input-char: 8192
+          created: "2024-10-03"
+          moderated: false
+          alias: '["gemini-flash-1.5-8b"]'
+          description: Gemini Flash 1.5 8B is optimized for speed and efficiency, offering enhanced performance in small prompt tasks like chat, transcription, and translation. With reduced latency, it is highly effective f
+        gemini-flash-1.5-8b-exp:
+          max-input-char: 8192
+          created: "2024-08-28"
+          moderated: false
+          alias: '["gemini-flash-1.5-8b-exp"]'
+          description: Gemini Flash 1.5 8B Experimental is an experimental, 8B parameter version of the [Gemini Flash 1.5](/models/gemini-flash-1.5) model. -  - Usage of Gemini is subject to Google's [Gemini Terms of Use
+        gemma-2-27b-it:
+          max-input-char: 2048
+          created: "2024-07-13"
+          moderated: false
+          alias: '["gemma-2-27b-it"]'
+          description: 'Gemma 2 27B by Google is an open model built from the same research and technology used to create the [Gemini models](/models?q=gemini). -  - Gemma models are well-suited for a variety of text generation '
+        gemma-2-9b-it:free:
+          max-input-char: 8192
+          created: "2024-06-28"
+          moderated: false
+          alias: '["gemma-2-9b-it:free"]'
+          description: Gemma 2 9B by Google is an advanced, open-source language model that sets a new standard for efficiency and performance in its size class. -  - Designed for a wide variety of tasks, it empowers developers
+        gemma-2-9b-it:
+          max-input-char: null
+          created: "2024-06-28"
+          moderated: false
+          alias: '["gemma-2-9b-it"]'
+          description: Gemma 2 9B by Google is an advanced, open-source language model that sets a new standard for efficiency and performance in its size class. -  - Designed for a wide variety of tasks, it empowers developers
+        gemini-flash-1.5:
+          max-input-char: 8192
+          created: "2024-05-14"
+          moderated: false
+          alias: '["gemini-flash-1.5"]'
+          description: Gemini 1.5 Flash is a foundation model that performs well at a variety of multimodal tasks such as visual understanding, classification, summarization, and creating content from image, audio and video
+        gemini-pro-1.5:
+          max-input-char: 8192
+          created: "2024-04-09"
+          moderated: false
+          alias: '["gemini-pro-1.5"]'
+          description: 'Google''s latest multimodal model, supports image and video[0] in text or chat prompts. -  - Optimized for language tasks including: -  - - Code generation - - Text generation - - Text editing - - Problem solving - - '
