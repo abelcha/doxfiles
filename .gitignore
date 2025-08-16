@@ -11,5 +11,6 @@ rclone/rclone.conf
 .DS_Store
 fish/fish_variables
 !/hammerspoon/
+!/.env
 hammerspoon/Spoons/
 .trash

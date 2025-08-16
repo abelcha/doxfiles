@@ -26,3 +26,5 @@ if type -q brew
 else
     echo "Please install 'brew' first!"
 end
+
+fish_add_path ~/.cargo/bin
