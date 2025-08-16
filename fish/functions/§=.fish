@@ -11,6 +11,6 @@ function §= --argument-names value
     #set -l in (gcat -)
     #set temp_file (mktemp)
     #read in
-    #/bin/cat > $temp_file
+    #command cat > $temp_file
     #echo "cc|$in|"
 end

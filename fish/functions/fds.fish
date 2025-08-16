@@ -3,7 +3,7 @@ function fds --wraps=fd
     set bold "\e[1m"
     set reset "\e[0m"
     fd $argv | while read -l line
-        set -l size (udu -s --bytes $line|choose 0)
+        set -l size "$(BLOCKSIZE=512 du -s  $line|choose 0)000"
         set totalsize (math "$totalsize + $size")
         #echo $size\t$line
         echo -e "$bold "(numfmt $size --to iec)"$reset\t$line"

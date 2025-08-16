@@ -1,11 +1,11 @@
 function cat --wraps=bat
 
     if test -n "$VSCODE_INJECTION"
-        /bin/cat $argv
+        command cat $argv
         return
     end
     if not isatty stdout; and test -z "$FORCE_RENDERING"
-        /bin/cat $argv
+        command cat $argv
         return 0
     end
     set -l dotspl (string split '.' $argv[-1])

@@ -2,25 +2,25 @@ function psub --description 'Read from stdin into a file and output the filename
     set -l options -x 'f,F' -x 'F,s' h/help f/file F/fifo 's/suffix=' T-testing
     argparse -n psub --max-args=0 $options -- $argv
     or return
-
+    
     if set -q _flag_help
         __fish_print_help psub
         return 0
     end
-
+    
     set -l dirname
     set -l filename
     set -l funcname
-
+    
     if not status --is-command-substitution
         printf (_ "%s: Not inside of command substitution") psub >&2
         return 1
     end
-
+    
     set -l tmpdir /tmp
     # set -q TMPDIR
     # and set tmpdir $TMPDIR
-
+    
     if set -q _flag_fifo
         # Write output to pipe. This needs to be done in the background so
         # that the command substitution exits without needing to wait for
@@ -34,20 +34,20 @@ function psub --description 'Read from stdin into a file and output the filename
         # after the fork.
         command tee $filename >/dev/null &
     else
-        set filename (umktemp  "$tmpdir/.psub.XXXX.$(§ $_flag_suffix |§ out)")
+        set filename (mktemp  "$tmpdir/.psub.$(random).$(§ $_flag_suffix |§ out)")
         or return 1
         # set filename "$dirname/psub$_flag_suffix"
         command cat >$filename
     end
-
+    
     # Write filename to stdout
     echo $filename
-
+    
     # This flag isn't documented. It's strictly for our unit tests.
     if set -q _flag_testing
         return
     end
-
+    
     # Find unique function name
     while true
         set funcname __fish_psub_(random)
@@ -55,7 +55,7 @@ function psub --description 'Read from stdin into a file and output the filename
             break
         end
     end
-
+    
     # Make sure we erase file when caller exits
     function $funcname --on-job-exit caller --inherit-variable filename --inherit-variable dirname --inherit-variable funcname
         command rm $filename
@@ -64,5 +64,5 @@ function psub --description 'Read from stdin into a file and output the filename
         end
         functions -e $funcname
     end
-
+    
 end

@@ -1,6 +1,6 @@
 function rguniq_email --wraps=rg --argument-names file
     #echo (set_color blue)$argv[1](set_color normal ) >/dev/stderr
-    rg -wza $regemail "$file" $argv[2..] --only-matching | usort --unique | read -z matches
+    rg -wza $regemail "$file" $argv[2..] --only-matching | sort -u | read -z matches
     #echo $matches
     test -z "$matches"; and return 0
     set cnt (echo $matches|wc -l)
