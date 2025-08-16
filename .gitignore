@@ -12,5 +12,6 @@ rclone/rclone.conf
 fish/fish_variables
 !/hammerspoon/
 !/.env
+!/locker.sh
 hammerspoon/Spoons/
 .trash
