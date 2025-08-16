@@ -1,10 +1,7 @@
 # alias swift-format "swift format
 
+alias aicommit "OPENAI_API_KEY=\$OPENAI_API_KEY command aicommit"
 alias xz "command xz --fast"
-alias lld "ll  --sort date"
-alias ld lld
-alias lls "ll  --sort size"
-alias lll "eza --long -F --total-size --no-user --blocksize"
 alias croc "croc --yes"
 alias fish_gencomp "$__fish_data_dir/tools/create_manpage_completions.py"
 alias xc " bkt -- xh --follow"
@@ -19,7 +16,6 @@ alias pu pueue
 alias r rclone
 alias sherlock "bun run /me/datasets/sherlock/cli.ts"
 alias wtest "bun-release test --watch --bail"
-alias ld lld
 alias __ echo
 alias chexec "chmod 777"
 alias dus "du -sh"
@@ -32,7 +28,6 @@ alias c container
 alias speedtest cfspeedtest
 # alias docker container
 alias hopper="/Applications/Hopper\ Disassembler\ v4.app/Contents/MacOS/hopper"
-alias l1="ls -l1"
 alias ufind="unbuffer find"
 alias xfind="/usr/bin/find"
 alias ssah="spass ssh"
@@ -63,8 +58,9 @@ alias chroma="chroma --formatter=terminal256 --style fruity --lexer fish"
 alias lzcat=lz4cat
 alias rand="command random"
 alias flyctl="fly"
-alias ccp="/bin/cp"
-alias rrm="/bin/rm -fr"
+alias ccp="command cp -r"
+alias rrm="command rm -fr"
+alias ccat="command cat"
 alias p="pnpm"
 alias shiki="chroma"
 alias ono="ionosctl"
@@ -74,11 +70,8 @@ alias samplesize="shuf --head-count"
 alias z="zellij"
 alias fpip="parse_pip_search"
 alias ffd="fd -I -H"
-# alias ccat /bin/cat
 alias r='rclone'
-# alias codi="/Applications/VisualStudioCode-Insiders.app/Contents/Resources/app/bin/code"
-alias ld="lld"
-alias llt="ll --sort type"
+
 alias ddb="duckdb"
 alias kv="wrangler kv:key   --binding kv"
 alias dxl="dx --strategy=live"
@@ -86,23 +79,29 @@ alias charm="gum"
 alias datafusion="datafusion-cli"
 alias jsonll="jq . -s"
 alias rev-lines tac
-# alias keyreadr "fish_key_reader -c"
 alias simctl 'xcrun simctl'
 alias lite="litecli"
-# alias bx "bunx --bun"
 alias gco "git checkout"
 alias co "git checkout"
 alias gc "git checkout"
 alias gd "git diff -w"
-# alias code /opt/homebrew/bin/code
-# alias comv "git commit --no-verify -m"
 alias ip "curl ipinfo.io"
 alias ipinfo "ip -s | jq 'del(.postal, .timezone, .readme, .org, .loc, .region, .hostname)'"
-alias llls "DX_STRATEGY=live lls"
-alias llld "DX_STRATEGY=live lld"
-alias lld "ll  --sort date "
+
+alias leza="eza --long -F --no-user"
+
+alias l1="ls -l1"
+alias ld lld
+alias lld "ll  --sort date"
 alias lls "ll  --sort size "
+alias llt="ll --sort type"
+alias llld "TOTALSIZE=1 lld"
+alias llls "TOTALSIZE=1 lls"
+alias lllt "TOTALSIZE=1 llt"
+alias lll "TOTALSIZE=1 ll"
+
 alias ls "ls --color=auto -t"
+
 alias ne /opt/homebrew/bin/emacs
 alias plines "tr ' ' '\n'"
 alias pline "sd '\s.+' ' '"
