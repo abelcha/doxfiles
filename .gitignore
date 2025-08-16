@@ -2,11 +2,13 @@
 !/.gitignore
 !/broot/
 !/fish/
-!/karabiner/
+!/karabiner/karabiner.json
 !/lvim/
-!/mods/
+!/mods/mods.yml 
 fish/conf.d/rclone.conf
 fish/functions/comv.fish
 .DS_Store
 fish/fish_variables
 !/hammerspoon/
+hammerspoon/Spoons/
+.trash
