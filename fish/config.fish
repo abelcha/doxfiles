@@ -1,6 +1,6 @@
 # set -gx base16_fish_shell_disable_prompt_colors TRUE
 
-string replace --regex '^(\w+)=(.+)$' 'set -gx $1 "$2"' < ~/.env | source
+string replace --regex '^(\w+)=(.+)$' 'set -gx $1 "$2"' <~/.env | source
 
 if type -q batpipe
     batpipe | source
@@ -18,6 +18,11 @@ fish_add_path /me/.lmstudio/bin
 fish_add_path /Applications/Xcode-beta.app/Contents/Developer/usr/bin/
 fish_add_path /mods/bin
 # source (fnm env |psub -s fish)
+set BREW_COMPLETE_PATH $HOMEBREW_PREFIX/share/fish/vendor_completions.d
+
+if not contains -- $BREW_COMPLETE_PATH $fish_complete_path
+    set --append fish_complete_path $BREW_COMPLETE_PATH
+end
 
 if [ "$(uname -s)" != Darwin ]
     functions --erase ramdisk diskattach diskimage bundleids fbundleid xcodebuild ulfo md qlmanage container ass

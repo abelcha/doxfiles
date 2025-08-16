@@ -1,4 +1,7 @@
 function sudo --wraps=command
+
+    command sudo (which $argv[1]) $argv[2..]
+    return
     if not command sudo type -p "$argv[1]"
         echo "NOT COMMAND"
         set zpath (which $argv[1])
