@@ -7,7 +7,7 @@ else if test -e /home/linuxbrew/.linuxbrew/bin/brew
     eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 end
 
-string replace --regex '^(\w+)=(.+)$' 'set -gx $1 "$2"' <~/.env | source
+string replace --regex '^(\w+)=(.+)$' 'set -gx $1 "$2"' < ~/.config/.env | source
 
 fish_add_path (command cat $XDG_CONFIG_HOME/.paths)
 
