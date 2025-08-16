@@ -2,11 +2,12 @@
 !/.gitignore
 !/broot/
 !/fish/
+!/rclone/
 !/karabiner/karabiner.json
 !/lvim/
 !/mods/mods.yml 
-fish/conf.d/rclone.conf
-fish/functions/comv.fish
+fish/conf.d/secrets.fish
+rclone/rclone.conf
 .DS_Store
 fish/fish_variables
 !/hammerspoon/
