@@ -1,5 +1,9 @@
 #!/usr/bin/env fish
-set --append files "./rclone/rclone.conf" "./fish/conf.d/secrets.fish"
+#
+
+set script_dir (dirname (status --current-filename))
+
+set --append files "$script_dir/rclone/rclone.conf" "$script_dir/fish/conf.d/secrets.fish" "$script_dir/authorized_key"
 
 read --prompt-str "pass> " -s -l pass
 
