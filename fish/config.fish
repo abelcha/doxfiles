@@ -7,13 +7,11 @@ else if test -e /home/linuxbrew/.linuxbrew/bin/brew
     eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 end
 
-string replace --regex '^(\w+)=(.+)$' 'set -gx $1 "$2"' < ~/.config/.env | source
+fish_load_env ../.env
+fish_load_env ~/.env
 
-fish_add_path (command cat $XDG_CONFIG_HOME/.paths)
-
-if test -f "~/.paths"
-    fish_add_path (command cat $HOME/.paths)
-end
+fish_load_path ../.paths
+fish_load_path ~/.paths
 
 if type -q batpipe
     batpipe | source
@@ -34,4 +32,8 @@ end
 
 if [ "$(uname -s)" != Darwin ]
     functions --erase ramdisk diskattach diskimage bundleids fbundleid xcodebuild ulfo md qlmanage container ass
+
+    function trash
+        rm -fr $argv
+    end
 end
