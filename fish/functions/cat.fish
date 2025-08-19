@@ -18,7 +18,7 @@ function cat --wraps=bat
         command cat $filepath
         return 0
     end
-    if string match -rq cargo ( type -p  bat)
+    if not string match -rq cargo ( type -p  bat)
         command bat $filepath
         return 0
     end
@@ -66,7 +66,7 @@ function cat --wraps=bat
             else if test (string match -r '^http' -- "$filepath")
                 x $filepath
             else
-                bat $argv (fprops decode format language ) --force-colorization --style full --theme OneHalfDark
+                bat $argv (fprops decode format language ) --force-colorization --style grid,header-filesize,header-filename --theme OneHalfDark
             end
     end
 end

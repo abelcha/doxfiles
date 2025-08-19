@@ -1,13 +1,10 @@
-# name: Default
-# author: Lily Ballard
-
 function fish_prompt --description 'Write out the prompt'
     set -l last_pipestatus $pipestatus
     set -lx __fish_last_status $status # Export for __fish_print_pipestatus.
     set -l normal (set_color normal)
     set -q fish_color_status
     or set -g fish_color_status red
-
+    
     # Color the prompt differently when we're root
     set -l color_cwd $fish_color_cwd
     set -l suffix '>'
@@ -17,7 +14,7 @@ function fish_prompt --description 'Write out the prompt'
         end
         set suffix '#'
     end
-
+    
     # Write pipestatus
     # If the status was carried over (if no command is issued or if `set` leaves the status untouched), don't bold it.
     set -l bold_flag --bold
@@ -29,11 +26,11 @@ function fish_prompt --description 'Write out the prompt'
     set -l status_color (set_color $fish_color_status)
     set -l statusb_color (set_color $bold_flag $fish_color_status)
     set -l prompt_status (__fish_print_pipestatus "[" "]" "|" "$status_color" "$statusb_color" $last_pipestatus)
-
+    
     if [ "$(uname -s)" = Darwin ]
         set colx (switch $FISH_VERSION;case '*dirty'; echo brgreen; case '*';echo brmagenta; end)
         if test (tput cols) -gt 90
-            echo -n -s (set_color  --reverse $colx ) " ✞ "(bkt --ttl=11m -- curl --silent  https://ip.me 2> /dev/null |grep -v mpty|sd .0.2.6.1.3.1.0 ::1)" ✞ "(bkt -- pmset -g batt |rg '\d+\%' --only-matching)" ⌁ "abel' '
+            echo -n -s (set_color  --reverse $colx ) " ✞ "(bkt --ttl=11m -- curl --silent  https://ip.me 2> /dev/null |grep -v mpty|sd .0.2.6.1.3.1.0 ::1)" ✞ "(bkt --ttl=10m -- pmset -g batt |rg '\d+\%' --only-matching)" ⌁ "abel' '
         end
         set git_prompt (fish_vcs_prompt)
         if test (tput cols) -gt (math 60 + (string length -- "$git_prompt"))
