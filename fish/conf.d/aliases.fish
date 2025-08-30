@@ -1,6 +1,3 @@
-# alias swift-format "swift format
-# alias vultr "VULTR_API_KEY=\$VULTR_API_KEY vultr-cli"
-
 alias b bun
 alias configure "./configure"
 alias unset 'set --erase'
