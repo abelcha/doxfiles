@@ -1,3 +1,3 @@
 if type -q pueued
-    pueued --daemonize
+    # pueued --daemonize
 end
