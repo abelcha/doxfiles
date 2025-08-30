@@ -55,3 +55,4 @@ litecli
 mods
 eget
 youtubedr
+wget2
