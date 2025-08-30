@@ -16,3 +16,4 @@ fish/fish_variables
 !/Dockerfile
 hammerspoon/Spoons/
 .trash
+!/brew-dependencies.txt
