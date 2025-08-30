@@ -2,7 +2,7 @@ function clean_cache_pm
     function cleandir
         if test -e
             echo "trashing $(du -sh $argv) ..."
-            rm "$argv/*"
+            command rm -fr "$argv/*"
         end
     end
     
@@ -30,6 +30,7 @@ function clean_cache_pm
     runcom gem clean
     runcom brew cleanup
     runcom brew cleanup -s
+    cleandir (brew --cache)
     runcom mvn dependency:purge-local-repository
     runcom gradle clean
     runcom gradle --stop

@@ -1,6 +1,13 @@
 # alias swift-format "swift format
+# alias vultr "VULTR_API_KEY=\$VULTR_API_KEY vultr-cli"
+
+alias b bun
+alias configure "./configure"
+alias unset 'set --erase'
+alias g git-forgit
 alias untracked "git ls-files --others --exclude-standard"
 alias aicommit "OPENAI_API_KEY=\$OPENAI_API_KEY command aicommit"
+
 alias comai aicommit
 alias xz "command xz --fast"
 alias croc "croc --yes"

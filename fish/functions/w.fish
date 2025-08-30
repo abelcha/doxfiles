@@ -1,5 +1,6 @@
 function w --wraps=command
-    set xtype (fish -c "type -p $argv[1]")
+    set xtype (fish --no-config -c "type -p $argv[1]")
+    
     if string match -q '*builtin' -- $xtype
         echo $xtype
         return

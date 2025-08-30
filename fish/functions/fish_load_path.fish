@@ -1,3 +1,3 @@
-function fish_load_path -a path_file
+function fish_load_path --argument-names path_file
     fish_add_path (command cat <? $path_file)
 end

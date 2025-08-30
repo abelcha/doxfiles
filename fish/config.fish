@@ -7,10 +7,12 @@ else if test -e /home/linuxbrew/.linuxbrew/bin/brew
     eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 end
 
-fish_load_env ../.env
+set config_dir (path resolve "$(status dirname)/../")
+# set -S config_dir
+fish_load_env "$config_dir/.env"
 fish_load_env ~/.env
 
-fish_load_path ../.paths
+fish_load_path "$config_dir/.paths"
 fish_load_path ~/.paths
 
 if type -q batpipe

@@ -34,7 +34,12 @@ function cat --wraps=bat
             set decode imgcat
         case zst gz lz4 xz
             set decode zstdcat
-            set language $dotspl[-2]
+            if string match -g -rq '(^[^\:]+).*[\.]?'$dotspl[-2]'\b' (bat --list-languages)
+                set language $dotspl[-2]
+            end
+        case parquet
+            set pre 'pq cat'
+            set language json
         case zng zjson zson
             set decode zq
         case hjson
@@ -66,7 +71,7 @@ function cat --wraps=bat
             else if test (string match -r '^http' -- "$filepath")
                 x $filepath
             else
-                bat $argv (fprops decode format language ) --force-colorization --style grid,header-filesize,header-filename --theme OneHalfDark
+                bat $argv (fprops pre decode format language ) --force-colorization --style grid,header-filesize,header-filename --theme OneHalfDark
             end
     end
 end

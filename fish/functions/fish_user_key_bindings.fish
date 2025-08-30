@@ -24,15 +24,12 @@ function _fish_xxx_current_dir -d "List contents of token under the cursor if it
     set -x cmd
     if test -d $val
         set cmd $argv[1] $val
-        fset ffirst cmd >/tmp/fifo
     else
         set -l dir (dirname -- $val)
         if test $dir != . -a -d $dir
             set cmd $argv[1] $dir
-            fset mid cmd >/tmp/fifo
         else
             set cmd $argv[1]
-            fset last cmd >/tmp/fifo
         end
     end
     __fish_echo $cmd

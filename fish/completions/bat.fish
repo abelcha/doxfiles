@@ -242,5 +242,6 @@ complete -c $bat -s h -d "Print a concise overview of $bat-cache help" -n __bat_
 complete -c $bat -l help -f -d "Print all $bat-cache help" -n __bat_cache_no_excl
 
 # vim:ft=fish
-complete -c bat -l decode -x -d preprocessor -n __bat_no_excl_args -a '(__fish_complete_command)'
-complete -c bat -l format -x -d "format cmd" -n __bat_no_excl_args -a '(__fish_complete_command)'
+complete -c bat -l decode -x -d decoder -n __bat_no_excl_args -a '(__fish_complete_command)'
+complete -c bat -l pre -x -d pre -n __bat_no_excl_args -a '(__fish_complete_command)'
+complete -c bat -l format -x -d formatter -n __bat_no_excl_args -a '(__fish_complete_command)'
