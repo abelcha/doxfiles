@@ -2,7 +2,8 @@ function locker
     set --append files \
         "$XDG_CONFIG_HOME/rclone/rclone.conf" \
         "$XDG_CONFIG_HOME/fish/conf.d/secrets.fish" \
-        "$XDG_CONFIG_HOME/authorized_key"
+        "$XDG_CONFIG_HOME/authorized_key" \
+        "$XDG_CONFIG_HOME/.gh-token"
     read --prompt-str "pass> " -s -l pass
     if [ (echo $pass | __fish_md5) != f64039409478d859948c8ce0ac51f8ac ]
         echo "wrong password"
