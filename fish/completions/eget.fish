@@ -1,3 +1,4 @@
+complete -c eget -n __fish_not_contain_opt -x -a '(_gh_list_repos)'
 complete -c eget -l pre-release -d 'include pre-releases when fetching the latest version'
 complete -c eget -l source -d 'download the source code for the target repo instead of a release'
 complete -c eget -l all -d 'extract all candidate files'
