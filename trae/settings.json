@@ -1,0 +1,478 @@
+{
+    "rust-analyzer.diagnostics.disabled": ["unlinked-file"],
+    "trae.enableInlineCompletion": false,
+    "AI.toolcall.confirmMode": "autoRun",
+    "editor.suggest.insertMode": "replace",
+    "editor.suggest.preview": true,
+    "editor.quickSuggestionsDelay": 1500,
+    "typescript-go.executablePath": "/Volumes/dev/typescript-go/built/local/tsgo",
+    "editor.minimap.scale": 1,
+    "security.workspace.trust.untrustedFiles": "open",
+    "typescriptExplorer.typeTree.maxRecursionDepth": 6,
+    "editor.semanticHighlighting.enabled": true,
+    "workbench.colorCustomizations": {
+        "[Default Dark Modern]": {},
+    },
+    "files.associations": {
+        "*.hjson": "coffeescript",
+        "*.toml": "toml",
+        "*.ts": "typescript",
+        "*.cpp": "cpp",
+        "*.rs": "rust"
+    },
+    "extensions.ignoreRecommendations": true,
+    "diffEditor.renderSideBySide": false,
+    "security.workspace.trust.banner": "never",
+    "editor.stickyScroll.enabled": false,
+    "workbench.localHistory.enabled": true,
+    "workbench.commandPalette.experimental.suggestCommands": true,
+    "editor.suggest.selectionMode": "never",
+    "editor.cursorSmoothCaretAnimation": "on",
+    "editor.find.seedSearchStringFromSelection": "never",
+    "editor.defaultColorDecorators": "auto",
+    "editor.cursorSurroundingLinesStyle": "all",
+    "editor.autoIndent": "advanced",
+    "debug.toolBarLocation": "docked",
+    "extensions.webWorker": true,
+    "less.lint.argumentsInColorFunction": "warning",
+    "less.lint.boxModel": "warning",
+    "github.gitProtocol": "ssh",
+    "npm.packageManager": "bun",
+    "typescript.preferences.includePackageJsonAutoImports": "on",
+    "workbench.externalBrowser": "chrome",
+    "[typescript]": {
+        "editor.defaultFormatter": "vscode.typescript-language-features"
+    },
+    "problems.showCurrentInStatus": true,
+    "[html]": {
+        "editor.defaultFormatter": "vscode.html-language-features"
+    },
+    "[typescriptreact]": {
+        "editor.defaultFormatter": "vscode.typescript-language-features"
+    },
+    "[javascript]": {
+        "editor.defaultFormatter": "vscode.typescript-language-features"
+    },
+    "[go]": {
+        "editor.defaultFormatter": "golang.go"
+    },
+    "[sql]": {
+        "editor.defaultFormatter": "denoland.vscode-deno"
+    },
+    "[json]": {
+        "editor.defaultFormatter": "vscode.json-language-features"
+    },
+    "json.maxItemsComputed": 500,
+    "go.inferGopath": false,
+    "go.alternateTools": {},
+    "[rust]": {
+        "editor.defaultFormatter": "rust-lang.rust-analyzer"
+    },
+    "[cpp]": {
+        "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd",
+        "editor.formatOnSave": true,
+        "editor.formatOnType": true,
+    },
+    "clangd.arguments": [
+        "-compile-commands-dir=/Volumes/mods/builds/duckdb/build/release"
+    ],
+    "go.toolsManagement.autoUpdate": true,
+    "workbench.activityBar.location": "bottom",
+    "lldb.library": "/Applications/Xcode.app/Contents/SharedFrameworks/LLDB.framework/Versions/A/LLDB",
+    "lldb.launch.expressions": "native",
+    "editor.inlineSuggest.suppressSuggestions": true,
+    "python.analysis.regenerateStdLibIndices": true,
+    "python.analysis.typeEvaluation.deprecateTypingAliases": true,
+    "python.analysis.typeEvaluation.enableExperimentalFeatures": true,
+    "python.analysis.typeEvaluation.disableBytesTypePromotions": true,
+    "python.analysis.typeEvaluation.strictDictionaryInference": true,
+    "python.analysis.typeEvaluation.strictListInference": true,
+    "python.analysis.typeEvaluation.strictSetInference": true,
+    "python.analysis.autoFormatStrings": true,
+    "python.analysis.completeFunctionParens": true,
+    "python.analysis.enableNotebookDataTips": true,
+    "python.analysis.importFormat": "relative",
+    "scm.diffDecorationsGutterPattern": {
+        "added": true
+    },
+    "scm.diffDecorationsGutterWidth": 4,
+    "editor.minimap.showSlider": "always",
+    "extensions.experimental.affinity": {
+        "ms-toolsai.jupyter": 1,
+        "ms-toolsai.jupyter-renderers": 1,
+        "ms-python.python": 1,
+        "ms-python.vscode-pylance": 1
+    },
+    "swift.sourcekit-lsp.trace.server": "messages",
+    "swift.debugger.useDebugAdapterFromToolchain": true,
+    "swift.diagnosticsCollection": "keepAll",
+    "editor.unicodeHighlight.ambiguousCharacters": false,
+    "dataWrangler.enabledFileTypes": {},
+    "dataWrangler.defaultViewingFilterOptions": "advanced",
+    "notebook.lineNumbers": "on",
+    "[jsonc]": {
+        "editor.defaultFormatter": "vscode.json-language-features"
+    },
+    "editor.definitionLinkOpensInPeek": true,
+    "editor.lightbulb.enabled": "on",
+    "roo-cline.vsCodeLmModelSelector": {
+        "enabled": true,
+        "model": "roo-cline",
+        "modelVersion": "1.0.0"
+    },
+    "roo-cline.allowedCommands": [
+        "npm test",
+        "npm install",
+        "tsc",
+        "git log",
+        "git diff",
+        "git show",
+        "go",
+        "go run",
+        "python",
+        "cargo run",
+        "swift run",
+        "osascript",
+        "bun",
+        "ls",
+        "cat",
+        "npx",
+        "node",
+        "find",
+        "make",
+        "yarn",
+        "run",
+        "git",
+        "open",
+        "cd",
+        "swift",
+        "xcodebuild",
+        "brctl"
+    ],
+    "debug.confirmOnExit": "false",
+    "debug.openExplorerOnEnd": true,
+    "zig.zls.enabled": "on",
+    // "workbench.iconTheme": "eq-material-theme-icons-ocean",
+    "editor.colorDecoratorsActivatedOn": "click",
+    "excalidraw.image": {
+        "exportScale": 1,
+        "exportWithBackground": true,
+        "exportWithDarkMode": false
+    },
+    "[fish]": {
+        "editor.defaultFormatter": "bmalehorn.vscode-fish",
+    },
+    "extensions.trustedPublishers": [
+        "1yib",
+        "abeilles",
+        "abelfubu",
+        "abesoftware",
+        "adpyke",
+        "aelde",
+        "alexcvzz",
+        "aswinvb",
+        "badrouu-laabed",
+        "bbenoist",
+        "bhshawon",
+        "bierner",
+        "bruinsfan77",
+        "chekweitan",
+        "chouzz",
+        "christian-kohler",
+        "cmstead",
+        "coolcline",
+        "darkphoenix",
+        "denoland",
+        "dracula-theme",
+        "dreamlight",
+        "dustypomerleau",
+        "equinusocio",
+        "esdmr",
+        "etssha",
+        "eubraianbraga",
+        "evertjunior",
+        "fuadpashayev",
+        "garrux",
+        "gleam",
+        "golang",
+        "gquittet",
+        "guodongsun",
+        "harry-kwon",
+        "hbenl",
+        "himanshusharma",
+        "huizhou",
+        "hyperbolic-labs",
+        "idleberg",
+        "inferrinizzard",
+        "ionutvmi",
+        "jeff-hykin",
+        "kamikillerto",
+        "kdl-org",
+        "khanhtungmtp",
+        "kriffin",
+        "liximomo",
+        "llvm-vs-code-extensions",
+        "lunaryorn",
+        "mariomatheu",
+        "mariusalchimavicius",
+        "mguellsegarra",
+        "mhutchie",
+        "mnxn",
+        "monokai",
+        "monotykamary",
+        "ndonfris",
+        "nolanjenko",
+        "nopjmp",
+        "panicbit",
+        "paulvandermeijs",
+        "pomdtr",
+        "qufiwefefwoyn",
+        "quicktype",
+        "qwtel",
+        "randomfractalsinc",
+        "redhat",
+        "rioshi",
+        "rooveterinaryinc",
+        "runem",
+        "rust-lang",
+        "sallar",
+        "saoudrizwan",
+        "scriptify",
+        "shd101wyy",
+        "skyapps",
+        "sswg",
+        "supermaven",
+        "tal7aouy",
+        "tamasfe",
+        "tianguaduizhang",
+        "twxs",
+        "vadimcn",
+        "vladstudio",
+        "ziglang",
+        "ziwei-wei",
+        "marimo-team"
+    ],
+    "coolcline.allowedCommands": [
+        "npm test",
+        "npm install",
+        "tsc",
+        "git log",
+        "git diff",
+        "git show"
+    ],
+    "inlineChat.accessibleDiffView": "on",
+    "dataWrangler.experiments.fastCsvParsing": true,
+    "windmill.remote": "https://w.abe.lc",
+    "windmill.token": "e6dpOYPpk7uuCRN0YelTr1rmpDbMAoWL",
+    "windmill.workspaceId": "work",
+    "remote.SSH.permitPtyAllocation": true,
+    "remote.SSH.enableRemoteCommand": true,
+    "windmill.additionalWorkspaces": [
+        {
+            "name": "VV19uqWY62KFkcm4feMMbJh0bh7Y2do5",
+            "workspaceId": "w.abe.lc"
+        },
+        {}
+    ],
+    "github.copilot.nextEditSuggestions.enabled": true,
+    "github.copilot.advanced": {
+        "useLanguageServer": true
+    },
+    "terminal.integrated.customGlyphs": false,
+    "terminal.integrated.persistentSessionScrollback": 100000,
+    "terminal.integrated.rescaleOverlappingGlyphs": false,
+    "terminal.integrated.scrollback": 10000,
+    "editor.accessibilitySupport": "off",
+    "editor.fontFamily": "Comic Mono",
+    "editor.fontWeight": "100",
+    "editor.fontVariations": true,
+    "terminal.integrated.shellIntegration.decorationsEnabled": "never",
+    "terminal.integrated.shellIntegration.environmentReporting": true,
+    "terminal.integrated.shellIntegration.showCommandGuide": true,
+    "editor.inlineSuggest.edits.allowCodeShifting": "horizontal",
+    "files.exclude": {
+        "*.lock": true
+    },
+    "notebook.backup.sizeLimit": 0,
+    "editor.minimap.maxColumn": 40,
+    "workbench.editor.tabSizing": "shrink",
+    "workbench.editor.tabSizingFixedMaxWidth": 50,
+    "window.density.editorTabHeight": "compact",
+    "git.blame.editorDecoration.enabled": false,
+    "git.blame.statusBarItem.enabled": true,
+    "terminal.integrated.tabs.enabled": true,
+    "workbench.secondarySideBar.showLabels": false,
+    "Lua.completion.workspaceWord": false,
+    "Lua.completion.keywordSnippet": "Disable",
+    "Lua.completion.showWord": "Disable",
+    "Lua.workspace.library": [
+        "/me/.hammerspoon/Spoons/EmmyLua.spoon/annotations"
+    ],
+    "typescriptExplorer.typeTree.view.show.typeParameters": false,
+    "typescriptExplorer.errorMessages.showDialogue": true,
+    "typescriptExplorer.typeTree.meta.typeArguments.includeInFunctions": true,
+    "window.newWindowDimensions": "maximized",
+    "workbench.editor.pinnedTabSizing": "shrink",
+    "rust-analyzer.inlayHints.chainingHints.enable": false,
+    "rust-analyzer.inlayHints.closingBraceHints.enable": false,
+    "rust-analyzer.inlayHints.genericParameterHints.const.enable": false,
+    "rust-analyzer.inlayHints.parameterHints.enable": false,
+    "rust-analyzer.inlayHints.renderColons": false,
+    "rust-analyzer.inlayHints.typeHints.enable": false,
+    "editor.inlayHints.fontSize": 9,
+    "editor.inlayHints.fontFamily": "Comic Mono",
+    "editor.inlayHints.maximumLength": 0,
+    "editor.inlayHints.enabled": "offUnlessPressed",
+    "editor.inlayHints.padding": true,
+    "javascript.inlayHints.variableTypes.enabled": true,
+    "typescript.inlayHints.parameterNames.suppressWhenArgumentMatchesName": false,
+    "typescript.inlayHints.variableTypes.suppressWhenTypeMatchesName": false,
+    "typescript.tsserver.enableTracing": false,
+    "typescript.inlayHints.variableTypes.enabled": true,
+    "terminal.integrated.macOptionClickForcesSelection": true,
+    // "workbench.colorTheme": "Default Dark Modern",
+    "github.copilot.selectedCompletionModel": "",
+    "editor.hover.delay": 500,
+    "diffEditor.ignoreTrimWhitespace": true,
+    "diffEditor.hideUnchangedRegions.enabled": true,
+    "diffEditor.experimental.showMoves": true,
+    "deepl.formality": "default",
+    "deepl.tagHandling": "off",
+    "deepl.splitSentences": "1",
+    "deepl.translationMode": "Replace",
+    "terminal.integrated.defaultProfile.osx": "My Terminal",
+    "terminal.integrated.suggest.quickSuggestions": {
+        "commands": "on",
+        "arguments": "on",
+        "unknown": "on"
+    },
+    "typescript-go.trace.server": "off",
+    "malloy.telemetry": false,
+    "docker.lsp.telemetry": "off",
+    "telemetry.feedback.enabled": false,
+    "telemetry.telemetryLevel": "off",
+    "git.openRepositoryInParentFolders": "always",
+    "svelte.enable-ts-plugin": true,
+    "swift.searchSubfoldersForPackages": true,
+    "swift.buildPath": ".build",
+    "[astro]": {
+        "editor.defaultFormatter": "astro-build.astro-vscode"
+    },
+    "[swift]": {
+        "editor.defaultFormatter": "vknabel.vscode-apple-swift-format"
+    },
+    "python.pythonPath": "uv python",
+    // "application.extensionMarketUrl": "https://marketplace.visualstudio.com/vscode",
+    "python.analysis.diagnosticsSource": "Pyright",
+    "C_Cpp.default.cppStandard": "c++11",
+    "editor.fontSize": 12,
+    "[markdown]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    // "application.extensionMarketUrl": "https://marketplace.visualstudio.com/",
+    "[yaml]": {
+        "editor.defaultFormatter": "denoland.vscode-deno"
+    },
+    "typescript.experimental.useTsgo": false,
+    "workbench.settings.useSplitJSON": true,
+    "editor.smartSelect.selectLeadingAndTrailingWhitespace": false,
+    "editor.smartSelect.selectSubwords": false,
+    "editor.showFoldingControls": "always",
+    "commands.commands": [
+        // {
+        //     "text": "$(chevron-right)",
+        //     "command": "workbench.action.",
+        //     "tooltip": "Show commands"
+        // },
+        // {
+        //     "text": "$(gear)",
+        //     "command": "workbench.action.openGlobalSettings",
+        //     "tooltip": "Settings"
+        // },
+        {
+            "text": "Zen",
+            "command": "script.script.suggestCreateScript",
+            "tooltip": "Toggle Zen mode"
+        }
+    ],
+    "extensions.experimental.issueQuickAccess": true,
+    "extensions.supportUntrustedWorkspaces": {
+        "*": true
+    },
+    "extensions.supportVirtualWorkspaces": true,
+    "script.commands": {
+        "commands": [
+            {
+                "id": "mkloubert.mycommand4",
+                "script": "/Users/abel/.config/vscode/my-command.js",
+                "button": {
+                    "text": "My command",
+                    "tooltip": "This is a tooltip for my command"
+                }
+            }
+        ]
+    },
+    "script.main": "/me/config/vscode/main.js",
+    "remote.extensionKind": {
+        "pub.name": [
+            "ui",
+            "workspace"
+        ]
+    },
+    "accessibility.signalOptions.volume": 3,
+    "window.confirmSaveUntitledWorkspace": false,
+    "window.confirmBeforeClose": "never",
+    "window.closeWhenEmpty": true,
+    "interactiveWindow.promptToSaveOnClose": false,
+    "window.confirmBeforeClose": "never",
+    "terminal.integrated.sendKeybindingsToShell": true,
+    "terminal.integrated.profiles.osx": {
+        "fish": {
+            "path": "fish",
+            "args": [
+                "-l"
+            ]
+        },
+        "Trae AI Terminal": {
+            "path": "bash",
+            "args": ["--noprofile", "--norc"],
+            "icon": "robot",
+            "color": "terminal.ansiBlue"
+        },
+        "My Terminal": {
+            "path": "fish",
+            "args": [
+                "-l"
+            ],
+            "icon": "terminal",
+            "color": "terminal.ansiGreen"
+        }
+    },
+    "terminal.integrated.allowMnemonics": true,
+    "terminal.integrated.fontLigatures.enabled":false,
+    "terminal.integrated.gpuAcceleration": "on",
+    "terminal.integrated.mouseWheelScrollSensitivity": 3,
+    "terminal.integrated.ignoreProcessNames": [
+        "starship",
+        "oh-my-posh",
+        "bash",
+        "zsh",
+        "fish"
+    ],
+    "terminal.integrated.initialHint": false,
+    "terminal.integrated.localEchoEnabled": "on",
+    "terminal.integrated.macOptionIsMeta": true,
+    "notebook.cellToolbarLocation": {
+        "default": "right",
+        "jupyter-notebook": "left"
+    },
+    "[python]": {
+        "editor.defaultFormatter": "1nVitr0.blocksort"
+    },
+    "python.terminal.shellIntegration.enabled": true,
+    "AI.toolcall.autoRun.command.denyList": "[\"rm\",\"kill\"]",
+    "AI.terminal.profileName": "Trae AI Terminal",
+    "AI.terminal.separateInstance": true
+    // "window.confirmBe"
+    // DONT CONFIRM WHEN CLOSING unsaved FILE:
+}
