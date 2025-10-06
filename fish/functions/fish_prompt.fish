@@ -30,7 +30,12 @@ function fish_prompt --description 'Write out the prompt'
     if [ "$(uname -s)" = Darwin ]
         set colx (switch $FISH_VERSION;case '*dirty'; echo brgreen; case '*';echo brmagenta; end)
         if test (tput cols) -gt 90
-            echo -n -s (set_color  --reverse $colx ) " ✞ "(bkt --ttl=11m -- curl --silent  https://ip.me 2> /dev/null |grep -v mpty|sd .0.2.6.1.3.1.0 ::1)" ✞ "(bkt --ttl=10m -- pmset -g batt |rg '\d+\%' --only-matching)" ⌁ "abel' '
+            echo -n -s (set_color  --reverse $colx ) " ✞ "(
+                #bkt --ttl=11m -- curl --silent  https://ip.me 2> /dev/null |grep -v mpty|sd .0.2.6.1.3.1.0 ::1
+            )" ✞ "(
+                                #bkt --ttl=10m -- pmset -g batt |rg '\d+\%' --only-matching
+                                _
+                            )" ⌁ "abel' '
         end
         set git_prompt (fish_vcs_prompt)
         if test (tput cols) -gt (math 60 + (string length -- "$git_prompt"))

@@ -64,7 +64,7 @@ function gencomp_auto --wraps gencomp
     #     exec "$nwcmd"
     #     commandline -f repaint
     # end
-    commandline --replace (echo -n gencomp3 $cmd --dry-run)
+    commandline --replace (echo -n compgen $cmd)
 end
 
 # https://gist.github.com/jamiew/40c66061b666272462c17f65addb14d5
@@ -92,7 +92,7 @@ function tldr_manex
     set cmdz (__actual_cmd_token)
     echo "[$cmdz]"
     hr '★・・・'
-    manex "$cmdz"
+    man "$cmdz"
     hr '・・・*'
     commandline -f repaint
 
@@ -124,21 +124,21 @@ end
 
 function run_preview
     set -l cmdz (__actual_cmd_token)
-    if echo "$cmdz" | rg -w 'rm|cp|mv|mkdir' --quiet
+    if echo2 "$cmdz" | rg -w 'rm|cp|mv|mkdir' --quiet
         # echo
-        echo
+        echo2
         hr '⚠︎'
-        echo command detected, doing nuthin
+        echo2 command detected, doing nuthin
     else if test -n "$cmdz"
-        echo
-        hr '•°•°•°•°°'
+        echo2
         set fullcmd (commandline $argv)
         if set -S fullcmd | rg '[^1]\selements' --quiet
-            h1 "$fullcmd"
-            string join \n $fullcmd | fish
+            echo "•°•°•°•°° $fullcmd •°•°•°•°°"
+            # h1 "$fullcmd"
+            eval (string join '\n' -- "$fullcmd")
             commandline -f repaint
-            echo '•°•°•°•°°'
-            echo
+            echo2 '•°•°•°•°°'
+            echo2
         else
             h1 "|$fullcmd|"
 
@@ -202,7 +202,8 @@ function bekill
     if test -z "$(commandline -op)"
         # echo noline
         # _fzf_search_directory
-        fish_key_reader -c
+        keyreadr -c
+        # fish_key_reader -c
     else
         echo "cursor: $(commandline --cursor)" >>/tmp/whatever
         if test (commandline --cursor) -lt 5
@@ -245,7 +246,7 @@ function fish_user_key_bindings
     bind --preset alt-b backward-word
     bind --preset alt-f forward-word
     bind alt-j which_auto
-    bind alt-k bekill
+    bind alt-k binded
     bind alt-s _fzf_search_git_status
     bind alt-w 'geninline w'
     bind alt-W 'geninline ww'
@@ -261,9 +262,6 @@ function fish_user_key_bindings
     bind ctrl-alt-l '_fish_xxx_current_dir lls'
     bind ctrl-l '_fish_xxx_current_path ll'
     bind alt-l '_fish_xxx_current_dir lld'
-    if test -z "$VSCODE_INJECTION"
-        bind alt-f _fzf_search_directory
-    end
     bind \eOR complete-and-search
     bind \eOQ complete-and-search
     bind alt-O genxmi
@@ -299,11 +297,14 @@ function fish_user_key_bindings
     bind alt-% 'commandline --insert ]'
     bind alt-right forward-word
     bind alt-left backward-word
-    if not test -z "$VSCODE_INJECTION"
-        # bind alt-\| 'commandline  --insert \|'
-        # bind alt-\| "commandline --insert (btoa XAo=)"
-        # bind alt-\} 'commandline --insert \]'
-        # bind alt-% 'commandline --insert \['
+    bind alt-f _fzf_search_directory
+
+    if [ $TERM_PROGRAM = vscode ]
+        # hr "vscode_injection"
+        # bind alt-\| 'commandline  --insert (btoa fA==)'
+        bind alt-\| "commandline --insert (btoa fA==)"
+        bind alt-\} 'commandline --insert \]'
+        bind alt-% 'commandline --insert \['
 
     end
 end

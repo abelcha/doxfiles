@@ -39,9 +39,8 @@ WITH any_cte AS (FROM ttable) FROM custom_summarize();
 
 " | read -z cmd
     set args (duckescape  $argv[2..])
-    
-    duckdb $DD -c '.maxrows 1000' -c "$cmd" $args
-    
+    DUCK_QUIET=1 duck $DD -c '.maxrows 100' -c "$cmd" $args
+    #duck -c "$cmd" $args
     # read -z cmd
     # set args (duckescape  $argv[2..])
     # duck-c "$cmd" $args
