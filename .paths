@@ -4,3 +4,5 @@
 /mods/bin
 /mods/volta/bin
 /mods/cargo/bin
+/mods/vcpkg
+/mods/mint/bin
