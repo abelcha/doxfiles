@@ -3,15 +3,19 @@ function cat --wraps=bat
         command cat $argv
         return
     end
-    if not isatty stdout; and test -z "$FORCE_RENDERING"
+    if test -z "$FORCE_RENDERING"; and not isatty stdout; or not isatty stdin
         command cat $argv
         return 0
     end
     for p in $argv
         test -f "$p"; and set --append filepath "$p"
     end
+    if string match -qr  'https?://*' -- "$argv"
+        x $argv
+        return
+    end
     if test -z "$filepath"
-        echo2 missing filename
+        test -z "$argv[1]"; and echo2 missing filename; or echo2 "'$argv[1]' no such file"
         return
     end
     if not type -q bat
@@ -29,6 +33,10 @@ function cat --wraps=bat
     set -l dotspl (string split '.' $filepath)
     set -l decompname (string join -n '.' $dotspl[1..-2])
     set -l extension $dotspl[-1]
+    if string match -g -rq '(^[^\:]+).*[\.]?'$extension'\b' (bat --list-languages)
+        set language $extension
+    end
+    #fset language
     switch ( echo $extension )
         case png jpeg jpg gif mp4 webp svg ico heif pdf
             set decode imgcat
@@ -42,6 +50,9 @@ function cat --wraps=bat
             set language json
         case zng zjson zson
             set decode zq
+        case ipynb
+            set pre 'uvx juv cat'
+            set language py
         case hjson
             set decode "bunx hjson-cli -j"
             set language json
@@ -66,6 +77,7 @@ function cat --wraps=bat
         case msg
             uvx extract_msg --dump-stdout $argv
         case '*'
+            #fset language
             if test -n "$filepath" -a -d "$filepath"
                 lld $filepath
             else if test (string match -r '^http' -- "$filepath")

@@ -1,8 +1,12 @@
 function w --wraps=command
+    if not isatty stdout 
+        which $argv
+        return
+    end
     set xtype (fish --no-config -c "type -p $argv[1]")
     
     if string match -q '*builtin' -- $xtype
-        echo $xtype
+        echo2 $xtype
         return
     end
     if [ (echo $xtype| wc -m) -lt 10 ]

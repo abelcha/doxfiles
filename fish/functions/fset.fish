@@ -22,7 +22,11 @@ function fset --wraps=set --no-scope-shadowing
         #eval $cmd
     end
     set --append obj "}"
-    set dump "$(string join '' $obj)"
+    set dump "$(string join ' ' $obj)"
+    if contains -- --json $argv
+        bun --print "JSON.stringify($dump, 2)"
+        return
+    end
     if contains -- --table $argv
         deno eval "console.table(Object.entries($dump))"
         return

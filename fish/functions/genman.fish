@@ -2,7 +2,7 @@ function genman
     #set argv[1] (man -w $argv[1])
     #if not test -e (path basename $argv[1])
     set cname "$argv[1]"
-    set mpath (fexec man -w "$argv[1]" 2>&-)
+    set mpath (fish -c "man -w $argv[1]")
     set -S mpath
     if not test -f "$mpath"
         echo man NOT FOUND
