@@ -532,17 +532,30 @@ if (import.meta.main) {
             sort: {
                 short: 's',
                 type: 'string',
-
-                // default: ,
             },
+            one: {
+                short: '1',
+                type:'boolean'
+            },
+            dir: {
+                short: 'd',
+                type: 'boolean',
+            },
+        
         },
         allowPositionals: true,
     });
+    // console.table(flags)
     const dirs = positionals.length === 0 ? '.' : positionals
     // const args = Bun.argv.slice(2);
     // const targetDir = args[0] || '.';
     const cacheEnabled = !process.env.TOTALSIZE
     for (const targetDir of dirs) {
+        if (!existsSync(targetDir)) {
+            console.error(`"${targetDir}": No such file or directory`)
+            continue
+        }
+        
         const s = lstatSync(targetDir)
 
         const isDir = (() => {
@@ -552,12 +565,18 @@ if (import.meta.main) {
             }
             return s.isDirectory()
         })()
-        if (dirs.length > 1 && isDir) {
+        if (dirs.length > 1 && isDir && !flags.dir) {
             console.log(targetDir + ':')
         }
-
-        const entries = isDir ? readdirSync(targetDir, { withFileTypes: true })
-            : readdirSync(path.dirname(targetDir), { withFileTypes: true }).filter(e => e.name === path.basename(targetDir))
+        const entries = (() => {
+            // console.log('entries', {isDir, flags})
+            if (isDir && !flags.dir) {
+                return readdirSync(targetDir, { withFileTypes: true })
+            }
+            return readdirSync(path.dirname(targetDir), { withFileTypes: true }).filter(e => e.name === path.basename(targetDir))
+            
+        })()
+        // console.log({entries})
         let entriesLoaded = entries.map(entry => {
             const fullPath = join(realpathSync(entry.parentPath), entry.name);
             const bf = Bun.file(fullPath)
@@ -589,10 +608,18 @@ if (import.meta.main) {
             if (!flags.all && entry.name.startsWith('.')) {
                 continue;
             }
-            const datef = formatDate(new Date(ts))
+                
             const formatted = formatFilename(entry);
 
+            if (flags.one) {
+                console.log(formatted)
+                continue
+            }
+            const datef = formatDate(new Date(ts))
+
             const pre = isDir ? '' : paint(themeStyles.basepath, path.dirname(targetDir) + '/')
+            
+                
             console.log('', formatSize(size), datef, '–', pre + formatted)
             // const fullPath = fullPath;
             // if (entry.isSymbolicLink?.()) {
