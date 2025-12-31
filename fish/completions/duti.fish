@@ -1,7 +1,7 @@
-complete -f -c duti -n __fish_use_subcommand -a handler -d for\ a\ URL\ scheme.\ Three\ arguments\ means\ d\bdu\but\bti\bi\ will\ set\ the
-complete -f -c duti -n __fish_use_subcommand -a handler -d 'for a UTI, an extension or a MIME type, depending on the'
-complete -f -c duti -n __fish_use_subcommand -a formatting -d of\ the\ second\ argument.\ \ d\bdu\but\bti\bi\ treats\ an\ argument\ beginning
-complete -f -c duti -n __fish_use_subcommand -a with -d a\ dot\ as\ an\ extension.\ If\ the\ argument\ contains\ no\ dots,\ d\bdu\but\bti\bi\ also
-complete -f -c duti -n __fish_use_subcommand -a considers -d 'the argument a filename extension, unless it contains a'
-complete -f -c duti -n __fish_use_subcommand -a slash -d in\ which\ case\ d\bdu\but\bti\bi\ treats\ the\ argument\ as\ a\ MIME\ type.\ In\ all
-complete -f -c duti -n __fish_use_subcommand -a other -d cases,\ d\bdu\but\bti\bi\ treats\ the\ second\ argument\ as\ a\ UTI.
+complete -c "duti" -s "d" -d "display the default handler for uti and exit." # global
+complete -c "duti" -s "h" -d "print usage and exit." # global
+complete -c "duti" -s "l" -d "display all handlers for uti and exit." # global
+complete -c "duti" -s "s" -d "set the handler from data provided on the command line." # global
+complete -c "duti" -s "V" -d "print version number and exit." # global
+complete -c "duti" -s "v" -d "verbose output." # global
+complete -c "duti" -s "x" -d "print information describing the default application for extension ext." # global

@@ -1,0 +1,67 @@
+.[].active | select(. == true)	Select objects where .active == true
+.[].name | select(test("^A"))	Select array elements matching a regex
+.[0]	Select first element
+.[-1]	Select last element
+.[1:]	Select all elements except first
+.[2:5]	Select elements 2-4 (0-based)
+.[0::2]	Select every second element
+keys[]	Select keys of an object
+.[keys[]]	Select values of an object
+to_entries[].value	Select values as array
+to_entries[] | {key, value}	Select key/value pairs as objects
+length	Select length of array
+map(length)	Select length of each array element
+unique	Select unique values
+unique_by(.id)	Select unique by a field
+min	Select min value
+max	Select max value
+min_by(.price)	Select min by a field
+max_by(.price)	Select max by a field
+add	Select sum of numbers
+[add] / length	Select average of numbers
+group_by(.type) | map({key: .[0].type, items: .})	Select group by a field
+sort	Select sort array
+sort_by(.name)	Select sort by a field
+reverse	Select reverse sort
+map(.name |= ascii_upcase)	Select map (transform) each element
+reduce .[] as $i (0; . + $i)	Select reduce to single value
+flatten	Select flatten nested arrays
+flatten(1)	Select flatten one level
+join(", ")	Select join array of strings
+split(", ")	Select split string into array
+"\(.name) is \(.age) years old"	Select string interpolation
+recurse | .id?	Select recurse down tree
+leaf_paths	Select all leaves (non-objects/arrays)
+path(..) | select(.[-1] == "target")	Select path to a value
+has("key")	Select has key
+del(.key)	Select delete key
+. + {new: "value"}	Select add new key
+. * {extra: 1}	Select merge objects
+{name, age}	Select pick specific keys
+del(.password, .token)	Select omit specific keys
+with_entries(.key |= ascii_upcase)	Select map keys to uppercase
+transpose	Select transpose 2-D array
+[.names, .ages] | transpose | map({name: .[0], age: .[1]})	Select combine two arrays into objects
+map(select(.age > 18 and .active))	Select filter with multiple conditions (AND)
+map(select(.role == "admin" or .role == "moderator"))	Select filter with OR
+if .score > 90 then "A" else "B" end	Select if-then-else
+try .badfield catch "missing"	Select try/catch
+.maybe?.field	Select error handling with ? (optional)
+.missing // "default"	Select alternative operator //
+.[] | .name	Select pipe to external command
+-r .message	Select raw output of a field
+-c	Select compact output
+-s .	Select slurp all input files into array
+--arg name value	Select read arguments as strings
+--jsonargs	Select read JSON arguments
+--null-input	Select read from null-terminated lines
+--monochrome-output	Select colorized output (if supported)
+--exit-status	Select exit status for empty input
+--stream	Select stream parsing (large files)
+fromstream(tostream)	Select fromstream (reverse of tostream)
+tostream	Select tostream (key/value pairs)
+--debug-trace	Select debug trace
+--indent 2	Select pretty-print with indent 2
+--sort-keys	Select sort keys in objects
+--tab	Select tab output
+--unbuffered	Select unbuffered output
