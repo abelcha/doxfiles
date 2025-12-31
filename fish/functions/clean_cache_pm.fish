@@ -26,8 +26,7 @@ function clean_cache_pm
     runcom pipenv --clear
     runcom poetry cache clear --all pypi
     runcom composer clear-cache
-    runcom gem cleanup
-    runcom gem clean
+    runcom sudo gem cleanup
     runcom brew cleanup
     runcom brew cleanup -s
     cleandir (brew --cache)
@@ -37,8 +36,13 @@ function clean_cache_pm
     runcom trash ~/.gradle/caches/
     runcom dotnet nuget locals all --clear
     runcom flutter clean
+    orb start
     runcom docker system prune -a
     runcom docker system prune
+    runcom docker system prune -a --volumes -f
+    orb stop
     runcom uv cache clean
     runcom bun pm cache rm --global
+    runcom tart prune --older-than 1
+    runcom yarn cache clean --all
 end

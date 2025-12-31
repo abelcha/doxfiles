@@ -20,5 +20,6 @@ ln -s  /home/abel/.config/fish /fish
 
 git clone https://github.com/abelcha/doxfiles /home/abel/doxfiles
 chown -R abel:abel /home/abel/doxfiles
-sudo -u abel /home/abel/doxfiles/init_script.fish
+chmod 777 /home/abel/doxfiles/init/init_script.fish
+sudo -u abel /home/abel/doxfiles/init/init_script.fish
 

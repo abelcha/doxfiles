@@ -1,3 +1,5 @@
+#!/usr/bin/env bun
+
 require('dotenv').config({
 	quiet: true,
 	path: '~/.config/.secrets'
@@ -8,9 +10,14 @@ import { generateObject } from "ai";
 import { z } from "zod";
 import { Database } from "bun:sqlite";
 
-const MODEL = "gpt-4o";
-// import { createXai } from '@ai-sdk/xai';
-import { openai} from '@ai-sdk/openai';
+const MODEL = "anthropic/claude-sonnet-4.5";
+import { createXai } from '@ai-sdk/xai';
+import { createOpenRouter } from '@openrouter/ai-sdk-provider';
+const openrouter = createOpenRouter({
+  apiKey: process.env.OPENROUTER_API_KEY,
+
+});
+// import { openai} from '@ai-sdk/openai';
 // const openai = createOpenai({
 	// apiKey: process.env.OPENAI_API_KEY,
 // });
@@ -180,7 +187,7 @@ async function parseHelp(
 	console.info('requesting', fullCommand)
 
 	const r = await generateObject({
-		model: openai(Args.model),
+		model: openrouter(Args.model),
 		schema: CliCommandSchema,
 		prompt,
 	});

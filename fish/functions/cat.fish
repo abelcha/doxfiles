@@ -1,40 +1,24 @@
 function cat --wraps=bat
+    if [ "$argv[1]" = --version ]
+        fish --version
+        return
+    end
     if test -n "$VSCODE_INJECTION"
         command cat $argv
         return
     end
-    if test -z "$FORCE_RENDERING"; and not isatty stdout; or not isatty stdin
-        command cat $argv
-        return 0
-    end
     for p in $argv
         test -f "$p"; and set --append filepath "$p"
-    end
-    if string match -qr  'https?://*' -- "$argv"
-        x $argv
-        return
-    end
-    if test -z "$filepath"
-        test -z "$argv[1]"; and echo2 missing filename; or echo2 "'$argv[1]' no such file"
-        return
-    end
-    if not type -q bat
-        command cat $filepath
-        return 0
-    end
-    if not string match -rq cargo ( type -p  bat)
-        command bat $filepath
-        return 0
-    end
-    if [ (count $filepath) -gt 1 ]
-        command bat $filepath
-        return 0
     end
     set -l dotspl (string split '.' $filepath)
     set -l decompname (string join -n '.' $dotspl[1..-2])
     set -l extension $dotspl[-1]
     if string match -g -rq '(^[^\:]+).*[\.]?'$extension'\b' (bat --list-languages)
         set language $extension
+    end
+    if string match -rq 'png|jpg|gif|jpeg|ico|svg' -- $extension
+        imgcat $filepath
+        return 0
     end
     #fset language
     switch ( echo $extension )
@@ -56,12 +40,40 @@ function cat --wraps=bat
         case hjson
             set decode "bunx hjson-cli -j"
             set language json
-        case xlsx
-            set decode "uvx xlsx2csv -"
+        case 'xl*'
+            set decode "bunx xlsx-cli /dev/stdin"
             set language csv
         case '*'
             set --erase decode
     end
+    
+    if test -z "$FORCE_RENDERING"; and not isatty stdout; or not isatty stdin
+        test -z "$decode"; and set decode "command cat"
+        eval (string split ' ' -- $decode) <$argv
+        return 0
+    end
+    
+    if string match -qr 'https?\:\/\/.*' -- "$argv"
+        x $argv
+        return
+    end
+    if test -z "$filepath"
+        test -z "$argv[1]"; and echo2 missing filename; or echo2 "'$argv[1]' no such file"
+        return
+    end
+    if not type -q bat
+        command cat $filepath
+        return 0
+    end
+    if not string match -rq cargo ( type -p  bat)
+        command bat $filepath
+        return 0
+    end
+    if [ (count $filepath) -gt 1 ]
+        command bat $filepath
+        return 0
+    end
+    
     if [ $extension = json ]
         set format jfmt
     end
@@ -83,7 +95,7 @@ function cat --wraps=bat
             else if test (string match -r '^http' -- "$filepath")
                 x $filepath
             else
-                bat $argv (fprops pre decode format language ) --force-colorization --style grid,header-filesize,header-filename --theme OneHalfDark
+                bat $argv (fprops pre decode format ) --style header,header-filesize,header-filename,grid --theme Nord
             end
     end
 end

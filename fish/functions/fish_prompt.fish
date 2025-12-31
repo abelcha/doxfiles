@@ -17,6 +17,9 @@ function fish_prompt --description 'Write out the prompt'
     
     # Write pipestatus
     # If the status was carried over (if no command is issued or if `set` leaves the status untouched), don't bold it.
+    if [ $SHELL != $__fish_bin_dir/fish ]
+        echo -n (set_color brred ) "[$SHELL]"
+    end
     set -l bold_flag --bold
     set -q __fish_prompt_status_generation; or set -g __fish_prompt_status_generation $status_generation
     if test $__fish_prompt_status_generation = $status_generation
@@ -27,15 +30,15 @@ function fish_prompt --description 'Write out the prompt'
     set -l statusb_color (set_color $bold_flag $fish_color_status)
     set -l prompt_status (__fish_print_pipestatus "[" "]" "|" "$status_color" "$statusb_color" $last_pipestatus)
     
-    if [ "$(uname -s)" = Darwin ]
+    if [ "$__fish_uname" = Darwin ]
         set colx (switch $FISH_VERSION;case '*dirty'; echo brgreen; case '*';echo brmagenta; end)
         if test (tput cols) -gt 90
             echo -n -s (set_color  --reverse $colx ) " ✞ "(
-                #bkt --ttl=11m -- curl --silent  https://ip.me 2> /dev/null |grep -v mpty|sd .0.2.6.1.3.1.0 ::1
-            )" ✞ "(
-                                #bkt --ttl=10m -- pmset -g batt |rg '\d+\%' --only-matching
-                                _
-                            )" ⌁ "abel' '
+                                #bkt --ttl=11m -- curl --silent  https://ip.me 2> /dev/null |grep -v mpty|sd .0.2.6.1.3.1.0 ::1
+                            )" ✞ "(
+                                                #bkt --ttl=10m -- pmset -g batt |rg '\d+\%' --only-matching
+                                                _
+                                            )" ⌁ "abel' '
         end
         set git_prompt (fish_vcs_prompt)
         if test (tput cols) -gt (math 60 + (string length -- "$git_prompt"))

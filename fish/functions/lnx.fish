@@ -1,6 +1,6 @@
-function lnx --description "Creates symbolic links with resolved absolute paths"
+function lnx --description 'Creates symbolic links with resolved absolute paths'
     # Parse arguments using Fish's built-in argparse
-    argparse 'h/help' 'r/real-path=' 'f/fake-path=' -- $argv
+    argparse h/help 'r/real-path=' 'f/fake-path=' -- $argv
     or return
     
     # Show help if requested
@@ -18,13 +18,23 @@ function lnx --description "Creates symbolic links with resolved absolute paths"
     
     # Validate required arguments
     if not set -ql _flag_real_path
-        echo "Error: --real-path is required" >&2
-        return 1
+        if test -n "$argv[1]"
+            echo2 "[auto set ] real_path = $argv[1]"
+            set _flag_real_path $argv[1]
+        else
+            echo "Error: --real-path is required" >&2
+            return 1
+        end
     end
     
     if not set -ql _flag_fake_path
-        echo "Error: --fake-path is required" >&2
-        return 1
+        if test -n "$argv[1]"
+            echo2 "[auto set ] fake = $argv[1]"
+            set _flag_fake_path $argv[1]
+        else
+            echo "Error: --fake-path is required" >&2
+            return 1
+        end
     end
     
     set -l real_path $_flag_real_path
@@ -62,6 +72,7 @@ function lnx --description "Creates symbolic links with resolved absolute paths"
     end
     
     # Create the symbolic link
+    echo2  ln -s "$resolved_real_path" "$resolved_fake_path"
     if not ln -s "$resolved_real_path" "$resolved_fake_path"
         echo "ln command failed" >&2
         return 1

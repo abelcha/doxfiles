@@ -1,4 +1,4 @@
-function cp --wraps='xcp'
+function cp --wraps=xcp
 
     #advcp -gir $argv   test
     if test (count $argv) -eq 1; and test -e "$argv[1]"
@@ -9,10 +9,9 @@ function cp --wraps='xcp'
         read --local destname --prompt-str "$pstr" --shell --command "$basen"; or echo "aborded..." && return
         dryrun cp "\"$argv[1]\"" "$(path resolve "$destdir/$(string trim -c '' "$destname")")"
     else if type -q xcp
-        xcp --recursive -v $argv
+        ucp -r --progress $argv
     else
         command cp -r $argv
     end
-    
     
 end

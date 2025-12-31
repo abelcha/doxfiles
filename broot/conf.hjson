@@ -257,6 +257,20 @@ preview_transformers: [
     //     mode: text
     //     command: [ "jq" ]
     // }
+
+    {
+        input_extensions: ["xls", "XLS", "xlsb", "xlsm", "xlsx", "xlt" ]
+        output_extension: csv
+        mode: text
+        command: [ "xlsx2csv", "{input-path}" ]
+    },
+    {
+        input_extensions: [ "msg" ]
+        output_extension: txt
+        mode: text
+        command: ["uvx", "-q", "extract_msg", "--dump-stdout", "{input-path}" ]
+    }
+
 ]
 
 ###############################################################

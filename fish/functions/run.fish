@@ -1,4 +1,4 @@
-function run --wraps='bun run'
+function run
     #if test "$argv[1]"
     set runtime (detect_runtime)
     #fset runtime
@@ -22,11 +22,11 @@ function run --wraps='bun run'
         end
     end
     if not test -z "$runtime"
-        complete -c run --wraps "$runtime"
+        #complete -c run --wraps "$runtime"
         command "$runtime" run $argv
     else
         command bun run $argv
-        
+
     end
-    
+
 end

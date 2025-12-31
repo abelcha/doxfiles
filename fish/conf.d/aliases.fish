@@ -1,12 +1,38 @@
+alias claude " claude --dangerously-skip-permissions"
+alias from reader
+alias dev "bun run dev"
+alias pv "command pv --average-rate --progress --bits"
+alias ass applesauce
+alias cdp "cd (pwd)"
+alias aic aicommits
+alias aicommit "aicommit -y"
+alias gstore "gcloud storage"
+alias prev "qlmanage -p"
+alias cr cursor
+alias pkill killport
+alias portkill killport
+alias port-kill killport
+alias mods "env (head /me/config/.secrets) mods"
+
+alias interpreter "env (head /me/config/.secrets) uv run interpreter"
+alias xlsx xlsx-cli
+alias tool "uv tool"
+alias isodate 'date +"%Y-%m-%d"'
+alias isodatetime 'date +"%Y-%m-%dT%H:%M:%S"'
+alias h 'BROWSER=w3m help'
+alias m moor
+alias trash-empty "osascript -e 'tell application \"Finder\" to empty trash'"
+alias ispiped "not isatty stdout"
 alias b bun
 alias configure "./configure"
 alias unset 'set --erase'
 alias g git-forgit
+alias forgit git-forgit
 alias untracked "git ls-files --others --exclude-standard"
 alias aicommit "OPENAI_API_KEY=\$OPENAI_API_KEY command aicommit"
+alias wtfis "VT_API_KEY=\$VT_API_KEY command wtfis"
 
 alias comai aicommit
-alias xz "command xz --fast"
 alias croc "croc --yes"
 alias fish_gencomp "$__fish_data_dir/tools/create_manpage_completions.py"
 alias xc " bkt -- xh --follow"
@@ -15,7 +41,7 @@ alias codi code
 alias rrg "rg --no-ignore"
 alias parallel "command parallel --ungroup --eta --progress --bar"
 alias csv "csvlens --delimiter auto"
-alias chroma "command chroma --formatter=terminal256 --style trac --lexer"
+# alias chroma "command chroma --formatter=terminal256 --style trac --lexer"
 alias unz unzstd
 alias pu pueue
 alias r rclone
@@ -29,8 +55,11 @@ alias npx bunx
 alias codi="/Applications/VisualStudioCode-Insiders.app/Contents/Resources/app/bin/code"
 alias codi /Applications/Trae.app/Contents/Resources/app/bin/marscode
 alias diskattach 'diskimage attach'
-alias c container
+# alias c cursor
 alias speedtest cfspeedtest
+if not type -q mi
+    alias mi hx
+end
 # alias docker container
 alias hopper="/Applications/Hopper\ Disassembler\ v4.app/Contents/MacOS/hopper"
 alias ufind="unbuffer find"
@@ -56,6 +85,7 @@ alias dus "du -sh"
 alias lynx "lynx -accept_all_cookies"
 alias pu pueue
 alias zx "zstd --format=xz"
+alias zg "zstd --format=gzip"
 alias unz="unzstd"
 alias compt="compression_tool"
 alias pak="lz4 --rm --fast"
@@ -93,17 +123,17 @@ alias gd "git diff -w"
 alias ip "curl ipinfo.io"
 alias ipinfo "ip -s | jq 'del(.postal, .timezone, .readme, .org, .loc, .region, .hostname)'"
 
-alias leza="eza --long -F --no-user"
+alias leza="eza --long -F --no-user --total-size --no-permissions"
 
 alias l1="ls -l1"
 alias ld lld
 alias lld "ll  --sort date"
 alias lls "ll  --sort size "
 alias llt="ll --sort type"
-alias llld "TOTALSIZE=1 lld"
-alias llls "TOTALSIZE=1 lls"
-alias lllt "TOTALSIZE=1 llt"
-alias lll "TOTALSIZE=1 ll"
+alias llld "leza --sort date"
+alias llls "leza --sort size"
+alias lllt "leza --sort type"
+alias lll leza
 
 alias ls "ls --color=auto -t"
 

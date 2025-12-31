@@ -15,6 +15,7 @@ const cache = await cacheFile.exists() ? await cacheFile.json() : {}
 // console.log({ cache })
 
 const DISPLAY_COLORS = process.stdout.isTTY;
+const MIN_ENTRIES_CACHE = 42;
 
 export interface StatLike {
     mode: number;
@@ -107,7 +108,7 @@ const themeStyles = {
     socket: makeStyle({ fg: FG.red, bold: true }),
     special: makeStyle({ fg: FG.yellow }),
     executable: makeStyle({ fg: FG.green, bold: true }),
-    mountPoint: makeStyle({ fg: FG.blue, bold: true, underline: true }),
+    mountPoint: makeStyle({ fg: FG.cyan, bold: true, underline: true }),
     multiLinkFile: makeStyle({ fg: FG.red, bg: BG.yellow }),
     controlChar: makeStyle({ fg: FG.red }),
     brokenSymlink: makeStyle({ fg: FG.red, underline: true }),
@@ -245,6 +246,9 @@ function styleForStat(filename: string, stat: StatLike | null): string {
     }
 
     if (stat.isDirectory()) {
+        if (lstatSync(path.dirname(filename)).dev !== stat.dev){
+            return themeStyles.mountPoint;
+        }
         return themeStyles.directory;
     }
 
@@ -481,7 +485,7 @@ function getDirectorySize(dirPath: string, cacheEnabled = true): number {
         let totalSize = 0;
 
         const entries = readdirSync(dirPath, { withFileTypes: true });
-        if (cacheEnabled && (entries.length > 100 || dirPath.split('/').length >= 9 || dirPath.match(/(node_modules|(target\/(release|debug)\/(deps|build|incremental|.fingerprint))|.build|.git|.venv)$/))) {
+        if (cacheEnabled && (entries.length > MIN_ENTRIES_CACHE || dirPath.split('/').length >= 9 || dirPath.match(/(node_modules|(target\/(release|debug)\/(deps|build|incremental|.fingerprint))|.build|.git|.venv)$/))) {
             const hashK = [dirPath, Bun.file(dirPath).lastModified, Bun.hash(entries.map(e => e.name).join(','))].join('|');
             if (!cache[hashK]) {
                 cache[hashK] = getDirectorySize(dirPath, false);

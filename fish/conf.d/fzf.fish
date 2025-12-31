@@ -421,6 +421,73 @@ function _fzf_wrapper --description "Prepares some environment variables before 
 
     fzf $argv
 end
+function fzf_custom --description "Custom fzf wrapper with configurable lines and preview commands."
+    # Parse arguments
+    set -l lines_cmd ""
+    set -l preview_cmd ""
+    set -l prompt "Custom> "
+    set -l fzf_opts
+    
+    # Parse named arguments
+    for arg in $argv
+        if string match --quiet -- '--lines=*' $arg
+            set lines_cmd (string replace -- '--lines=' '' $arg)
+        else if string match --quiet -- '--preview=*' $arg
+            set preview_cmd (string replace -- '--preview=' '' $arg)
+        else if string match --quiet -- '--prompt=*' $arg
+            set prompt (string replace -- '--prompt=' '' $arg)
+        else
+            set -a fzf_opts $arg
+        end
+    end
+    
+    # Validate required arguments
+    if test -z "$lines_cmd"
+        echo "Error: --lines command is required" >&2
+        return 1
+    end
+    
+    # Set up fzf arguments
+    set -f fzf_arguments --multi --ansi --prompt="$prompt"
+    
+    # Add preview if provided
+    if test -n "$preview_cmd"
+        set -a fzf_arguments --preview="bkt --ttl 10m -- $preview_cmd"
+    end
+    
+    # Add any additional fzf options
+    if test (count $fzf_opts) -gt 0
+        set -a fzf_arguments $fzf_opts
+    end
+    
+    # Get current token for query
+    set -f token (commandline --current-token)
+    set -f expanded_token (eval echo -- $token)
+    set -f unescaped_exp_token (string unescape -- $expanded_token)
+    
+    if test -n "$unescaped_exp_token"
+        set -a fzf_arguments --query="$unescaped_exp_token"
+    end
+    
+    # Execute the lines command and pipe to fzf
+    set -f selected_items (eval $lines_cmd 2>/dev/null | _fzf_wrapper $fzf_arguments)
+    
+    if test $status -eq 0
+        commandline --current-token --replace -- (string escape -- $selected_items | string join ' ')
+    end
+    
+    commandline --function repaint
+end
+
+# Example function using the custom wrapper for searching executables with man page preview
+function fzf_search_executables --description "Search executables in argv[1] with man page preview."
+    fzf_custom --lines="fd -tx . $argv[1]" --preview="man (basename {})" --prompt="Executables> "
+end
+# Example function using the custom wrapper for searching executables with man page preview
+function fzf_search_logs --description "Search executables in argv[1] with man page preview."
+    fzf_custom --lines="fd  $argv[1]" --preview="tspin --follow {}" --prompt="Logs> "
+end
+
 # fzf.fish is only meant to be used in interactive mode. If not in interactive mode and not in CI, skip the config to speed up shell startup
 if not status is-interactive && test "$CI" != true
     exit

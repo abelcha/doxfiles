@@ -197,36 +197,6 @@ function genbroot -a cmd
     br (commandline --current-token)
 end
 
-function bekill
-
-    if test -z "$(commandline -op)"
-        # echo noline
-        # _fzf_search_directory
-        keyreadr -c
-        # fish_key_reader -c
-    else
-        echo "cursor: $(commandline --cursor)" >>/tmp/whatever
-        if test (commandline --cursor) -lt 5
-            # commandline --insert POP THAT
-            # return
-            echo "before: $POP_CMD" >>/tmp/whatever
-            set temp $POP_CMD[1]
-            commandline -f kill-word
-            sleep 0.1
-            commandline --insert "$temp "
-            commandline -f beginning-of-line
-            set POP_CMD $POP_CMD[2..]
-            set --append POP_CMD $temp
-            echo "$temp" >>/tmp/whatever
-            echo "now: $POP_CMD" >>/tmp/whatever
-        else
-            commandline -f beginning-of-line
-            commandline -f kill-word
-
-        end
-
-    end
-end
 function insertnull
     commandline --insert "> /dev/null"
 end
@@ -241,7 +211,16 @@ function goxman
     man (path basename $argv)
 end
 
+# function complete_force_files
+#     complete --command (__actual_cmd_token) --force-files
+# end
+
+# function qlpreview
+#     fexec qlmanage -p (__actual_cmd_token)
+# end
+
 function fish_user_key_bindings
+    bind alt-p qlpreview
     echo "mi cd mv cp cat codm" | read -g --export -a POP_CMD
     bind --preset alt-b backward-word
     bind --preset alt-f forward-word
@@ -291,13 +270,14 @@ function fish_user_key_bindings
     bind \e\[1\;5A _atuin_search
     bind alt-minus history-token-search-forward
     bind alt-_ history-token-search-backward
-    bind ctrl-f 'hx ~/config/fish/config.fish && _reload_fish'
+    bind ctrl-f complete_force_files
+    bind ctrl-k bekill
+
     bind alt-backspace backward-kill-word
     bind alt-\} 'commandline --insert ['
     bind alt-% 'commandline --insert ]'
     bind alt-right forward-word
     bind alt-left backward-word
-    bind alt-f _fzf_search_directory
 
     if [ $TERM_PROGRAM = vscode ]
         # hr "vscode_injection"
@@ -305,6 +285,7 @@ function fish_user_key_bindings
         bind alt-\| "commandline --insert (btoa fA==)"
         bind alt-\} 'commandline --insert \]'
         bind alt-% 'commandline --insert \['
-
+    else if [ "$TERM_PROGRAM" != Apple_Terminal ]
+        bind alt-f _fzf_search_directory
     end
 end

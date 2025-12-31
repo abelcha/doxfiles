@@ -1,4 +1,17 @@
+abbr -a -- l "7z l"
 
+# abbr -a -- act 'source .venv/bin/activate.fish'
+abbr -a -- gst "git restore -s stash@{0} -- "
+abbr -a -- gss "git show stash@{0} -- "
+abbr -a -- grc "git rebase --continue"
+abbr -a -- st "git stash"
+
+abbr -a -- gct "git checkout --theirs"
+abbr -a -- gco "git checkout --ours"
+abbr -a -- gc "git checkout"
+
+abbr -a -- gd "git diff"
+abbr -a -- gw "git switch"
 abbr --add gda --position anywhere --regex '[ba]\/.+\.\w+' --function git_diff_abr
 # https://github.com/pynappo/dotfiles/blob/ebc81db4a96575b053a9ff1eebd0b8a73c8ce703/.config/fish/config.fish#L65
 abbr -p anywhere /mo --set-cursor '/mods/%'
@@ -24,12 +37,16 @@ abbr -a -- bi 'brew info'
 abbr -a -- do doctl
 abbr -a -- bn 'brew install'
 
+abbr -a -- ksf 'mi /me/config/keyshift.yaml &&  kill (pgrep KeyShift) && open /Applications/KeyShift.app/'
 abbr -a -- abr 'mi /fish/conf.d/abbr.fish && _reload_fish'
 abbr -a -- als 'mi /fish/conf.d/aliases.fish && _reload_fish'
 abbr -a -- kb 'mi /fish/functions/fish_user_key_bindings.fish && _reload_fish'
 abbr -a -- pipi 'uv pip install -r requirements.txt'
 abbr -a -- fc 'mi /fish/config.fish && _reload_fish'
 abbr -a -- gsm 'git status .'
+abbr -a -- gp 'git pull'
+abbr -a -- gl 'git log'
+
 abbr -a -- co 'git checkout'
 abbr -a -- bu 'bun install'
 abbr -a -- mtr 'sudo mtr'
@@ -72,7 +89,8 @@ end
 
 abbr -a --position anywhere lastdl --function last_download_file #'ls -U ~/Downloads |head -n 1'
 
-abbr -a --set-cursor f 'fd . % | fzf'
+# abbr -a --set-cursor f 'fd . % | fzf'
+abbr -a --set-cursor --position anywhere :ps '(% | psub)'
 
 # rf
 # set shortcuts["py"] "Python"
@@ -135,14 +153,14 @@ function _last_history_item_nth_word
     echo $cmd[$idx]
 end
 
-abbr -a last_history_item_nth_word_abbr --position anywhere --regex "!![0-9]+" --function _last_history_item_nth_word
+# abbr -a last_history_item_nth_word_abbr --position anywhere --regex "!![0-9]+" --function _last_history_item_nth_word
 
-abbr -a gitmonoadd --position anywhere --regex "apps/native/[\w\/\.\_\-]*" --function git_add_mono
+# abbr -a gitmonoadd --position anywhere --regex "apps/native/[\w\/\.\_\-]*" --function git_add_mono
 
 function last_history_cached
     echo $history[1] ' | %'
 end
-abbr -a --set-cursor !c --position anywhere --function last_history_exec
+# abbr -a --set-cursor !c --position anywhere --function last_history_exec
 
 function last_history_exec
     set -l position (commandline -C)
@@ -199,10 +217,25 @@ function fix_clone
     string replace -r '^git\sclone\s(\w+\/\w+)$' 'git clone https://github.com/$1'
 end
 
-abbr -a ghclone_safe --position anywhere --regex "http.+github.com/.+/.+/tree/.+" --function clonable_github
-abbr -a gh_safe --position anywhere --regex "http.+github.com.+/blob/.+" --function raw_github_url
+# abbr -a ghclone_safe --position anywhere --regex "http.+github.com/.+/.+/tree/.+" --function clonable_github
+# abbr -a gh_safe --position anywhere --regex ".+github.com.+/blob/.+" --function raw_github_url
+
+# function repl_blob
+# echo heeeere __"$argv"__ >/tmp/gg.logs
+
+# end
+abbr -a get_blob_gh --regex '.+github.com.+' --function abr_fix_github --position anywhere
+
 # abbr -a gh_clone --position anywhere clone --function fix_clone
 
+function __code_comma
+    if string match -qr code -- "$(commandline --current-buffer)"
+        echo '.'
+    else
+        echo ";"
+    end
+end
+abbr -a code_comma --position anywhere --regex '\;' --function __code_comma
 abbr -a path_anon --position anywhere --regex "/Users/a\w{9}r/" --function anon
 abbr -a url_safe --position anywhere --regex "[a-z]{3,10}://.+[\&\?].+" --function escape_url_arg
 abbr -a url_safe --position anywhere --regex "[a-z\-]+\.[a-z]{2,5}[\&\?].+" --function escape_url_arg
@@ -237,42 +270,16 @@ function dict --argument-names id action key value
     end
 end
 
-
-function gclone
-    #echo $argv
-    #return
-    set repo (string match --groups-only --regex 'github\.com\/([^\/]+)\/([^\/]+?)(?:\.git)?$'  -- "$argv")
-    set repowner "$repo[1]/$repo[2]"
-    set cmd (commandline --tokens-raw )
-    #echo --------
-    #set --show cmd
-    #echo -----------
-    if [ "$cmd[1]" = fsimrep ]
-        echo $repowner
-    else if test -z "$cmd[2]"
-        echo gh repo clone $repowner "&&" cd $repo[-1]
-    else if [ "$cmd[2]" = clone ]
-        echo https://github.com/$repowner
-    else
-        echo $argv
-    end
-    
-    #string replace --regex 'github.com/([^\/]+/[^\/]+)' 'github.com/$1' -- $argv[1]
-    #set xx $argv
-    #fset xx
-end
-
-abbr --add ghc --position anywhere --regex 'https?(.+)' --function gclone
-
+# abbr --add ghc --position anywhere --regex 'https?(.+)' --function gclone
 
 set -g dmap
 
 dict dmap set d /me/dev/
-dict dmap set da /me/dev/awesome-find/
+dict dmap set da /datasets/
 
 dict dmap set dl /me/Downloads/
 dict dmap set dd /me/Desktop/
-dict dmap set h /me
+dict dmap set h /me/
 dict dmap set c /me/config/
 dict dmap set ca "/me/config/aichat/config.yaml"
 dict dmap set f /fish/
@@ -287,8 +294,9 @@ dict dmap set ff /me/config/fish/functions/
 dict dmap set fg /me/config/fish/completions/
 dict dmap set fa "/me/config/fish/conf.d/aliases.fish"
 dict dmap set fb "/me/config/fish/conf.d/abbr.fish"
+dict dmap set fs "/me/config/fish/conf.d/secrets.fish"
 dict dmap set ch /me/config/hammerspoon
-dict dmap set a /me/
+dict dmap set a /work/aiway/
 # dict dmap set cm "/me/config/micro/"
 # dict dmap set e /Volumes/explore/
 dict dmap set z /me/config/zsh/
@@ -302,10 +310,13 @@ dict dmap set dc /me/Documents/
 dict dmap set x /me/XDL/
 dict dmap set t /tmp/
 dict dmap set p /me/projects/
-dict dmap set w /me/dev/P2/examples/corewar/
+dict dmap set w /work/
 dict dmap set v /Volumes/
 dict dmap set l /datalake/
 dict dmap set tt /Volumes/T9
+dict dmap set wd /wd/
+dict dmap set n /nvme/
+dict dmap set wa /wd/watson/
 dict dmap set s /me/datasets/sherlock/
 dict dmap set e /me/datasets/entreprise/
 dict dmap set se /dev/stderr
@@ -314,3 +325,4 @@ dict dmap set su /dev/null
 dict dmap set va /opt/v/
 dict dmap set cl $HOMEBREW_PREFIX/Cellar/
 dict dmap set br $HOMEBREW_PREFIX/homebrew/
+abbr --add ft 'fish_trace=1'
