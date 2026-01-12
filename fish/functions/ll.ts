@@ -1,5 +1,6 @@
 #!/usr/bin/env bun
 import type { BunFile } from 'bun';
+import { Database } from 'bun:sqlite';
 import { Dirent, existsSync, fstatSync, lstatSync, readdirSync, readlinkSync, realpathSync, statSync } from 'fs';
 import { lstat } from 'fs/promises';
 import { readdir } from 'fs/promises';
@@ -9,13 +10,17 @@ import { parseArgs } from 'util';
 const ANSI_RESET = '\x1b[0m';
 
 type StatPredicate = () => boolean;
+console.time('db')
+const db = new Database('/tmp/teza-cache.sqlite');
+db.run('PRAGMA journal_mode = WAL;');
+db.run('PRAGMA synchronous = NORMAL;');
+db.run('CREATE TABLE IF NOT EXISTS cache (key TEXT PRIMARY KEY, size INTEGER)');
 
-const cacheFile = Bun.file('/tmp/teza-cache.json');
-const cache = await cacheFile.exists() ? await cacheFile.json() : {}
-// console.log({ cache })
-
+const getCacheStmt = db.prepare('SELECT size FROM cache WHERE key = ?');
+const setCacheStmt = db.prepare('INSERT OR REPLACE INTO cache (key, size) VALUES (?, ?)');
+console.timeEnd('db')
 const DISPLAY_COLORS = process.stdout.isTTY;
-const MIN_ENTRIES_CACHE = 42;
+const MIN_ENTRIES_CACHE = 100;
 
 export interface StatLike {
     mode: number;
@@ -133,44 +138,71 @@ function mapValues(type: FileType, keys: readonly string[]): Record<string, File
     }
     return result;
 }
-
 const FILENAME_TYPES: Record<string, FileType> = {
-    ...mapValues('build', [
-        'Brewfile', 'bsconfig.json', 'BUILD', 'BUILD.bazel', 'build.gradle', 'build.sbt', 'build.xml', 'Cargo.toml', 'CMakeLists.txt', 'composer.json', 'configure', 'Containerfile', 'Dockerfile', 'Earthfile', 'flake.nix', 'Gemfile', 'GNUmakefile', 'Gruntfile.coffee', 'Gruntfile.js', 'jsconfig.json', 'Justfile', 'justfile', 'Makefile', 'makefile', 'meson.build', 'mix.exs', 'package.json', 'Pipfile', 'PKGBUILD', 'Podfile', 'pom.xml', 'Procfile', 'pyproject.toml', 'Rakefile', 'RoboFile.php', 'SConstruct', 'tsconfig.json', 'Vagrantfile', 'webpack.config.cjs', 'webpack.config.js', 'WORKSPACE',
-    ]),
-    ...mapValues('crypto', [
-        'id_dsa', 'id_ecdsa', 'id_ecdsa_sk', 'id_ed25519', 'id_ed25519_sk', 'id_rsa',
-    ]),
+    ...mapValues(
+        "build",
+        "Brewfile,bsconfig.json,BUILD,BUILD.bazel,build.gradle,build.sbt,build.xml,Cargo.toml,CMakeLists.txt,composer.json,configure,Containerfile,Dockerfile,Earthfile,flake.nix,Gemfile,GNUmakefile,Gruntfile.coffee,Gruntfile.js,jsconfig.json,Justfile,justfile,Makefile,makefile,meson.build,mix.exs,package.json,Pipfile,PKGBUILD,Podfile,pom.xml,Procfile,pyproject.toml,Rakefile,RoboFile.php,SConstruct,tsconfig.json,Vagrantfile,webpack.config.cjs,webpack.config.js,WORKSPACE".split(
+            ","
+        )
+    ),
+    ...mapValues(
+        "crypto",
+        "id_dsa,id_ecdsa,id_ecdsa_sk,id_ed25519,id_ed25519_sk,id_rsa".split(",")
+    ),
 };
 
 const EXTENSION_TYPES: Record<string, FileType> = {
-    ...mapValues('build', ['ninja']),
-    ...mapValues('image', [
-        'arw', 'avif', 'bmp', 'cbr', 'cbz', 'cr2', 'dvi', 'eps', 'fodg', 'gif', 'heic', 'heif', 'ico', 'j2c', 'j2k', 'jfi', 'jfif', 'jif', 'jp2', 'jpe', 'jpeg', 'jpf', 'jpg', 'jpx', 'jxl', 'kra', 'krz', 'nef', 'odg', 'orf', 'pbm', 'pgm', 'png', 'pnm', 'ppm', 'ps', 'psd', 'pxm', 'raw', 'qoi', 'svg', 'tif', 'tiff', 'webp', 'xcf', 'xpm',
-    ]),
-    ...mapValues('video', [
-        'avi', 'flv', 'h264', 'heics', 'm2ts', 'm2v', 'm4v', 'mkv', 'mov', 'mp4', 'mpeg', 'mpg', 'ogm', 'ogv', 'video', 'vob', 'webm', 'wmv',
-    ]),
-    ...mapValues('music', ['aac', 'm4a', 'mka', 'mp2', 'mp3', 'ogg', 'opus', 'wma']),
-    ...mapValues('lossless', ['aif', 'aifc', 'aiff', 'alac', 'ape', 'flac', 'pcm', 'wav', 'wv']),
-    ...mapValues('crypto', [
-        'age', 'asc', 'cer', 'crt', 'csr', 'gpg', 'kbx', 'md5', 'p12', 'pem', 'pfx', 'pgp', 'pub', 'sha1', 'sha224', 'sha256', 'sha384', 'sha512', 'sig', 'signature',
-    ]),
-    ...mapValues('document', [
-        'djvu', 'doc', 'docx', 'eml', 'fodp', 'fods', 'fodt', 'fotd', 'gdoc', 'key', 'keynote', 'numbers', 'odp', 'ods', 'odt', 'pages', 'pdf', 'ppt', 'pptx', 'rtf', 'xls', 'xlsm', 'xlsx',
-    ]),
-    ...mapValues('compressed', [
-        '7z', 'ar', 'arj', 'br', 'bz', 'bz2', 'bz3', 'cpio', 'deb', 'dmg', 'gz', 'iso', 'lz', 'lz4', 'lzh', 'lzma', 'lzo', 'phar', 'qcow', 'qcow2', 'rar', 'rpm', 'tar', 'taz', 'tbz', 'tbz2', 'tc', 'tgz', 'tlz', 'txz', 'tz', 'xz', 'vdi', 'vhd', 'vhdx', 'vmdk', 'z', 'zip', 'zst',
-    ]),
-    ...mapValues('temp', [
-        'bak', 'bk', 'bkp', 'crdownload', 'download', 'fcbak', 'fcstd1', 'fdmdownload', 'part', 'swn', 'swo', 'swp', 'tmp',
-    ]),
-    ...mapValues('compiled', [
-        'a', 'bundle', 'class', 'cma', 'cmi', 'cmo', 'cmx', 'dll', 'dylib', 'elc', 'elf', 'ko', 'lib', 'o', 'obj', 'pyc', 'pyd', 'pyo', 'so', 'zwc',
-    ]),
-    ...mapValues('source', [
-        'applescript', 'as', 'asa', 'awk', 'c', 'c++', 'c++m', 'cabal', 'cc', 'ccm', 'clj', 'cp', 'cpp', 'cppm', 'cr', 'cs', 'css', 'csx', 'cu', 'cxx', 'cxxm', 'cypher', 'd', 'dart', 'di', 'dpr', 'el', 'elm', 'erl', 'ex', 'exs', 'f', 'f90', 'fcmacro', 'fcscript', 'fnl', 'for', 'fs', 'fsh', 'fsi', 'fsx', 'gd', 'go', 'gradle', 'groovy', 'gvy', 'h', 'h++', 'hh', 'hpp', 'hc', 'hs', 'htc', 'hxx', 'inc', 'inl', 'ino', 'ipynb', 'ixx', 'java', 'jl', 'js', 'jsx', 'kt', 'kts', 'kusto', 'less', 'lhs', 'lisp', 'ltx', 'lua', 'm', 'malloy', 'matlab', 'ml', 'mli', 'mn', 'nb', 'p', 'pas', 'php', 'pl', 'pm', 'pod', 'pp', 'prql', 'ps1', 'psd1', 'psm1', 'purs', 'py', 'r', 'rb', 'rs', 'rq', 'sass', 'scala', 'scm', 'scad', 'scss', 'sld', 'sql', 'ss', 'swift', 'tcl', 'tex', 'ts', 'v', 'vb', 'vsh', 'zig',
-    ]),
+    ...mapValues("build", "ninja".split(",")),
+    ...mapValues(
+        "image",
+        "arw,avif,bmp,cbr,cbz,cr2,dvi,eps,fodg,gif,heic,heif,ico,j2c,j2k,jfi,jfif,jif,jp2,jpe,jpeg,jpf,jpg,jpx,jxl,kra,krz,nef,odg,orf,pbm,pgm,png,pnm,ppm,ps,psd,pxm,raw,qoi,svg,tif,tiff,webp,xcf,xpm".split(
+            ","
+        )
+    ),
+    ...mapValues(
+        "video",
+        "avi,flv,h264,heics,m2ts,m2v,m4v,mkv,mov,mp4,mpeg,mpg,ogm,ogv,video,vob,webm,wmv".split(
+            ","
+        )
+    ),
+    ...mapValues("music", "aac,m4a,mka,mp2,mp3,ogg,opus,wma".split(",")),
+    ...mapValues("lossless", "aif,aifc,aiff,alac,ape,flac,pcm,wav,wv".split(",")),
+    ...mapValues(
+        "crypto",
+        "age,asc,cer,crt,csr,gpg,kbx,md5,p12,pem,pfx,pgp,pub,sha1,sha224,sha256,sha384,sha512,sig,signature".split(
+            ","
+        )
+    ),
+    ...mapValues(
+        "document",
+        "djvu,doc,docx,eml,fodp,fods,fodt,fotd,gdoc,key,keynote,numbers,odp,ods,odt,pages,pdf,ppt,pptx,rtf,xls,xlsm,xlsx".split(
+            ","
+        )
+    ),
+    ...mapValues(
+        "compressed",
+        "7z,ar,arj,br,bz,bz2,bz3,cpio,deb,dmg,gz,iso,lz,lz4,lzh,lzma,lzo,phar,qcow,qcow2,rar,rpm,tar,taz,tbz,tbz2,tc,tgz,tlz,txz,tz,xz,vdi,vhd,vhdx,vmdk,z,zip,zst".split(
+            ","
+        )
+    ),
+    ...mapValues(
+        "temp",
+        "bak,bk,bkp,crdownload,download,fcbak,fcstd1,fdmdownload,part,swn,swo,swp,tmp".split(
+            ","
+        )
+    ),
+    ...mapValues(
+        "compiled",
+        "a,bundle,class,cma,cmi,cmo,cmx,dll,dylib,elc,elf,ko,lib,o,obj,pyc,pyd,pyo,so,zwc".split(
+            ","
+        )
+    ),
+    ...mapValues(
+        "source",
+        "applescript,as,asa,awk,c,c++,c++m,cabal,cc,ccm,clj,cp,cpp,cppm,cr,cs,css,csx,cu,cxx,cxxm,cypher,d,dart,di,dpr,el,elm,erl,ex,exs,f,f90,fcmacro,fcscript,fnl,for,fs,fsh,fsi,fsx,gd,go,gradle,groovy,gvy,h,h++,hh,hpp,hc,hs,htc,hxx,inc,inl,ino,ipynb,ixx,java,jl,js,jsx,kt,kts,kusto,less,lhs,lisp,ltx,lua,m,malloy,matlab,ml,mli,mn,nb,p,pas,php,pl,pm,pod,pp,prql,ps1,psd1,psm1,purs,py,r,rb,rs,rq,sass,scala,scm,scad,scss,sld,sql,ss,swift,tcl,tex,ts,v,vb,vsh,zig".split(
+            ","
+        )
+    ),
 };
 
 const TEMP_FILENAME_PREFIX = '#';
@@ -223,7 +255,7 @@ function colourFile(filename: string): string {
 }
 
 function paint(style: string, text: string): string {
-        
+
     if (!style || !DISPLAY_COLORS) {
         return text;
     }
@@ -246,7 +278,7 @@ function styleForStat(filename: string, stat: StatLike | null): string {
     }
 
     if (stat.isDirectory()) {
-        if (lstatSync(path.dirname(filename)).dev !== stat.dev){
+        if (lstatSync(path.dirname(filename)).dev !== stat.dev) {
             return themeStyles.mountPoint;
         }
         return themeStyles.directory;
@@ -388,6 +420,18 @@ function formatSize(size: number, padWidth: number = 4): string {
         const padding = ' '.repeat(Math.max(0, padWidth - 1));
         return paint(makeStyle({ fg: FG.grey }), `${padding}${dashStr}`);
     }
+    if (size === -1) {
+        // Error sentinel
+        const str = 'ERR';
+        const padding = ' '.repeat(Math.max(0, padWidth - str.length));
+        return paint(makeStyle({ fg: FG.red, bold: true }), `${padding}${str}`);
+    }
+    if (size === -2) {
+        // Timeout sentinel
+        const str = 'T/O';
+        const padding = ' '.repeat(Math.max(0, padWidth - str.length));
+        return paint(makeStyle({ fg: FG.yellow, bold: true }), `${padding}${str}`);
+    }
 
     const units = ['', 'k', 'M', 'G', 'T'];
     let unitIndex = 0;
@@ -479,43 +523,201 @@ export function formatFilename(
 
 
 // Calculate recursive directory size
-function getDirectorySize(dirPath: string, cacheEnabled = true): number {
+// Async version of getDirectorySize
+async function getDirectorySizeAsync(dirPath: string, cacheEnabled = true, deadline: number = Number.MAX_SAFE_INTEGER): Promise<number> {
     try {
+        if (Date.now() > deadline) {
+            return -2;
+        }
 
+        const entries = await readdir(dirPath, { withFileTypes: true });
         let totalSize = 0;
 
-        const entries = readdirSync(dirPath, { withFileTypes: true });
+        // Cache check
         if (cacheEnabled && (entries.length > MIN_ENTRIES_CACHE || dirPath.split('/').length >= 9 || dirPath.match(/(node_modules|(target\/(release|debug)\/(deps|build|incremental|.fingerprint))|.build|.git|.venv)$/))) {
             const hashK = [dirPath, Bun.file(dirPath).lastModified, Bun.hash(entries.map(e => e.name).join(','))].join('|');
-            if (!cache[hashK]) {
-                cache[hashK] = getDirectorySize(dirPath, false);
+            const cachedValue = getCacheStmt.get(hashK) as { size: number } | null;
+            if (cachedValue) {
+                return cachedValue.size;
             }
-            return cache[hashK]
+
+            // Calculate size with caching enabled for this recursive step
+            // We use Promise.all for parallelism
+            const sizes = await Promise.all(entries.map(async (entry) => {
+                const fullPath = join(dirPath, entry.name);
+                if (entry.isDirectory()) {
+                    return getDirectorySizeAsync(fullPath, cacheEnabled, deadline);
+                } else if (entry.isFile()) {
+                    const file = Bun.file(fullPath);
+                    return file.size;
+                }
+                return 0;
+            }));
+
+            if (sizes.includes(-2)) return -2;
+
+            totalSize = sizes.reduce((acc, s) => (s > 0 ? acc + s : acc), 0);
+            setCacheStmt.run(hashK, totalSize);
+            return totalSize;
         }
 
 
-        for (const entry of entries) {
+        // Non-cached parallel calculation
+        const sizes = await Promise.all(entries.map(async (entry) => {
             const fullPath = join(dirPath, entry.name);
-            // console.log(fullPath.split('/').length, fullPath)
             if (entry.isDirectory()) {
-                totalSize += getDirectorySize(fullPath, cacheEnabled);
+                return getDirectorySizeAsync(fullPath, cacheEnabled, deadline);
             } else if (entry.isFile()) {
-                const file = Bun.file(fullPath)
-                // const hashK = fullPath + '|'+ file.lastModified
-                // if ((hashK in cache)) {
-                //     cache[hashK] = file.size;
-                // }
-
-                totalSize += file.size
+                const file = Bun.file(fullPath);
+                return file.size;
             }
-        }
+            return 0;
+        }));
 
+        if (sizes.includes(-2)) return -2;
+
+        totalSize = sizes.reduce((acc, s) => (s > 0 ? acc + s : acc), 0);
         return totalSize;
     }
     catch (err) {
         return -1
     }
 }
+
+interface EntryData {
+    entry: Dirent;
+    fullPath: string;
+    size: number;
+    ts: number;
+}
+
+async function* streamResults<T>(tasks: Promise<T>[]): AsyncGenerator<T> {
+    const pool = new Set<Promise<readonly [Promise<any>, T]>>();
+    for (const task of tasks) {
+        const wrapper = task.then(value => [wrapper, value] as const);
+        pool.add(wrapper);
+    }
+    while (pool.size > 0) {
+        const [winner, value] = await Promise.race(pool);
+        pool.delete(winner);
+        yield value;
+    }
+}
+
+
+async function* processEntries(targetDir: string, dirs: string[], flags: any, deadline: number): AsyncGenerator<EntryData> {
+    if (!existsSync(targetDir)) {
+        console.error(`"${targetDir}": No such file or directory`)
+        return;
+    }
+
+    const s = lstatSync(targetDir)
+
+    const isDir = (() => {
+        if (s.isSymbolicLink()) {
+            const realTargetDir = existsSync(targetDir) && realpathSync(targetDir)
+            return realTargetDir && existsSync(realTargetDir) && lstatSync(realTargetDir)?.isDirectory()
+        }
+        return s.isDirectory()
+    })()
+    if (dirs.length > 1 && isDir && !flags.dir) {
+        console.log(targetDir + ':')
+    }
+
+    // We need to handle the case where targetDir is a file!
+    // Original logic:
+    // if (isDir && !flags.dir) -> readdirSync(targetDir)
+    // else -> readdirSync(dirname(targetDir)).filter(name == basename)
+
+    let entries: Dirent[];
+
+    // Need async readdir for consistency if possible, but readdirSync is fast enough for the top level usually.
+    // However, to keep it async:
+    if (isDir && !flags.dir) {
+        entries = await readdir(targetDir, { withFileTypes: true });
+    } else {
+        // If it's a file, we read the parent dir and filter
+        const parent = path.dirname(targetDir);
+        const base = path.basename(targetDir);
+        const all = await readdir(parent, { withFileTypes: true });
+        entries = all.filter(e => e.name === base);
+    }
+
+
+    const cacheEnabled = !process.env.TOTALSIZE && !flags.nocache;
+
+    const tasks = entries.map(async (entry) => {
+        // Caution: logic for fullPath depends on where entry came from.
+        // If entry came from readdir(targetDir), parentPath is targetDir.
+        // If entry came from readdir(parent), parentPath is parent.
+        // entry.parentPath is available in Node 20+, Bun supports it? 
+        // Original code used `join(realpathSync(entry.parentPath), entry.name)`.
+        // Let's assume entry.parentPath is compliant or re-derive it.
+        // Actually, to be safe, if we read from `targetDir`, then parent is `targetDir`.
+        // If we read from `dirname(targetDir)`, parent is `dirname(targetDir)`.
+
+        let parentPath: string;
+        if (isDir && !flags.dir) {
+            parentPath = targetDir;
+        } else {
+            parentPath = path.dirname(targetDir);
+        }
+
+        // Ensure realpath
+        try {
+            parentPath = realpathSync(parentPath);
+        } catch (e) {
+            // ignore if fails?
+        }
+
+        const fullPath = join(parentPath, entry.name);
+        if (Date.now() > deadline) {
+            return { entry, fullPath, size: -2, ts: Date.now() };
+        }
+        const bf = Bun.file(fullPath)
+
+        const size = entry.isDirectory()
+            ? await getDirectorySizeAsync(fullPath, cacheEnabled, deadline)
+            : bf.size;
+
+        const ts = new Date(bf.lastModified).getFullYear() > 3000
+            ? lstatSync(fullPath).mtimeMs
+            : bf.lastModified;
+
+        return { entry, fullPath, size, ts }
+    });
+
+    if (flags.sort) {
+        const results = await Promise.all(tasks);
+
+        if (flags.sort.startsWith('-')) {
+            flags.sort = flags.sort.slice(1)
+            flags.reverse = !flags.reverse
+        }
+        results.sort((b, a) => {
+            if (flags.sort === 'size') {
+                return b.size - a.size
+            }
+            if (flags.sort === 'time' || flags.sort === 'date') {
+                return b.ts - a.ts
+            }
+            return a.entry.name.localeCompare(b.entry.name)
+        })
+        if (flags.reverse) {
+            results.reverse()
+        }
+
+        for (const item of results) {
+            yield item;
+        }
+
+    } else {
+        for await (const item of streamResults(tasks)) {
+            yield item;
+        }
+    }
+}
+
 if (import.meta.main) {
 
 
@@ -539,80 +741,42 @@ if (import.meta.main) {
             },
             one: {
                 short: '1',
-                type:'boolean'
+                type: 'boolean'
             },
             dir: {
                 short: 'd',
                 type: 'boolean',
             },
-        
+            nocache: {
+                type: 'boolean',
+            },
+            timeout: {
+                type: 'string', // parsed as int really
+            }
+
         },
         allowPositionals: true,
-    });
-    // console.table(flags)
-    const dirs = positionals.length === 0 ? '.' : positionals
-    // const args = Bun.argv.slice(2);
-    // const targetDir = args[0] || '.';
-    const cacheEnabled = !process.env.TOTALSIZE
+    }); // end parseArgs
+
+    const dirs = positionals.length === 0 ? ['.'] : (positionals as string[])
+    const deadline = Date.now() + Number(flags.timeout || 1000)
+
+    let spawnedWarming = false;
     for (const targetDir of dirs) {
-        if (!existsSync(targetDir)) {
-            console.error(`"${targetDir}": No such file or directory`)
-            continue
-        }
-        
-        const s = lstatSync(targetDir)
-
-        const isDir = (() => {
-            if (s.isSymbolicLink()) {
-                const realTargetDir = existsSync(targetDir) && realpathSync(targetDir)
-                return realTargetDir && existsSync(realTargetDir) && lstatSync(realTargetDir)?.isDirectory()
-            }
-            return s.isDirectory()
-        })()
-        if (dirs.length > 1 && isDir && !flags.dir) {
-            console.log(targetDir + ':')
-        }
-        const entries = (() => {
-            // console.log('entries', {isDir, flags})
-            if (isDir && !flags.dir) {
-                return readdirSync(targetDir, { withFileTypes: true })
-            }
-            return readdirSync(path.dirname(targetDir), { withFileTypes: true }).filter(e => e.name === path.basename(targetDir))
-            
-        })()
-        // console.log({entries})
-        let entriesLoaded = entries.map(entry => {
-            const fullPath = join(realpathSync(entry.parentPath), entry.name);
-            const bf = Bun.file(fullPath)
-
-            const size = entry.isDirectory() ? getDirectorySize(fullPath, cacheEnabled) : bf.size;
-            const ts = new Date(bf.lastModified).getFullYear() > 3000 ? lstatSync(fullPath).mtimeMs : bf.lastModified
-            return { entry, fullPath, size, ts }
-        })
-        if (flags.sort) {
-            if (flags.sort.startsWith('-')) {
-                flags.sort = flags.sort.slice(1)
-                flags.reverse = !flags.reverse
-            }
-            entriesLoaded.sort((b, a) => {
-                if (flags.sort === 'size') {
-                    return b.size - a.size
-                }
-                if (flags.sort === 'time' || flags.sort === 'date') {
-                    return b.ts - a.ts
-                }
-                return a.entry.name.localeCompare(b.entry.name)
-            })
-        }
-        if (flags.reverse) {
-            entriesLoaded.reverse()
-        }
-
-        for (const { entry, fullPath, size, ts } of entriesLoaded) {
+        for await (const { entry, fullPath, size, ts } of processEntries(targetDir, dirs, flags, deadline)) {
             if (!flags.all && entry.name.startsWith('.')) {
                 continue;
             }
-                
+
+            if (size === -2 && !spawnedWarming) {
+                spawnedWarming = true;
+                // Background cache warming: spawn the same command once with a huge timeout
+                Bun.spawn([Bun.argv[0], Bun.argv[1], ...Bun.argv.slice(2), '--timeout', '999999999'], {
+                    stdio: ['ignore', 'ignore', 'ignore'],
+                    detached: true,
+                }).unref();
+            }
+
             const formatted = formatFilename(entry);
 
             if (flags.one) {
@@ -621,21 +785,24 @@ if (import.meta.main) {
             }
             const datef = formatDate(new Date(ts))
 
-            const pre = isDir ? '' : paint(themeStyles.basepath, path.dirname(targetDir) + '/')
-            
-                
-            console.log('', formatSize(size), datef, '–', pre + formatted)
-            // const fullPath = fullPath;
-            // if (entry.isSymbolicLink?.()) {
-            //     console.log(entry)
-            //     console.log('->', fullPath, entry.isSymbolicLink?.(), readlinkSync(fullPath))
+            // Re-derive prefix logic
+            const s = lstatSync(targetDir as string)
+            const targetIsDir = (() => {
+                if (s.isSymbolicLink()) {
+                    const realTargetDir = existsSync(targetDir as string) && realpathSync(targetDir as string)
+                    return realTargetDir && existsSync(realTargetDir) && lstatSync(realTargetDir)?.isDirectory()
+                }
+                return s.isDirectory()
+            })()
 
-            // }
-            // const stat = await lstat(fullPath);
-            // console.log(
-            //     await Bun.file(fullPath).stat()
-            // );
+            // "pre" is only non-empty if we are listing the CONTENT of a directory (not just the dir itself via -d)
+            // AND we want to show the full path context? 
+            // Original code: `isDir` (of target) ? '' : paint(...) 
+            // If target is a file, we prepend directory.
+            const pre = (targetIsDir && !flags.dir) ? '' : paint(themeStyles.basepath, path.dirname(targetDir as string) + '/')
+
+            console.log('', formatSize(size), datef, '–', pre + formatted)
+
         }
     }
-    await cacheFile.write(JSON.stringify(cache))
 }
