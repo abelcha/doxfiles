@@ -26,22 +26,44 @@ export const serializeValue = (v: any): string => {
 };
 
 /** Helper to construct DuckDB function call strings */
-export const fnSerial = (name: string, file: string | string[], opts: Record<string, any>) => {
+export const fnSerial = (
+  name: string,
+  file: string | string[],
+  opts: Record<string, any>
+) => {
   const keys = Object.keys(opts);
-  const fileArg = Array.isArray(file) ? `[${file.map((f) => `'${f}'`).join(",")}]` : `'${file}'`;
+  const fileArg = Array.isArray(file)
+    ? `[${file.map((f) => `'${smartAtToStar(f)}'`).join(",")}]`
+    : `'${smartAtToStar(file)}'`;
+
+  if (!name || name === "from") {
+    if (keys.length === 0) return fileArg;
+    const serializedOpts = keys
+      .map((k) => `${k}=${serializeValue(opts[k])}`)
+      .join(",");
+    return `${fileArg} (${serializedOpts})`;
+  }
 
   if (keys.length === 0) return `${name}(${fileArg})`;
-  const serializedOpts = keys.map((k) => `${k}=${serializeValue(opts[k])}`).join(",");
+  const serializedOpts = keys
+    .map((k) => `${k}=${serializeValue(opts[k])}`)
+    .join(",");
   return `${name}(${fileArg},${serializedOpts})`;
 };
 
 /** Helper to automatically wrap SQL values in single quotes (for positional args with spaces) */
 export const autoQuoteSql = (sql: string): string => {
   // 1. Handle LIKE, ILIKE, SIMILAR TO
-  let result = sql.replace(/\b(LIKE|ILIKE|SIMILAR\s+TO)\s+([^\s'",)]+)/gi, "$1 '$2'");
+  let result = sql.replace(
+    /\b(LIKE|ILIKE|SIMILAR\s+TO)\s+([^\s'",)]+)/gi,
+    "$1 '$2'"
+  );
 
   // 2. Handle operators WITH spaces only: col = value (not col=value)
-  result = result.replace(/(\s+(=|!=|<>|~|~~|!~|!~~|>=|<=|>|<)\s+)([^\s'",)]+)/g, "$1'$3'");
+  result = result.replace(
+    /(\s+(=|!=|<>|~|~~|!~|!~~|>=|<=|>|<)\s+)([^\s'",)]+)/g,
+    "$1'$3'"
+  );
 
   return result;
 };
@@ -56,7 +78,7 @@ export const autoQuoteWhere = (sql: string): string => {
         return match;
       }
       return `${col}${op}${space}'${value}'`;
-    },
+    }
   );
 };
 
@@ -170,7 +192,8 @@ export const smartAtToStar = (input: string): string => {
 export const highlightSql = (sql: string): string => {
   const ANSI_RESET = "\x1b[0m";
   const ANSI_BOLD = "\x1b[1m";
-  const rgbToAnsi = (r: number, g: number, b: number) => `${ANSI_BOLD}\x1b[38;2;${r};${g};${b}m`;
+  const rgbToAnsi = (r: number, g: number, b: number) =>
+    `${ANSI_BOLD}\x1b[38;2;${r};${g};${b}m`;
 
   const colors = {
     keyword: rgbToAnsi(16, 177, 254),
@@ -263,7 +286,7 @@ export const highlightSql = (sql: string): string => {
  */
 export const isExpressionSource = (src: string): boolean => {
   if (src.includes("(") || src.includes("{")) return true;
-  if (src.includes("*") || src.includes("?")) return false; // Wildcards = files
+  if (src.includes("*") || src.includes("?") || src.includes("@")) return false; // Wildcards = files
 
   // Check for extension
   const hasExtension = /\.[a-z0-9]+$/i.test(src);
@@ -282,6 +305,100 @@ export const EXT_TO_CMD: Record<string, string> = {
   xlsx: "read_xlsx",
 };
 
+/**
+ * Mapping of DuckDB functions to their required extensions.
+ * Format: { function_name: { extension: "ext_name", install: "repo" } }
+ * extension: Name of the extension to LOAD
+ * install: Repository to install from (default: "community")
+ */
+export const FN_TO_EXTENSION: Record<
+  string,
+  { extension: string; repo?: string }
+> = {
+  // httpfs extension
+  read_csv_auto: { extension: "httpfs" },
+  read_json_auto: { extension: "httpfs" },
+  read_parquet_auto: { extension: "httpfs" },
+  http_get: { extension: "httpfs" },
+  http_post: { extension: "httpfs" },
+  http_head: { extension: "httpfs" },
+  http_delete: { extension: "httpfs" },
+
+  // excel extension
+  read_xlsx: { extension: "excel" },
+  read_xls: { extension: "excel" },
+  spreadsheet_query: { extension: "excel" },
+
+  // spatial extension
+  st_point: { extension: "spatial" },
+  st_aswkt: { extension: "spatial" },
+  st_astext: { extension: "spatial" },
+  st_geomfromtext: { extension: "spatial" },
+  st_geomfromwkt: { extension: "spatial" },
+  st_contains: { extension: "spatial" },
+  st_intersects: { extension: "spatial" },
+  st_distance: { extension: "spatial" },
+  st_buffer: { extension: "spatial" },
+  st_transform: { extension: "spatial" },
+
+  // fts (full-text search) extension
+  fts_main: { extension: "fts" },
+  bm25: { extension: "fts" },
+  highlight: { extension: "fts" },
+
+  // autocomplete extension
+  prefix_search: { extension: "autocomplete" },
+  suffix_search: { extension: "autocomplete" },
+
+  // icu extension
+  collate: { extension: "icu" },
+  lower_case: { extension: "icu" },
+  upper_case: { extension: "icu" },
+  title_case: { extension: "icu" },
+
+  // json extension (extra JSON functions)
+  json_extract_string: { extension: "json" },
+  json_transform: { extension: "json" },
+  json_structure: { extension: "json" },
+
+  // postgres scanner
+  postgres_attach: { extension: "postgres" },
+  postgres_scan: { extension: "postgres" },
+
+  // mysql scanner
+  mysql_attach: { extension: "mysql" },
+  mysql_scan: { extension: "mysql" },
+
+  // sqlite scanner
+  sqlite_attach: { extension: "sqlite" },
+  sqlite_scan: { extension: "sqlite" },
+  read_sqlite: { extension: "sqlite" },
+
+  // delta table format
+  read_delta: { extension: "delta", repo: "community" },
+
+  // arrow extension
+  read_ipc: { extension: "arrow" },
+  read_arrow: { extension: "arrow" },
+
+  // tpch extension
+  dbgen: { extension: "tpch" },
+  tpch_queries: { extension: "tpch" },
+
+  // tpcds extension
+  dsdgen: { extension: "tpcds" },
+  tpcds_queries: { extension: "tpcds" },
+
+  // vss (vector similarity search) extension
+  array_distance: { extension: "vss" },
+  array_cosine_similarity: { extension: "vss" },
+  array_inner_product: { extension: "vss" },
+
+  // aws extension
+  s3_list_objects: { extension: "aws" },
+  s3_get_object: { extension: "aws" },
+};
+
 /** COPY TO options documentation - extracted from src/copy.ts */
 type CopyOptionDef = { formats: string[]; desc: string };
 const COPY_OPTIONS: Record<string, CopyOptionDef> = {
@@ -294,15 +411,30 @@ const COPY_OPTIONS: Record<string, CopyOptionDef> = {
     formats: ["csv", "json"],
     desc: "Date format for writing dates. @see https://duckdb.org/docs/sql/functions/dateformat",
   },
-  delim: { formats: ["csv"], desc: "Delimiter character to separate columns. @default ','" },
-  sep: { formats: ["csv"], desc: "Alias for delim. Delimiter character. @default ','" },
+  delim: {
+    formats: ["csv"],
+    desc: "Delimiter character to separate columns. @default ','",
+  },
+  sep: {
+    formats: ["csv"],
+    desc: "Alias for delim. Delimiter character. @default ','",
+  },
   escape: {
     formats: ["csv"],
     desc: "Character before a quote character within quoted values. @default '\"'",
   },
-  force_quote: { formats: ["csv"], desc: "List of columns to always add quotes to. @default []" },
-  header: { formats: ["csv"], desc: "Whether to write a header for the CSV file. @default true" },
-  nullstr: { formats: ["csv"], desc: "String to represent NULL value. @default '' (empty string)" },
+  force_quote: {
+    formats: ["csv"],
+    desc: "List of columns to always add quotes to. @default []",
+  },
+  header: {
+    formats: ["csv"],
+    desc: "Whether to write a header for the CSV file. @default true",
+  },
+  nullstr: {
+    formats: ["csv"],
+    desc: "String to represent NULL value. @default '' (empty string)",
+  },
   prefix: {
     formats: ["csv"],
     desc: "Prefix string for CSV file. Requires header=false. @default ''",
@@ -311,7 +443,10 @@ const COPY_OPTIONS: Record<string, CopyOptionDef> = {
     formats: ["csv"],
     desc: "Suffix string for CSV file. Requires header=false. @default ''",
   },
-  quote: { formats: ["csv"], desc: "Quoting character for data values. @default '\"'" },
+  quote: {
+    formats: ["csv"],
+    desc: "Quoting character for data values. @default '\"'",
+  },
   timestampformat: {
     formats: ["csv", "json"],
     desc: "Timestamp format for writing. @see https://duckdb.org/docs/sql/functions/dateformat",
@@ -333,14 +468,20 @@ const COPY_OPTIONS: Record<string, CopyOptionDef> = {
     formats: ["parquet"],
     desc: "Target number of rows per row group. @default 122880",
   },
-  row_groups_per_file: { formats: ["parquet"], desc: "Create new file after N row groups." },
+  row_groups_per_file: {
+    formats: ["parquet"],
+    desc: "Create new file after N row groups.",
+  },
   // JSON options
   array: {
     formats: ["json"],
     desc: "Write JSON array of records (true) or newline-delimited (false). @default false",
   },
   // Generic options (all formats)
-  format: { formats: ["all"], desc: "Explicit format: parquet, csv, json, arrow, jsonl." },
+  format: {
+    formats: ["all"],
+    desc: "Explicit format: parquet, csv, json, arrow, jsonl.",
+  },
   use_tmp_file: {
     formats: ["all"],
     desc: "Write to temp file first to prevent broken overwrites. @default 'auto'",
@@ -361,8 +502,14 @@ const COPY_OPTIONS: Record<string, CopyOptionDef> = {
     formats: ["all"],
     desc: "Pattern for filename, can use {uuid} or {id}. @default 'auto'",
   },
-  file_extension: { formats: ["all"], desc: "File extension for generated files. @default 'auto'" },
-  per_thread_output: { formats: ["all"], desc: "Generate one file per thread. @default false" },
+  file_extension: {
+    formats: ["all"],
+    desc: "File extension for generated files. @default 'auto'",
+  },
+  per_thread_output: {
+    formats: ["all"],
+    desc: "Generate one file per thread. @default false",
+  },
   file_size_bytes: {
     formats: ["all"],
     desc: "Max file size before creating new file (e.g., '1MB'). @default ''",
@@ -395,7 +542,17 @@ const FLAG_SUGGESTIONS: Record<string, string[]> = {
     "none",
   ],
   encoding: ["utf-8", "utf-16", "latin-1"],
-  format: ["auto", "newline_delimited", "array", "parquet", "csv", "tsv", "json", "jsonl", "arrow"],
+  format: [
+    "auto",
+    "newline_delimited",
+    "array",
+    "parquet",
+    "csv",
+    "tsv",
+    "json",
+    "jsonl",
+    "arrow",
+  ],
   new_line: ["\\r", "\\n", "\\r\\n"],
   mode: ["box", "line", "json", "csv", "markdown"],
 };
@@ -418,7 +575,10 @@ const optionMatchesFormat = (opt: CopyOptionDef, format: string): boolean => {
 
 /** Legacy flat format for help display and option parsing */
 export const COPY_OPTIONS_DOCS: Record<string, string> = Object.fromEntries(
-  Object.entries(COPY_OPTIONS).map(([k, v]) => [k, `[${v.formats.join("/")}] ${v.desc}`]),
+  Object.entries(COPY_OPTIONS).map(([k, v]) => [
+    k,
+    `[${v.formats.join("/")}] ${v.desc}`,
+  ])
 );
 
 export type SqlOptions = {
@@ -441,7 +601,7 @@ export type ParsedArgs = {
   toPath?: string;
   mode?: string;
   truncate: boolean;
-  paging: boolean;
+  paging: string | boolean;
   tui: boolean;
   queryParts: string[];
   sqlOptions: SqlOptions;
@@ -451,12 +611,15 @@ export type ParsedArgs = {
 
 export const COMMANDS_DOCS: Record<string, Record<string, string>> = {
   read_csv: {
-    all_varchar: "Skip type detection and assume all columns are of type VARCHAR. @default false",
-    allow_quoted_nulls: "Allow the conversion of quoted values to NULL values. @default true",
+    all_varchar:
+      "Skip type detection and assume all columns are of type VARCHAR. @default false",
+    allow_quoted_nulls:
+      "Allow the conversion of quoted values to NULL values. @default true",
     auto_detect: "Auto detect CSV parameters. @default true",
     auto_type_candidates:
       "Types that the sniffer uses when detecting column types. @default ['VARCHAR', 'BIGINT', 'DOUBLE', 'DATE', 'TIME', 'TIMESTAMP']",
-    buffer_size: "Size of the buffers used to read files, in bytes. @default 16 * max_line_size",
+    buffer_size:
+      "Size of the buffers used to read files, in bytes. @default 16 * max_line_size",
     column_names: "Alias for names. Column names, as a list. @default []",
     column_types:
       "Alias for types. Column types, as either a list (by position) or a struct (by name). @default {} or []",
@@ -466,12 +629,14 @@ export const COMMANDS_DOCS: Record<string, Record<string, string>> = {
     compression: "Method used to compress CSV files. @default 'auto'",
     dateformat: "Date format used when parsing and writing dates. @default ''",
     decimal_separator: "Decimal separator for numbers. @default '.'",
-    delim: "Delimiter character used to separate columns. Alias for sep. @default ','",
+    delim:
+      "Delimiter character used to separate columns. Alias for sep. @default ','",
     dtypes:
       "Alias for types. Column types, as either a list (by position) or a struct (by name). @default {} or []",
     encoding:
       "Encoding used by the CSV file. Options are 'utf-8', 'utf-16', 'latin-1'. @default 'utf-8'",
-    escape: "String used to escape the quote character within quoted values. @default '\"'",
+    escape:
+      "String used to escape the quote character within quoted values. @default '\"'",
     filename:
       "Add path of the containing file to each row to a column named 'filename'. @default false",
     files_to_sniff:
@@ -479,14 +644,18 @@ export const COMMANDS_DOCS: Record<string, Record<string, string>> = {
     force_not_null:
       "Do not match values in the specified columns against the NULL string. @default []",
     header: "First line of each file contains the column names. @default false",
-    hive_partitioning: "Interpret the path as a Hive partitioned path. @default false",
+    hive_partitioning:
+      "Interpret the path as a Hive partitioned path. @default false",
     hive_types: "Hive types. @default -",
     hive_types_autocast: "Hive types autocast. @default true",
     ignore_errors: "Ignore any parsing errors encountered. @default false",
-    max_line_size: "Maximum line size, in bytes. Alias: maximum_line_size. @default 2000000",
-    maximum_line_size: "Alias for max_line_size. Maximum line size, in bytes. @default 2000000",
+    max_line_size:
+      "Maximum line size, in bytes. Alias: maximum_line_size. @default 2000000",
+    maximum_line_size:
+      "Alias for max_line_size. Maximum line size, in bytes. @default 2000000",
     names: "Column names, as a list. Alias: column_names. @default []",
-    new_line: "New line character(s). Options are '\\r', '\\n', or '\\r\\n'. @default ''",
+    new_line:
+      "New line character(s). Options are '\\r', '\\n', or '\\r\\n'. @default ''",
     normalize_names:
       "Normalize column names. This removes any non-alphanumeric characters. @default false",
     null_padding:
@@ -503,19 +672,25 @@ export const COMMANDS_DOCS: Record<string, Record<string, string>> = {
     sample_size: "Number of sample lines for auto detection. @default -1",
     sep: "Delimiter character used to separate columns. Alias for delim. @default ','",
     skip: "Number of lines to skip at the start of each file. @default 0",
-    store_rejects: "Skip any lines with errors and store them in the rejects table. @default false",
-    strict_mode: "Enforces the strictness level of the CSV Reader. @default true",
+    store_rejects:
+      "Skip any lines with errors and store them in the rejects table. @default false",
+    strict_mode:
+      "Enforces the strictness level of the CSV Reader. @default true",
     thousands: "The thousands separator. @default ''",
-    timestampformat: "Timestamp format used when parsing and writing timestamps. @default ''",
-    types: "Column types, as either a list (by position) or a struct (by name). @default {} or []",
+    timestampformat:
+      "Timestamp format used when parsing and writing timestamps. @default ''",
+    types:
+      "Column types, as either a list (by position) or a struct (by name). @default {} or []",
     union_by_name:
       "Whether the columns of multiple files should be combined by name. @default false (but true in reader if multiple files)",
   },
   read_json: {
-    auto_detect: "Whether to auto-detect the names of the keys and data types. @default true",
+    auto_detect:
+      "Whether to auto-detect the names of the keys and data types. @default true",
     compression: "Compression method (gzip, zstd, etc.). @default 'auto'",
     convert_strings_to_integers: "Convert strings to integers. @default false",
-    format: "JSON format ('auto', 'newline_delimited', 'array'). @default 'auto'",
+    format:
+      "JSON format ('auto', 'newline_delimited', 'array'). @default 'auto'",
     ignore_errors: "Ignore parse errors. @default false",
     maximum_object_size: "Maximum object size in bytes. @default 16777216",
     sample_size: "Number of sample objects for detection. @default -1",
@@ -523,10 +698,12 @@ export const COMMANDS_DOCS: Record<string, Record<string, string>> = {
       "Whether the columns of multiple files should be combined by name. @default false (but true in reader if multiple files)",
   },
   read_ndjson: {
-    auto_detect: "Whether to auto-detect the names of the keys and data types. @default true",
+    auto_detect:
+      "Whether to auto-detect the names of the keys and data types. @default true",
     compression: "Compression method (gzip, zstd, etc.). @default 'auto'",
     convert_strings_to_integers: "Convert strings to integers. @default false",
-    format: "JSON format ('auto', 'newline_delimited', 'array'). @default 'auto'",
+    format:
+      "JSON format ('auto', 'newline_delimited', 'array'). @default 'auto'",
     ignore_errors: "Ignore parse errors. @default false",
     maximum_object_size: "Maximum object size in bytes. @default 16777216",
     sample_size: "Number of sample objects for detection. @default -1",
@@ -535,7 +712,8 @@ export const COMMANDS_DOCS: Record<string, Record<string, string>> = {
   },
   read_parquet: {
     binary_as_string: "Load binary columns as strings. @default false",
-    can_have_nan: "Whether or not to include the can_have_nan column. @default false",
+    can_have_nan:
+      "Whether or not to include the can_have_nan column. @default false",
     compression: "Compression method (snappy, zstd, etc.). @default 'snappy'",
     filename: "Include filename column. @default false",
     hive_partitioning: "Interpret path as Hive partitioned path. @default true",
@@ -550,6 +728,36 @@ export const COMMANDS_DOCS: Record<string, Record<string, string>> = {
 };
 
 function showHelp(command?: string) {
+  if (command === "list_extensions") {
+    console.log("DuckDB Functions that Auto-load Extensions:\n");
+    console.log("Functions are grouped by the extension they require.");
+
+    // Group functions by extension
+    const extToFns: Record<string, string[]> = {};
+    for (const [fn, extInfo] of Object.entries(FN_TO_EXTENSION)) {
+      if (!extToFns[extInfo.extension]) {
+        extToFns[extInfo.extension] = [];
+      }
+      extToFns[extInfo.extension].push(fn);
+    }
+
+    // Print grouped functions
+    for (const [ext, fns] of Object.entries(extToFns).sort()) {
+      console.log(`\n[${ext}]`);
+      for (const fn of fns.sort()) {
+        console.log(`  ${fn}`);
+      }
+    }
+    console.log("\nUsage:");
+    console.log(
+      "  These extensions are auto-loaded when their functions are detected in your query."
+    );
+    console.log(
+      "  Example: reader.ts read_csv 's3://bucket/data.csv' (auto-loads httpfs)"
+    );
+    return;
+  }
+
   if (command && COMMANDS_DOCS[command]) {
     console.log(`Usage: reader.ts ${command} <file> [options]`);
     console.log(`\nOptions for ${command}:`);
@@ -562,7 +770,14 @@ function showHelp(command?: string) {
     for (const cmd of Object.keys(COMMANDS_DOCS)) {
       console.log(`  ${cmd.padEnd(20)} Read data using ${cmd}`);
     }
-    console.log(`  ${"fish_completion".padEnd(20)} Generate Fish shell completion script`);
+    console.log(
+      `  ${"fish_completion".padEnd(20)} Generate Fish shell completion script`
+    );
+    console.log(
+      `  ${"list_extensions".padEnd(
+        20
+      )} List functions that auto-load extensions`
+    );
 
     console.log("\nAll Options (per command):");
     for (const [cmd, options] of Object.entries(COMMANDS_DOCS)) {
@@ -574,30 +789,44 @@ function showHelp(command?: string) {
   }
 
   console.log("\nGeneral Options:");
-  console.log("  --to=<path>        Export result to a file (CSV, JSON, Parquet)");
-  console.log("  --format=<fmt>     Output format (csv, tsv, json, jsonl, parquet) to stdout");
+  console.log(
+    "  --to=<path>        Export result to a file (CSV, JSON, Parquet)"
+  );
+  console.log(
+    "  --format=<fmt>     Output format (csv, tsv, json, jsonl, parquet) to stdout"
+  );
   console.log("\nCOPY TO Options (use with --to):");
   for (const [key, doc] of Object.entries(COPY_OPTIONS_DOCS)) {
     console.log(`  --${key.replace(/_/g, "-").padEnd(20)} ${doc}`);
   }
   console.log("  --select=<cols>    Select specific columns");
   console.log("  --where=<cond>     Filter rows with a WHERE clause");
-  console.log("  -j, --join=<expr>  Join with another table (cumulative). Prefix with LATERAL/LEFT/etc or just table ON cond");
-  console.log("  -d, --distinct=<col> Select distinct rows based on a column (DISTINCT ON)");
-  console.log("  --sample=<n>       Sample N rows from the result (USING SAMPLE)");
+  console.log(
+    "  -j, --join=<expr>  Join with another table (cumulative). Prefix with LATERAL/LEFT/etc or just table ON cond"
+  );
+  console.log(
+    "  -d, --distinct=<col> Select distinct rows based on a column (DISTINCT ON)"
+  );
+  console.log(
+    "  --sample=<n>       Sample N rows from the result (USING SAMPLE)"
+  );
   console.log("  -s, --sort=<cols>  Sort result by columns (ORDER BY)");
   console.log("  -g, --group-by=<cols> Group result by columns (GROUP BY)");
   console.log("  --summarize        Show summary statistics of the result");
-  console.log("  --sample-size=<n>  Number of lines to scan for auto-detection");
+  console.log(
+    "  --sample-size=<n>  Number of lines to scan for auto-detection"
+  );
   console.log("  -l, --limit=<n>    Limit the number of rows returned (LIMIT)");
   console.log("  --union-by-name    Whether to union multiple files by name");
   console.log("  --ignore-errors    Whether to ignore parsing errors");
   console.log(
-    "  -m, --mode=<mode>  DuckDB output mode (box, line, json, csv, etc.). @default 'box'",
+    "  -m, --mode=<mode>  DuckDB output mode (box, line, json, csv, etc.). @default 'box'"
   );
   console.log("  -p, --paging       Enable pagination using less -SR");
   console.log("  -t, --tui          Open result in tablens TUI");
-  console.log("  --with=<cte>       Add a CTE. The base table is injected into the first one.");
+  console.log(
+    "  --with=<cte>       Add a CTE. The base table is injected into the first one."
+  );
   console.log('                     Example: --with "X1 AS (SELECT contact)"');
   console.log("  --no-truncate      Do not truncate output to terminal width");
   console.log("  -h, --help         Show this help message");
@@ -613,23 +842,28 @@ function generateFishCompletion() {
   // Subcommands
   for (const cmd of cmds) {
     console.log(
-      `complete -c ${bin} -f -n "__fish_use_subcommand" -a ${cmd} -d "Read data using ${cmd}"`,
+      `complete -c ${bin} -f -n "__fish_use_subcommand" -a ${cmd} -d "Read data using ${cmd}"`
     );
   }
   console.log(
-    `complete -c ${bin} -f -n "__fish_use_subcommand" -a fish_completion -d "Generate Fish shell completion script"`,
+    `complete -c ${bin} -f -n "__fish_use_subcommand" -a fish_completion -d "Generate Fish shell completion script"`
+  );
+  console.log(
+    `complete -c ${bin} -f -n "__fish_use_subcommand" -a list_extensions -d "List functions that auto-load extensions"`
   );
 
   // Flags for each subcommand
   for (const [cmd, options] of Object.entries(COMMANDS_DOCS)) {
     for (const [opt, doc] of Object.entries(options)) {
       const description = doc.split(".")[0].replace(/"/g, '\\"');
-      const suggestions = FLAG_SUGGESTIONS[opt] ? ` -a "${FLAG_SUGGESTIONS[opt].join(" ")}"` : "";
+      const suggestions = FLAG_SUGGESTIONS[opt]
+        ? ` -a "${FLAG_SUGGESTIONS[opt].join(" ")}"`
+        : "";
       console.log(
         `complete -c ${bin} -f -n "__fish_seen_subcommand_from ${cmd}" -l ${opt.replace(
           /_/g,
-          "-",
-        )}${suggestions} -d "${description}"`,
+          "-"
+        )}${suggestions} -d "${description}"`
       );
     }
   }
@@ -638,13 +872,15 @@ function generateFishCompletion() {
   for (const [ext, cmd] of Object.entries(EXT_TO_CMD)) {
     for (const [opt, doc] of Object.entries(COMMANDS_DOCS[cmd])) {
       const description = doc.split(".")[0].replace(/"/g, '\\"');
-      const suggestions = FLAG_SUGGESTIONS[opt] ? ` -a "${FLAG_SUGGESTIONS[opt].join(" ")}"` : "";
+      const suggestions = FLAG_SUGGESTIONS[opt]
+        ? ` -a "${FLAG_SUGGESTIONS[opt].join(" ")}"`
+        : "";
       // This is a bit simplified; ideally we'd check if a file with this extension is present
       console.log(
         `complete -c ${bin} -f -n "commandline -opc | string match -rg '\\\\.${ext}\\$'" -l ${opt.replace(
           /_/g,
-          "-",
-        )}${suggestions} -d "${description}"`,
+          "-"
+        )}${suggestions} -d "${description}"`
       );
     }
   }
@@ -664,12 +900,14 @@ function generateFishCompletion() {
   for (const [opt, def] of Object.entries(COPY_OPTIONS)) {
     const description = def.desc.split(".")[0].replace(/"/g, '\\"');
     const optFlag = opt.replace(/_/g, "-");
-    const suggestions = FLAG_SUGGESTIONS[opt] ? ` -a "${FLAG_SUGGESTIONS[opt].join(" ")}"` : "";
+    const suggestions = FLAG_SUGGESTIONS[opt]
+      ? ` -a "${FLAG_SUGGESTIONS[opt].join(" ")}"`
+      : "";
 
     if (def.formats.includes("all")) {
       // Generic options: show when --to is present (any extension)
       console.log(
-        `complete -c ${bin} -f -n "${hasToFlag}" -l ${optFlag}${suggestions} -d "COPY [all] ${description}"`,
+        `complete -c ${bin} -f -n "${hasToFlag}" -l ${optFlag}${suggestions} -d "COPY [all] ${description}"`
       );
     } else {
       // Format-specific options: show only when --to matches the extension
@@ -677,7 +915,7 @@ function generateFishCompletion() {
         const extPattern = formatExtPatterns[fmt];
         if (extPattern) {
           console.log(
-            `complete -c ${bin} -f -n "commandline -opc | string match -rq -- '--to=.*?(${extPattern})'" -l ${optFlag}${suggestions} -d "COPY [${fmt}] ${description}"`,
+            `complete -c ${bin} -f -n "commandline -opc | string match -rq -- '--to=.*?(${extPattern})'" -l ${optFlag}${suggestions} -d "COPY [${fmt}] ${description}"`
           );
         }
       }
@@ -685,62 +923,68 @@ function generateFishCompletion() {
   }
 
   // Global flags - only show when --to is NOT present
-  console.log(`complete -c ${bin} -F -l to -d "Export result to a file (CSV, JSON, Parquet)" -r`);
   console.log(
-    `complete -c ${bin} -f -l format -d "Output format (csv, tsv, json, jsonl, parquet) to stdout" -r -a "csv tsv json jsonl parquet"`,
+    `complete -c ${bin} -F -l to -d "Export result to a file (CSV, JSON, Parquet)" -r`
   );
   console.log(
-    `complete -c ${bin} -f -n "${notHasToFlag}" -l select -d "Select specific columns" -r`,
+    `complete -c ${bin} -f -l format -d "Output format (csv, tsv, json, jsonl, parquet) to stdout" -r -a "csv tsv json jsonl parquet"`
   );
   console.log(
-    `complete -c ${bin} -f -n "${notHasToFlag}" -l where -d "Filter rows with a WHERE clause" -r`,
+    `complete -c ${bin} -f -n "${notHasToFlag}" -l select -d "Select specific columns" -r`
   );
   console.log(
-    `complete -c ${bin} -f -n "${notHasToFlag}" -l join -s j -d "Join with another table (cumulative)" -r`,
+    `complete -c ${bin} -f -n "${notHasToFlag}" -l where -d "Filter rows with a WHERE clause" -r`
   );
   console.log(
-    `complete -c ${bin} -f -n "${notHasToFlag}" -l distinct -s d -d "Select distinct rows based on a column" -r`,
+    `complete -c ${bin} -f -n "${notHasToFlag}" -l join -s j -d "Join with another table (cumulative)" -r`
   );
   console.log(
-    `complete -c ${bin} -f -n "${notHasToFlag}" -l sample -d "Sample N rows from the result" -r`,
+    `complete -c ${bin} -f -n "${notHasToFlag}" -l distinct -s d -d "Select distinct rows based on a column" -r`
   );
   console.log(
-    `complete -c ${bin} -f -n "${notHasToFlag}" -l sort -s s -d "Sort result by columns (ORDER BY)" -r`,
+    `complete -c ${bin} -f -n "${notHasToFlag}" -l sample -d "Sample N rows from the result" -r`
   );
   console.log(
-    `complete -c ${bin} -f -n "${notHasToFlag}" -l group-by -s g -d "Group result by columns (GROUP BY)" -r`,
+    `complete -c ${bin} -f -n "${notHasToFlag}" -l sort -s s -d "Sort result by columns (ORDER BY)" -r`
   );
   console.log(
-    `complete -c ${bin} -f -n "${notHasToFlag}" -l summarize -d "Show summary statistics of the result"`,
+    `complete -c ${bin} -f -n "${notHasToFlag}" -l group-by -s g -d "Group result by columns (GROUP BY)" -r`
   );
   console.log(
-    `complete -c ${bin} -f -n "${notHasToFlag}" -l sample-size -d "Number of lines to scan for auto-detection" -r`,
+    `complete -c ${bin} -f -n "${notHasToFlag}" -l summarize -d "Show summary statistics of the result"`
   );
   console.log(
-    `complete -c ${bin} -f -n "${notHasToFlag}" -l limit -s l -d "Limit the number of rows returned" -r`,
+    `complete -c ${bin} -f -n "${notHasToFlag}" -l sample-size -d "Number of lines to scan for auto-detection" -r`
   );
   console.log(
-    `complete -c ${bin} -f -n "${notHasToFlag}" -l union-by-name -d "Whether to union files by name"`,
+    `complete -c ${bin} -f -n "${notHasToFlag}" -l limit -s l -d "Limit the number of rows returned" -r`
   );
   console.log(
-    `complete -c ${bin} -f -n "${notHasToFlag}" -l ignore-errors -d "Whether to ignore errors"`,
-  );
-  console.log(`complete -c ${bin} -f -n "${notHasToFlag}" -l help -d "Show help message"`);
-  console.log(`complete -c ${bin} -f -n "${notHasToFlag}" -s h -d "Show help message"`);
-  console.log(
-    `complete -c ${bin} -f -n "${notHasToFlag}" -l mode -s m -a "box line json csv markdown" -d "Output format"`,
+    `complete -c ${bin} -f -n "${notHasToFlag}" -l union-by-name -d "Whether to union files by name"`
   );
   console.log(
-    `complete -c ${bin} -f -n "${notHasToFlag}" -l paging -s p -d "Enable pagination using less"`,
+    `complete -c ${bin} -f -n "${notHasToFlag}" -l ignore-errors -d "Whether to ignore errors"`
   );
   console.log(
-    `complete -c ${bin} -f -n "${notHasToFlag}" -l tui -s t -d "Open result in tablens TUI"`,
+    `complete -c ${bin} -f -n "${notHasToFlag}" -l help -d "Show help message"`
   );
   console.log(
-    `complete -c ${bin} -f -n "${notHasToFlag}" -l with -d "Add a CTE (Common Table Expression)" -r`,
+    `complete -c ${bin} -f -n "${notHasToFlag}" -s h -d "Show help message"`
   );
   console.log(
-    `complete -c ${bin} -f -n "${notHasToFlag}" -l no-truncate -d "Do not truncate output to terminal width"`,
+    `complete -c ${bin} -f -n "${notHasToFlag}" -l mode -s m -a "box line json csv markdown" -d "Output format"`
+  );
+  console.log(
+    `complete -c ${bin} -f -n "${notHasToFlag}" -l paging -s p -d "Enable pagination using less"`
+  );
+  console.log(
+    `complete -c ${bin} -f -n "${notHasToFlag}" -l tui -s t -d "Open result in tablens TUI"`
+  );
+  console.log(
+    `complete -c ${bin} -f -n "${notHasToFlag}" -l with -d "Add a CTE (Common Table Expression)" -r`
+  );
+  console.log(
+    `complete -c ${bin} -f -n "${notHasToFlag}" -l no-truncate -d "Do not truncate output to terminal width"`
   );
 
   // Enable file completion
@@ -755,7 +999,7 @@ export function parseArgs(args: string[]): ParsedArgs {
   let toPath: string | undefined = undefined;
   let mode: string | undefined = undefined;
   let truncate = true;
-  let paging = false;
+  let paging: string | boolean = false;
   let tui = false;
   let queryParts: string[] = [];
   const sqlOptions: SqlOptions = { where: [], join: [], with: [] };
@@ -790,7 +1034,7 @@ export function parseArgs(args: string[]): ParsedArgs {
       }
 
       if (key === "paging" || key === "p") {
-        paging = true;
+        paging = rawValue || process.env.PAGER || "less";
         continue;
       }
 
@@ -856,7 +1100,8 @@ export function parseArgs(args: string[]): ParsedArgs {
         if (rawValue === undefined) value = true;
         else if (rawValue === "true") value = true;
         else if (rawValue === "false") value = false;
-        else if (!isNaN(Number(rawValue)) && rawValue !== "") value = Number(rawValue);
+        else if (!isNaN(Number(rawValue)) && rawValue !== "")
+          value = Number(rawValue);
         else if (rawValue?.startsWith("[") && rawValue?.endsWith("]")) {
           value = rawValue
             .slice(1, -1)
@@ -888,7 +1133,8 @@ export function parseArgs(args: string[]): ParsedArgs {
       if (rawValue === undefined) value = true;
       else if (rawValue === "true") value = true;
       else if (rawValue === "false") value = false;
-      else if (!isNaN(Number(rawValue)) && rawValue !== "") value = Number(rawValue);
+      else if (!isNaN(Number(rawValue)) && rawValue !== "")
+        value = Number(rawValue);
       else if (rawValue?.startsWith("[") && rawValue?.endsWith("]")) {
         value = rawValue
           .slice(1, -1)
@@ -915,8 +1161,10 @@ export function parseArgs(args: string[]): ParsedArgs {
     if (isExpressionSource(firstFile)) {
       command = "sql";
     } else {
-      const ext = firstFile.split(".").pop()?.toLowerCase() || "";
-      command = EXT_TO_CMD[ext] || "read_csv";
+      const ext = firstFile.includes(".")
+        ? firstFile.split(".").pop()?.toLowerCase() || ""
+        : "";
+      command = EXT_TO_CMD[ext] || "";
     }
   }
 
@@ -937,7 +1185,16 @@ export function parseArgs(args: string[]): ParsedArgs {
 }
 
 export function buildQuery(parsed: ParsedArgs): string {
-  const { command, files, options, toPath, queryParts, sqlOptions, copyOptions, format } = parsed;
+  const {
+    command,
+    files,
+    options,
+    toPath,
+    queryParts,
+    sqlOptions,
+    copyOptions,
+    format,
+  } = parsed;
   const where = sqlOptions.where || [];
   const join = sqlOptions.join || [];
   // Prepend CTEs or ATTACH databases if any
@@ -949,7 +1206,9 @@ export function buildQuery(parsed: ParsedArgs): string {
     const cleanItem = smartBraceToParen(item);
     // Check if it's a database path (ends with common DB extensions) or a single word that exists as a file
     // The existsSync check is a heuristic and might need a proper import or context
-    const isDb = /\.(db|ddb|duckdb|sqlite3|sqlite)$/i.test(cleanItem) || (cleanItem.split(" ").length === 1 && existsSync(cleanItem));
+    const isDb =
+      /.+\.(db|ddb|duckdb|sqlite3|sqlite)$/i.test(cleanItem) ||
+      (cleanItem.split(" ").length === 1 && existsSync(cleanItem));
 
     if (isDb && !cleanItem.includes(" AS ")) {
       attachments.push(cleanItem);
@@ -977,9 +1236,12 @@ export function buildQuery(parsed: ParsedArgs): string {
   if (files.length === 1 && typeof fileArg === "string") {
     const parts = fileArg.split(".");
     // Detect magic source extension (e.g., soccer.db or spotify.sqlite3.artists)
-    const dbExtIdx = parts.findIndex((p) => /^(db|ddb|duckdb|vscdb|sqlite3|sqlite)$/i.test(p));
+    const dbExtIdx = parts.findIndex((p) =>
+      /^(db|ddb|duckdb|vscdb|sqlite3|sqlite)$/i.test(p)
+    );
 
-    if (dbExtIdx !== -1) {
+    if (dbExtIdx > 0) {
+      // >0 cause no db-xx file
       const dbPath = parts.slice(0, dbExtIdx + 1).join(".");
       const tablePart = parts.slice(dbExtIdx + 1).join(".");
       const alias = getAlias(dbPath);
@@ -990,7 +1252,7 @@ export function buildQuery(parsed: ParsedArgs): string {
       if (tablePart) {
         callStr = tablePart; // No prefix needed if we USE the alias
       } else {
-        callStr = "sqlite_master";
+        callStr = `(FROM duckdb_tables() SELECT table_name, sql WHERE database_name = '${alias}')`;
       }
     } else if (isExpressionSource(fileArg)) {
       callStr = smartAtToStar(smartBraceToParen(fileArg));
@@ -1001,12 +1263,15 @@ export function buildQuery(parsed: ParsedArgs): string {
     callStr = fnSerial(command, fileArg, options);
   }
 
-  const sqlTail = smartAtToStar(autoQuoteSql(smartBraceToParen(queryParts.join(" "))));
+  const sqlTail = smartAtToStar(
+    autoQuoteSql(smartBraceToParen(queryParts.join(" ")))
+  );
 
   // Generate ATTACH statements and setup
   let setupSql = "";
   const attachSqls: string[] = [];
   const uniqAttachments = [...new Set(attachments)];
+  const extensionsToLoad: Set<string> = new Set();
 
   for (const attachment of uniqAttachments) {
     const parts = attachment.split(/ AS /i);
@@ -1014,26 +1279,67 @@ export function buildQuery(parsed: ParsedArgs): string {
     const alias = (parts[1] || getAlias(path)).trim();
 
     if (/\.(sqlite3|sqlite|vscdb)$/i.test(path)) needsSqlite = true;
-    attachSqls.push(`ATTACH '${path}' AS ${alias}`);
+    attachSqls.push(`ATTACH '${path}' AS ${alias} (READ_ONLY)`);
+
   }
+
+  // Auto-detect and load extensions based on function calls
+  const detectExtensions = (sql: string): void => {
+    for (const [fn, extInfo] of Object.entries(FN_TO_EXTENSION)) {
+      // Check if function name appears in SQL
+      const fnPattern = new RegExp(`\\b${fn}\\s*\\(`, "i");
+      if (fnPattern.test(sql) || sql.toLowerCase().includes(` ${fn}(`)) {
+        extensionsToLoad.add(extInfo.extension);
+      }
+    }
+  };
+
+  // Scan all SQL components for function calls
+  detectExtensions(callStr);
+  detectExtensions(sqlTail);
+  for (const j of join) detectExtensions(j);
+  for (const w of where) detectExtensions(w);
+  if (sqlOptions.select) detectExtensions(sqlOptions.select);
+  if (sqlOptions.distinct) detectExtensions(sqlOptions.distinct);
+  if (sqlOptions.groupBy) detectExtensions(sqlOptions.groupBy);
+  if (sqlOptions.sort) detectExtensions(sqlOptions.sort);
+  for (const cte of ctes) detectExtensions(cte);
 
   if (needsSqlite) {
-    setupSql = "INSTALL sqlite; LOAD sqlite; ";
+    extensionsToLoad.add("sqlite");
   }
 
-  const fullAttachSql = attachSqls.length > 0 ? attachSqls.join("; ") + "; " : "";
+  // Build INSTALL and LOAD statements for all required extensions
+  const extensionStatements: string[] = [];
+  for (var ext of extensionsToLoad) {
+    const extInfo = Object.values(FN_TO_EXTENSION).find(
+      (e) => e.extension === ext
+    );
+    extensionStatements.push(`INSTALL ${ext} ${extInfo?.repo ? `FROM '${extInfo.repo}'` : ""}; LOAD ${ext};`);
+  }
+
+  if (extensionStatements.length > 0) {
+    setupSql = extensionStatements.join(" ") + " ";
+  }
+
+  const fullAttachSql =
+    attachSqls.length > 0 ? attachSqls.join("; ") + "; " : "";
   const useSql = magicDbAlias ? `USE ${magicDbAlias}; ` : "";
   const finalSetupSql = `${setupSql}${fullAttachSql}${useSql}`;
 
   // Determine the base SELECT clause
   let baseSelect = "SELECT *";
   if (sqlOptions.distinct) {
-    baseSelect = `SELECT DISTINCT ON (${smartAtToStar(smartBraceToParen(sqlOptions.distinct))}) *`;
+    baseSelect = `SELECT DISTINCT ON (${smartAtToStar(
+      smartBraceToParen(sqlOptions.distinct)
+    )}) *`;
   }
   if (sqlOptions.select) {
     const cleanSelect = smartAtToStar(smartBraceToParen(sqlOptions.select));
     if (sqlOptions.distinct) {
-      baseSelect = `SELECT DISTINCT ON (${smartAtToStar(smartBraceToParen(sqlOptions.distinct))}) ${cleanSelect}`;
+      baseSelect = `SELECT DISTINCT ON (${smartAtToStar(
+        smartBraceToParen(sqlOptions.distinct)
+      )}) ${cleanSelect}`;
     } else {
       baseSelect = `SELECT ${cleanSelect}`;
     }
@@ -1065,7 +1371,10 @@ export function buildQuery(parsed: ParsedArgs): string {
       joinClauses += ` ${smartAtToStar(smartBraceToParen(j))}`;
     } else if (upperJ.startsWith("LATERAL")) {
       // LATERAL without JOIN - add JOIN after LATERAL
-      joinClauses += ` ${smartAtToStar(smartBraceToParen(j)).replace(/^lateral\s+/i, "LATERAL JOIN ")}`;
+      joinClauses += ` ${smartAtToStar(smartBraceToParen(j)).replace(
+        /^lateral\s+/i,
+        "LATERAL JOIN "
+      )}`;
     } else {
       joinClauses += ` JOIN ${smartAtToStar(smartBraceToParen(j))}`;
     }
@@ -1074,20 +1383,31 @@ export function buildQuery(parsed: ParsedArgs): string {
   // Construct modifiers from flags
   let modifiers = "";
   if (where.length > 0)
-    modifiers += ` WHERE ${where.map((w) => smartAtToStar(autoQuoteWhere(smartBraceToParen(w)))).join(" AND ")}`;
-  if (sqlOptions.groupBy) modifiers += ` GROUP BY ${smartAtToStar(smartBraceToParen(sqlOptions.groupBy))}`;
+    modifiers += ` WHERE ${where
+      .map((w) => smartAtToStar(autoQuoteWhere(smartBraceToParen(w))))
+      .join(" AND ")}`;
+  if (sqlOptions.groupBy)
+    modifiers += ` GROUP BY ${smartAtToStar(
+      smartBraceToParen(sqlOptions.groupBy)
+    )}`;
   if (sqlOptions.sample) modifiers += ` USING SAMPLE ${sqlOptions.sample}`;
   if (sqlOptions.limit) modifiers += ` LIMIT ${sqlOptions.limit}`;
-  if (sqlOptions.sort) modifiers += ` ORDER BY ${smartAtToStar(smartBraceToParen(sqlOptions.sort))}`;
+  if (sqlOptions.sort)
+    modifiers += ` ORDER BY ${smartAtToStar(
+      smartBraceToParen(sqlOptions.sort)
+    )}`;
 
   // Normalize the core SELECT part
   let selectQuery = "";
   if (hasSelectInTail) {
     let selectClause = sqlTail;
-    if (sqlOptions.distinct && !selectClause.toLowerCase().includes("distinct on")) {
+    if (
+      sqlOptions.distinct &&
+      !selectClause.toLowerCase().includes("distinct on")
+    ) {
       selectClause = selectClause.replace(
         /select\s+/i,
-        `SELECT DISTINCT ON (${sqlOptions.distinct}) `,
+        `SELECT DISTINCT ON (${sqlOptions.distinct}) `
       );
     }
     if (selectClause.toLowerCase().includes(" from ")) {
@@ -1096,7 +1416,9 @@ export function buildQuery(parsed: ParsedArgs): string {
       selectQuery = `${selectClause} FROM ${callStr}${joinClauses}${modifiers}`;
     }
   } else {
-    selectQuery = `${baseSelect} ${callStr ? `FROM ${callStr}` : ""}${joinClauses}${modifiers}${sqlTail ? " " + sqlTail : ""}`;
+    selectQuery = `${baseSelect} ${
+      callStr ? `FROM ${callStr}` : ""
+    }${joinClauses}${modifiers}${sqlTail ? " " + sqlTail : ""}`;
   }
 
   // Add SUMMARIZE prefix if requested
@@ -1124,7 +1446,8 @@ export function buildQuery(parsed: ParsedArgs): string {
     if (formatStr === "TSV") formatStr = "CSV";
 
     if (!format) {
-      if (ext === "json" || ext === "jsonl" || ext === "ndjson") formatStr = "JSON";
+      if (ext === "json" || ext === "jsonl" || ext === "ndjson")
+        formatStr = "JSON";
       else if (ext === "csv") formatStr = "CSV";
       else if (ext === "tsv") formatStr = "CSV"; // DELIMITER handled below if needed, or by copyOptions
     }
@@ -1138,11 +1461,16 @@ export function buildQuery(parsed: ParsedArgs): string {
     }
 
     // Auto-add delimiter for format=tsv or tsv extension
-    if ((format === "tsv" || ext === "tsv") && !copyOptions.delim && !copyOptions.sep) {
+    if (
+      (format === "tsv" || ext === "tsv") &&
+      !copyOptions.delim &&
+      !copyOptions.sep
+    ) {
       copyOptsArray.push("DELIMITER '\t'");
     }
 
-    const targetFormat = format?.toLowerCase() || EXT_TO_COPY_FORMAT[ext] || "parquet";
+    const targetFormat =
+      format?.toLowerCase() || EXT_TO_COPY_FORMAT[ext] || "parquet";
 
     for (const [key, value] of Object.entries(copyOptions)) {
       const optDef = COPY_OPTIONS[key];
@@ -1158,7 +1486,9 @@ export function buildQuery(parsed: ParsedArgs): string {
       } else if (key === "compression") {
         copyOptsArray.push(`COMPRESSION ${String(value).toUpperCase()}`);
       } else if (Array.isArray(value)) {
-        copyOptsArray.push(`${keyUpper} [${value.map((v) => `'${v}'`).join(", ")}]`);
+        copyOptsArray.push(
+          `${keyUpper} [${value.map((v) => `'${v}'`).join(", ")}]`
+        );
       } else if (typeof value === "string") {
         copyOptsArray.push(`${keyUpper} '${value}'`);
       } else if (typeof value === "boolean") {
@@ -1168,7 +1498,9 @@ export function buildQuery(parsed: ParsedArgs): string {
       }
     }
 
-    return `${finalSetupSql}COPY (${selectQuery}) TO '${targetPath}' (${copyOptsArray.join(", ")})`;
+    return `${finalSetupSql}COPY (${selectQuery}) TO '${targetPath}' (${copyOptsArray.join(
+      ", "
+    )})`;
   }
 
   return `${finalSetupSql}${selectQuery}`.trim();
@@ -1185,6 +1517,11 @@ async function main() {
 
   if (args[0] === "fish_completion") {
     generateFishCompletion();
+    return;
+  }
+
+  if (args[0] === "list_extensions") {
+    showHelp("list_extensions");
     return;
   }
 
@@ -1210,10 +1547,12 @@ async function main() {
     parsed.format = "csv";
   }
 
-  if (!command || (!COMMANDS_DOCS[command] && command !== "sql")) {
+  if (command && !COMMANDS_DOCS[command] && command !== "sql") {
     await Bun.write(
       Bun.stderr,
-      (command ? `Unknown command: ${command}` : "Missing command or file path") + "\n",
+      (command
+        ? `Unknown command: ${command}`
+        : "Missing command or file path") + "\n"
     );
     showHelp();
     process.exit(1);
@@ -1234,11 +1573,17 @@ async function main() {
   //   options.sample_size = -1;
   // }
 
-  if (COMMANDS_DOCS[command]?.union_by_name && options.union_by_name === undefined) {
+  if (
+    COMMANDS_DOCS[command]?.union_by_name &&
+    options.union_by_name === undefined
+  ) {
     // Default to union_by_name=true if multiple files are provided or a wildcard is suspected
     if (
       Array.isArray(fileArg) ||
-      (typeof fileArg === "string" && (fileArg.includes("*") || fileArg.includes("?")))
+      (typeof fileArg === "string" &&
+        (fileArg.includes("*") ||
+          fileArg.includes("?") ||
+          fileArg.includes("@")))
     ) {
       options.union_by_name = true;
     }
@@ -1256,7 +1601,9 @@ async function main() {
 
     const highlightedQuery = highlightSql(query);
     const commandLog = `duckdb ${cmdArgs
-      .map((a) => (a === query ? `"${highlightedQuery}"` : a.includes(" ") ? `"${a}"` : a))
+      .map((a) =>
+        a === query ? `"${highlightedQuery}"` : a.includes(" ") ? `"${a}"` : a
+      )
       .join(" ")}\n`;
     await Bun.write(Bun.stderr, commandLog);
 
@@ -1270,7 +1617,9 @@ async function main() {
     } else if (paging) {
       const modeFlag = mode ? `-${mode}` : "";
       const duckProcess = Bun.spawn(["duckdb", ...cmdArgs]);
-      const lessProcess = Bun.spawn(["less", "-SR"], {
+      const pager =
+        typeof paging === "string" ? paging : process.env.PAGER || "less";
+      const lessProcess = Bun.spawn([pager], {
         stdin: duckProcess.stdout,
         stdout: "inherit",
         stderr: "inherit",
@@ -1294,7 +1643,9 @@ async function main() {
 
         const chunk = decoder
           .decode(value, { stream: true })
-          .replace(/\b(\d+)(?=\srows\b)/g, (n) => n.replace(/\B(?=(\d{3})+(?!\d))/g, "_"));
+          .replace(/\b(\d+)(?=\srows\b)/g, (n) =>
+            n.replace(/\B(?=(\d{3})+(?!\d))/g, "_")
+          );
         const lines = (partial + chunk).split("\n");
         partial = lines.pop() || "";
 
@@ -1317,6 +1668,8 @@ async function main() {
 
       await duckProcess.exited;
     }
+    if (!tui)
+    process.exit()
   } catch (err: any) {
     if (err.stderr) {
       await Bun.write(Bun.stderr, err.stderr.toString() + "\n");
@@ -1325,6 +1678,7 @@ async function main() {
     }
     process.exit(1);
   }
+  // process.exit()
 }
 
 main();
