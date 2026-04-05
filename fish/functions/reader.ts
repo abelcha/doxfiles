@@ -3,6 +3,7 @@
 import { $ } from "bun";
 import { existsSync } from "node:fs";
 import { launchTablens } from "/me/dev/tablens";
+import { DuckDBInstance } from "@duckdb/node-api";
 const isTTY = process.stdout.isTTY;
 /**
  * CLI tool for reading data using DuckDB.
@@ -29,7 +30,7 @@ export const serializeValue = (v: any): string => {
 export const fnSerial = (
   name: string,
   file: string | string[],
-  opts: Record<string, any>
+  opts: Record<string, any>,
 ) => {
   const keys = Object.keys(opts);
   const fileArg = Array.isArray(file)
@@ -56,13 +57,13 @@ export const autoQuoteSql = (sql: string): string => {
   // 1. Handle LIKE, ILIKE, SIMILAR TO
   let result = sql.replace(
     /\b(LIKE|ILIKE|SIMILAR\s+TO)\s+([^\s'",)]+)/gi,
-    "$1 '$2'"
+    "$1 '$2'",
   );
 
   // 2. Handle operators WITH spaces only: col = value (not col=value)
   result = result.replace(
     /(\s+(=|!=|<>|~|~~|!~|!~~|>=|<=|>|<)\s+)([^\s'",)]+)/g,
-    "$1'$3'"
+    "$1'$3'",
   );
 
   return result;
@@ -78,7 +79,7 @@ export const autoQuoteWhere = (sql: string): string => {
         return match;
       }
       return `${col}${op}${space}'${value}'`;
-    }
+    },
   );
 };
 
@@ -303,6 +304,8 @@ export const EXT_TO_CMD: Record<string, string> = {
   ndjson: "read_ndjson",
   parquet: "read_parquet",
   xlsx: "read_xlsx",
+  lance: "read_lance",
+  vortex: "read_vortex",
 };
 
 /**
@@ -397,6 +400,10 @@ export const FN_TO_EXTENSION: Record<
   // aws extension
   s3_list_objects: { extension: "aws" },
   s3_get_object: { extension: "aws" },
+
+  // lance/vortex table formats
+  read_lance: { extension: "lance" },
+  read_vortex: { extension: "vortex" },
 };
 
 /** COPY TO options documentation - extracted from src/copy.ts */
@@ -578,7 +585,7 @@ export const COPY_OPTIONS_DOCS: Record<string, string> = Object.fromEntries(
   Object.entries(COPY_OPTIONS).map(([k, v]) => [
     k,
     `[${v.formats.join("/")}] ${v.desc}`,
-  ])
+  ]),
 );
 
 export type SqlOptions = {
@@ -725,6 +732,8 @@ export const COMMANDS_DOCS: Record<string, Record<string, string>> = {
     all_varchar: "Read all cells as VARCHARs. @default false",
     range: "Range of cells to read (e.g., 'A1:B2').",
   },
+  read_lance: {},
+  read_vortex: {},
 };
 
 function showHelp(command?: string) {
@@ -750,10 +759,10 @@ function showHelp(command?: string) {
     }
     console.log("\nUsage:");
     console.log(
-      "  These extensions are auto-loaded when their functions are detected in your query."
+      "  These extensions are auto-loaded when their functions are detected in your query.",
     );
     console.log(
-      "  Example: reader.ts read_csv 's3://bucket/data.csv' (auto-loads httpfs)"
+      "  Example: reader.ts read_csv 's3://bucket/data.csv' (auto-loads httpfs)",
     );
     return;
   }
@@ -771,12 +780,12 @@ function showHelp(command?: string) {
       console.log(`  ${cmd.padEnd(20)} Read data using ${cmd}`);
     }
     console.log(
-      `  ${"fish_completion".padEnd(20)} Generate Fish shell completion script`
+      `  ${"fish_completion".padEnd(20)} Generate Fish shell completion script`,
     );
     console.log(
       `  ${"list_extensions".padEnd(
-        20
-      )} List functions that auto-load extensions`
+        20,
+      )} List functions that auto-load extensions`,
     );
 
     console.log("\nAll Options (per command):");
@@ -790,10 +799,10 @@ function showHelp(command?: string) {
 
   console.log("\nGeneral Options:");
   console.log(
-    "  --to=<path>        Export result to a file (CSV, JSON, Parquet)"
+    "  --to=<path>        Export result to a file (CSV, JSON, Parquet)",
   );
   console.log(
-    "  --format=<fmt>     Output format (csv, tsv, json, jsonl, parquet) to stdout"
+    "  --format=<fmt>     Output format (csv, tsv, json, jsonl, parquet) to stdout",
   );
   console.log("\nCOPY TO Options (use with --to):");
   for (const [key, doc] of Object.entries(COPY_OPTIONS_DOCS)) {
@@ -802,34 +811,267 @@ function showHelp(command?: string) {
   console.log("  --select=<cols>    Select specific columns");
   console.log("  --where=<cond>     Filter rows with a WHERE clause");
   console.log(
-    "  -j, --join=<expr>  Join with another table (cumulative). Prefix with LATERAL/LEFT/etc or just table ON cond"
+    "  -j, --join=<expr>  Join with another table (cumulative). Prefix with LATERAL/LEFT/etc or just table ON cond",
   );
   console.log(
-    "  -d, --distinct=<col> Select distinct rows based on a column (DISTINCT ON)"
+    "  -d, --distinct=<col> Select distinct rows based on a column (DISTINCT ON)",
   );
   console.log(
-    "  --sample=<n>       Sample N rows from the result (USING SAMPLE)"
+    "  --sample=<n>       Sample N rows from the result (USING SAMPLE)",
   );
   console.log("  -s, --sort=<cols>  Sort result by columns (ORDER BY)");
   console.log("  -g, --group-by=<cols> Group result by columns (GROUP BY)");
   console.log("  --summarize        Show summary statistics of the result");
   console.log(
-    "  --sample-size=<n>  Number of lines to scan for auto-detection"
+    "  --sample-size=<n>  Number of lines to scan for auto-detection",
   );
   console.log("  -l, --limit=<n>    Limit the number of rows returned (LIMIT)");
   console.log("  --union-by-name    Whether to union multiple files by name");
   console.log("  --ignore-errors    Whether to ignore parsing errors");
   console.log(
-    "  -m, --mode=<mode>  DuckDB output mode (box, line, json, csv, etc.). @default 'box'"
+    "  -m, --mode=<mode>  DuckDB output mode (box, line, json, csv, etc.). @default 'box'",
   );
   console.log("  -p, --paging       Enable pagination using less -SR");
   console.log("  -t, --tui          Open result in tablens TUI");
   console.log(
-    "  --with=<cte>       Add a CTE. The base table is injected into the first one."
+    "  --with=<cte>       Add a CTE. The base table is injected into the first one.",
   );
   console.log('                     Example: --with "X1 AS (SELECT contact)"');
   console.log("  --no-truncate      Do not truncate output to terminal width");
   console.log("  -h, --help         Show this help message");
+}
+
+async function completeSql(file: string, partial: string) {
+  // Handle comma-separated files
+  const files = file.includes(",")
+    ? file.split(",").filter((f) => existsSync(f.trim()))
+    : [file];
+  if (files.length === 0) return;
+
+  const ext = files[0].split(".").pop()?.toLowerCase() || "";
+  const cmd = EXT_TO_CMD[ext];
+  if (!cmd) return;
+
+  const src = fnSerial(cmd, files.length > 1 ? files : files[0], {});
+
+  try {
+    const instance = await DuckDBInstance.create();
+    const conn = await instance.connect();
+    await conn.run(`CREATE OR REPLACE TEMP VIEW _t AS FROM ${src} LIMIT 0`);
+
+    // Check for method-style: col.prefix -> suggest functions as col.func()
+    const dotMatch = partial.match(/^(\w+)\.(\w*)$/);
+    if (dotMatch) {
+      const [, col, prefix] = dotMatch;
+      const escaped = prefix.replace(/'/g, "''");
+      const result = await conn.run(
+        `SELECT DISTINCT function_name, first(description) as description
+         FROM duckdb_functions()
+         WHERE function_name ILIKE '${escaped}%'
+           AND function_type IN ('scalar', 'scalar_function')
+         GROUP BY function_name
+         ORDER BY function_name
+         LIMIT 20`,
+      );
+      const rows = await result.getRowsJS();
+      for (const [fn, desc] of rows) {
+        const description = desc ? String(desc).slice(0, 40) : "function";
+        console.log(`${col}.${fn}()\t${description}`);
+      }
+      return;
+    }
+
+    // Standard completion
+    const escaped = partial.replace(/'/g, "''");
+    const result = await conn.run(
+      `SELECT
+        c.suggestion,
+        c.suggestion_type,
+        first(f.description) as description
+       FROM sql_auto_complete('FROM _t SELECT ${escaped}') c
+       LEFT JOIN duckdb_functions() f ON c.suggestion = f.function_name
+       WHERE (c.suggestion ILIKE '${escaped}%' OR c.suggestion ILIKE '"${escaped}%') AND c.suggestion_type != 'keyword'
+       GROUP BY 1, 2
+       ORDER BY c.suggestion_type = 'column' DESC, c.suggestion`,
+    );
+    const rows = await result.getRowsJS();
+    for (const [suggestion, type, desc] of rows) {
+      const description = desc ? String(desc).slice(0, 40) : type;
+      console.log(`${suggestion}\t${description}`);
+    }
+  } catch {
+    // silently fail
+  }
+}
+
+async function completeColumns(file: string, prefix = "") {
+  // Handle comma-separated files
+  const files = file.includes(",")
+    ? file.split(",").filter((f) => existsSync(f.trim()))
+    : [file];
+  if (files.length === 0) return;
+
+  const ext = files[0].split(".").pop()?.toLowerCase() || "";
+  const cmd = EXT_TO_CMD[ext];
+  if (!cmd) return;
+
+  // Cache in /tmp based on file path + mtime (only for no prefix)
+  const { statSync } = await import("node:fs");
+  const cacheKey = Buffer.from(file + prefix).toString("base64url");
+  const cachePath = `/tmp/reader-cols-${cacheKey}`;
+
+  try {
+    const maxMtime = Math.max(...files.map((f) => statSync(f).mtimeMs));
+    const cacheStat = statSync(cachePath);
+    if (cacheStat.mtimeMs > maxMtime) {
+      process.stdout.write(await Bun.file(cachePath).text());
+      return;
+    }
+  } catch {
+    // No cache or stale
+  }
+
+  try {
+    const instance = await DuckDBInstance.create();
+    const conn = await instance.connect();
+    const lines: string[] = [];
+
+    const compact = (n: number | bigint | null): string => {
+      if (n == null) return "";
+      const num = Number(n);
+      if (num >= 1_000_000) return `${(num / 1_000_000).toFixed(1)}M`;
+      if (num >= 1_000) return `${(num / 1_000).toFixed(0)}k`;
+      return String(num);
+    };
+
+    // Convert BigInt to Number recursively
+    const toNum = (v: any): any => {
+      if (typeof v === "bigint") return Number(v);
+      if (Array.isArray(v)) return v.map(toNum);
+      return v;
+    };
+
+    const formatRow = (col: string, uniq: any, nullPct: any, topVals: any) => {
+      // Convert "a, b, c" path to "a.b.c" for nested parquet fields
+      const colPath = col.replace(/, /g, ".");
+      const notNull = 100 - Number(nullPct || 0);
+      const pct = notNull < 100 ? `${notNull}%` : "";
+
+      // Format top values: show multiple if short, otherwise just one
+      let exStr = "";
+      const vals = toNum(topVals);
+      if (vals && Array.isArray(vals) && vals.length > 0) {
+        const strs = vals.map((v: any) => String(v ?? "").slice(0, 12));
+        // If total length is short, show multiple; otherwise just first
+        const joined = strs.join(" ");
+        if (joined.length <= 25 && strs.length > 1) {
+          exStr = strs.map((v: string) => `"${v}"`).join(" ");
+        } else if (strs[0]) {
+          exStr = `"${strs[0]}"`;
+        }
+      } else if (vals) {
+        exStr = `"${String(vals).slice(0, 15)}"`;
+      }
+
+      const desc = [pct, exStr].filter(Boolean).join(" – ");
+      return `${colPath}\t${desc}`;
+    };
+
+    // Build file arg for queries
+    const fileArg =
+      files.length > 1
+        ? `[${files.map((f) => `'${f}'`).join(",")}]`
+        : `'${files[0]}'`;
+
+    if (ext === "parquet") {
+      // Fast path: read parquet internal metadata (no data scan)
+      // Convert prefix from dot notation to comma notation for matching
+      const prefixComma = prefix.replace(/\./g, ", ");
+
+      if (prefix) {
+        // Show all children under this prefix
+        const query = `
+          SELECT path_in_schema as col,
+            sum(stats_distinct_count) as uniq,
+            round(100.0 * sum(stats_null_count) / sum(num_values))::int as null_pct,
+            [first(stats_min_value) filter (stats_min_value is not null),
+             first(stats_max_value) filter (stats_max_value is not null and stats_max_value != stats_min_value)] as top_vals
+          FROM parquet_metadata(${fileArg})
+          WHERE path_in_schema LIKE '${prefixComma}, %'
+          GROUP BY path_in_schema
+          ORDER BY null_pct ASC NULLS LAST`;
+        const result = await conn.run(query);
+        for (const [col, uniq, nullPct, topVals] of await result.getRowsJS()) {
+          lines.push(formatRow(String(col), uniq, nullPct, topVals));
+        }
+      } else {
+        // No prefix: show top-level columns, collapse nested with many descendants
+        const query = `
+          WITH raw AS (
+            SELECT path_in_schema as col,
+              sum(stats_distinct_count) as uniq,
+              round(100.0 * sum(stats_null_count) / sum(num_values))::int as null_pct,
+              [first(stats_min_value) filter (stats_min_value is not null),
+               first(stats_max_value) filter (stats_max_value is not null and stats_max_value != stats_min_value)] as top_vals
+            FROM parquet_metadata(${fileArg})
+            GROUP BY path_in_schema
+          ),
+          top_level AS (
+            SELECT split_part(col, ', ', 1) as root, count(*) as descendant_count
+            FROM raw WHERE col LIKE '%, %'
+            GROUP BY root
+          )
+          SELECT r.col, r.uniq, r.null_pct, r.top_vals, COALESCE(t.descendant_count, 0) as descendant_count
+          FROM raw r
+          LEFT JOIN top_level t ON split_part(r.col, ', ', 1) = t.root AND r.col LIKE '%, %'
+          ORDER BY r.null_pct ASC NULLS LAST`;
+        const result = await conn.run(query);
+        const seen = new Set<string>();
+        for (const [
+          col,
+          uniq,
+          nullPct,
+          topVals,
+          descendantCount,
+        ] of await result.getRowsJS()) {
+          const colStr = String(col);
+          const isNested = colStr.includes(", ");
+          const count = Number(descendantCount);
+          if (isNested && count > 5) {
+            // Collapse: show only root with "..." indicator
+            const root = colStr.split(", ")[0];
+            if (!seen.has(root)) {
+              seen.add(root);
+              lines.push(`${root}\t${count} nested fields...`);
+            }
+          } else {
+            lines.push(formatRow(colStr, uniq, nullPct, topVals));
+          }
+        }
+      }
+    } else {
+      // CSV/JSON: sample for everything
+      const src = fnSerial(cmd, files.length > 1 ? files : files[0], {});
+      const query = `
+        SELECT column_name, approx_count_distinct(v) as uniq,
+          round(100.0 * sum(v is null::int) / count(*))::int as null_pct,
+          approx_top_k(v, 3) as top_vals
+        FROM (SELECT columns(*)::VARCHAR FROM ${src} USING SAMPLE 1000)
+        UNPIVOT (v FOR column_name IN (*))
+        GROUP BY column_name
+        ORDER BY null_pct ASC NULLS LAST`;
+      const result = await conn.run(query);
+      for (const [col, uniq, nullPct, topVals] of await result.getRowsJS()) {
+        lines.push(formatRow(col as string, uniq, nullPct, topVals));
+      }
+    }
+
+    const output = lines.join("\n");
+    await Bun.write(cachePath, output);
+    console.log(output);
+  } catch {
+    // silently fail for completions
+  }
 }
 
 function generateFishCompletion() {
@@ -842,14 +1084,14 @@ function generateFishCompletion() {
   // Subcommands
   for (const cmd of cmds) {
     console.log(
-      `complete -c ${bin} -f -n "__fish_use_subcommand" -a ${cmd} -d "Read data using ${cmd}"`
+      `complete -c ${bin} -f -n "__fish_use_subcommand" -a ${cmd} -d "Read data using ${cmd}"`,
     );
   }
   console.log(
-    `complete -c ${bin} -f -n "__fish_use_subcommand" -a fish_completion -d "Generate Fish shell completion script"`
+    `complete -c ${bin} -f -n "__fish_use_subcommand" -a fish_completion -d "Generate Fish shell completion script"`,
   );
   console.log(
-    `complete -c ${bin} -f -n "__fish_use_subcommand" -a list_extensions -d "List functions that auto-load extensions"`
+    `complete -c ${bin} -f -n "__fish_use_subcommand" -a list_extensions -d "List functions that auto-load extensions"`,
   );
 
   // Flags for each subcommand
@@ -862,8 +1104,8 @@ function generateFishCompletion() {
       console.log(
         `complete -c ${bin} -f -n "__fish_seen_subcommand_from ${cmd}" -l ${opt.replace(
           /_/g,
-          "-"
-        )}${suggestions} -d "${description}"`
+          "-",
+        )}${suggestions} -d "${description}"`,
       );
     }
   }
@@ -879,8 +1121,8 @@ function generateFishCompletion() {
       console.log(
         `complete -c ${bin} -f -n "commandline -opc | string match -rg '\\\\.${ext}\\$'" -l ${opt.replace(
           /_/g,
-          "-"
-        )}${suggestions} -d "${description}"`
+          "-",
+        )}${suggestions} -d "${description}"`,
       );
     }
   }
@@ -907,7 +1149,7 @@ function generateFishCompletion() {
     if (def.formats.includes("all")) {
       // Generic options: show when --to is present (any extension)
       console.log(
-        `complete -c ${bin} -f -n "${hasToFlag}" -l ${optFlag}${suggestions} -d "COPY [all] ${description}"`
+        `complete -c ${bin} -f -n "${hasToFlag}" -l ${optFlag}${suggestions} -d "COPY [all] ${description}"`,
       );
     } else {
       // Format-specific options: show only when --to matches the extension
@@ -915,7 +1157,7 @@ function generateFishCompletion() {
         const extPattern = formatExtPatterns[fmt];
         if (extPattern) {
           console.log(
-            `complete -c ${bin} -f -n "commandline -opc | string match -rq -- '--to=.*?(${extPattern})'" -l ${optFlag}${suggestions} -d "COPY [${fmt}] ${description}"`
+            `complete -c ${bin} -f -n "commandline -opc | string match -rq -- '--to=.*?(${extPattern})'" -l ${optFlag}${suggestions} -d "COPY [${fmt}] ${description}"`,
           );
         }
       }
@@ -924,67 +1166,124 @@ function generateFishCompletion() {
 
   // Global flags - only show when --to is NOT present
   console.log(
-    `complete -c ${bin} -F -l to -d "Export result to a file (CSV, JSON, Parquet)" -r`
+    `complete -c ${bin} -F -l to -d "Export result to a file (CSV, JSON, Parquet)" -r`,
   );
   console.log(
-    `complete -c ${bin} -f -l format -d "Output format (csv, tsv, json, jsonl, parquet) to stdout" -r -a "csv tsv json jsonl parquet"`
+    `complete -c ${bin} -f -l format -d "Output format (csv, tsv, json, jsonl, parquet) to stdout" -r -a "csv tsv json jsonl parquet"`,
+  );
+  // --select with dynamic column completion (supports comma-separated)
+  // Uses sql_auto_complete when partial input exists
+  console.log(`
+function __fish_reader_complete_columns
+    set -l tokens (commandline -opc)
+    set -l cur (commandline -ct)
+
+    # Find all data files (multiple positional args)
+    set -l files
+    for tok in $tokens
+        if string match -qr '\\.(csv|tsv|txt|json|jsonl|ndjson|parquet|xlsx|lance|vortex)$' -- $tok
+            set -a files $tok
+        end
+    end
+    test (count $files) -eq 0 && return
+
+    # Join files with comma for reader
+    set -l file (string join ',' $files)
+
+    # Get the last part after comma
+    set -l prefix ""
+    set -l partial ""
+    if string match -q '*,*' -- $cur
+        set prefix (string replace -r ',[^,]*$' ',' -- $cur)
+        set partial (string replace -r '.*,' '' -- $cur)
+    else
+        set partial $cur
+    end
+
+    # Check if partial ends with dot (nested field access)
+    if string match -qr '\\w+\\.$' -- $partial
+        # Show all nested children for this prefix
+        set -l nested_prefix (string replace -r '\\.$' '' -- $partial)
+        for col in (reader _complete_columns $file $nested_prefix 2>/dev/null)
+            set -l name (string split -m1 \\t $col)[1]
+            set -l desc (string split -m1 \\t $col)[2]
+            printf "%s%s\\t%s\\n" $prefix $name $desc
+        end
+    else if test -n "$partial"
+        # Partial input, use sql_auto_complete for functions/columns
+        for row in (reader _complete_sql $file $partial 2>/dev/null)
+            set -l name (string split -m1 \\t $row)[1]
+            set -l typ (string split -m1 \\t $row)[2]
+            printf "%s%s\\t%s\\n" $prefix $name $typ
+        end
+    else
+        # No input yet, show columns with stats
+        for col in (reader _complete_columns $file 2>/dev/null)
+            set -l name (string split -m1 \\t $col)[1]
+            set -l desc (string split -m1 \\t $col)[2]
+            printf "%s%s\\t%s\\n" $prefix $name $desc
+        end
+    end
+end`);
+  console.log(
+    `complete -c ${bin} -f -k -n "${notHasToFlag}" -l select -d "Select specific columns" -r -a "(__fish_reader_complete_columns)"`,
   );
   console.log(
-    `complete -c ${bin} -f -n "${notHasToFlag}" -l select -d "Select specific columns" -r`
+    `complete -c ${bin} -f -k -n "${notHasToFlag}" -l where -d "Filter rows with a WHERE clause" -r -a "(__fish_reader_complete_columns)"`,
   );
   console.log(
-    `complete -c ${bin} -f -n "${notHasToFlag}" -l where -d "Filter rows with a WHERE clause" -r`
+    `complete -c ${bin} -f -n "${notHasToFlag}" -l join -s j -d "Join with another table (cumulative)" -r`,
   );
   console.log(
-    `complete -c ${bin} -f -n "${notHasToFlag}" -l join -s j -d "Join with another table (cumulative)" -r`
+    `complete -c ${bin} -f -k -n "${notHasToFlag}" -l distinct -s d -d "Select distinct rows based on a column" -r -a "(__fish_reader_complete_columns)"`,
   );
   console.log(
-    `complete -c ${bin} -f -n "${notHasToFlag}" -l distinct -s d -d "Select distinct rows based on a column" -r`
+    `complete -c ${bin} -f -n "${notHasToFlag}" -l sample -d "Sample N rows from the result" -r`,
   );
   console.log(
-    `complete -c ${bin} -f -n "${notHasToFlag}" -l sample -d "Sample N rows from the result" -r`
+    `complete -c ${bin} -f -k -n "${notHasToFlag}" -l sort -s s -d "Sort result by columns (ORDER BY)" -r -a "(__fish_reader_complete_columns)"`,
   );
   console.log(
-    `complete -c ${bin} -f -n "${notHasToFlag}" -l sort -s s -d "Sort result by columns (ORDER BY)" -r`
+    `complete -c ${bin} -f -k -n "${notHasToFlag}" -l order-by -d "Sort result by columns (ORDER BY)" -r -a "(__fish_reader_complete_columns)"`,
   );
   console.log(
-    `complete -c ${bin} -f -n "${notHasToFlag}" -l group-by -s g -d "Group result by columns (GROUP BY)" -r`
+    `complete -c ${bin} -f -k -n "${notHasToFlag}" -l group-by -s g -d "Group result by columns (GROUP BY)" -r -a "(__fish_reader_complete_columns)"`,
   );
   console.log(
-    `complete -c ${bin} -f -n "${notHasToFlag}" -l summarize -d "Show summary statistics of the result"`
+    `complete -c ${bin} -f -n "${notHasToFlag}" -l summarize -d "Show summary statistics of the result"`,
   );
   console.log(
-    `complete -c ${bin} -f -n "${notHasToFlag}" -l sample-size -d "Number of lines to scan for auto-detection" -r`
+    `complete -c ${bin} -f -n "${notHasToFlag}" -l sample-size -d "Number of lines to scan for auto-detection" -r`,
   );
   console.log(
-    `complete -c ${bin} -f -n "${notHasToFlag}" -l limit -s l -d "Limit the number of rows returned" -r`
+    `complete -c ${bin} -f -n "${notHasToFlag}" -l limit -s l -d "Limit the number of rows returned" -r`,
   );
   console.log(
-    `complete -c ${bin} -f -n "${notHasToFlag}" -l union-by-name -d "Whether to union files by name"`
+    `complete -c ${bin} -f -n "${notHasToFlag}" -l union-by-name -d "Whether to union files by name"`,
   );
   console.log(
-    `complete -c ${bin} -f -n "${notHasToFlag}" -l ignore-errors -d "Whether to ignore errors"`
+    `complete -c ${bin} -f -n "${notHasToFlag}" -l ignore-errors -d "Whether to ignore errors"`,
   );
   console.log(
-    `complete -c ${bin} -f -n "${notHasToFlag}" -l help -d "Show help message"`
+    `complete -c ${bin} -f -n "${notHasToFlag}" -l help -d "Show help message"`,
   );
   console.log(
-    `complete -c ${bin} -f -n "${notHasToFlag}" -s h -d "Show help message"`
+    `complete -c ${bin} -f -n "${notHasToFlag}" -s h -d "Show help message"`,
   );
   console.log(
-    `complete -c ${bin} -f -n "${notHasToFlag}" -l mode -s m -a "box line json csv markdown" -d "Output format"`
+    `complete -c ${bin} -f -n "${notHasToFlag}" -l mode -s m -a "box line json csv markdown" -d "Output format"`,
   );
   console.log(
-    `complete -c ${bin} -f -n "${notHasToFlag}" -l paging -s p -d "Enable pagination using less"`
+    `complete -c ${bin} -f -n "${notHasToFlag}" -l paging -s p -d "Enable pagination using less"`,
   );
   console.log(
-    `complete -c ${bin} -f -n "${notHasToFlag}" -l tui -s t -d "Open result in tablens TUI"`
+    `complete -c ${bin} -f -n "${notHasToFlag}" -l tui -s t -d "Open result in tablens TUI"`,
   );
   console.log(
-    `complete -c ${bin} -f -n "${notHasToFlag}" -l with -d "Add a CTE (Common Table Expression)" -r`
+    `complete -c ${bin} -f -n "${notHasToFlag}" -l with -d "Add a CTE (Common Table Expression)" -r`,
   );
   console.log(
-    `complete -c ${bin} -f -n "${notHasToFlag}" -l no-truncate -d "Do not truncate output to terminal width"`
+    `complete -c ${bin} -f -n "${notHasToFlag}" -l no-truncate -d "Do not truncate output to terminal width"`,
   );
 
   // Enable file completion
@@ -1130,8 +1429,11 @@ export function parseArgs(args: string[]): ParsedArgs {
       }
 
       let value: any = rawValue;
-      if (rawValue === undefined) value = true;
-      else if (rawValue === "true") value = true;
+      if (rawValue === undefined) {
+        // Flags that default to specific values when used without a value
+        if (key === "sample_size") value = -1;
+        else value = true;
+      } else if (rawValue === "true") value = true;
       else if (rawValue === "false") value = false;
       else if (!isNaN(Number(rawValue)) && rawValue !== "")
         value = Number(rawValue);
@@ -1140,6 +1442,12 @@ export function parseArgs(args: string[]): ParsedArgs {
           .slice(1, -1)
           .split(",")
           .map((s) => s.trim());
+      } else if (
+        (key === "column_names" || key === "names") &&
+        rawValue?.includes(",")
+      ) {
+        // Handle comma-separated column names
+        value = rawValue.split(",");
       }
 
       options[key] = value;
@@ -1148,6 +1456,12 @@ export function parseArgs(args: string[]): ParsedArgs {
       if (!command && COMMANDS_DOCS[arg]) {
         command = arg;
       } else if (files.length === 0) {
+        files.push(arg);
+      } else if (
+        /\.(csv|tsv|txt|json|jsonl|ndjson|parquet|xlsx|lance|vortex)$/i.test(arg) ||
+        existsSync(arg)
+      ) {
+        // Additional file argument
         files.push(arg);
       } else {
         queryParts.push(arg);
@@ -1237,7 +1551,7 @@ export function buildQuery(parsed: ParsedArgs): string {
     const parts = fileArg.split(".");
     // Detect magic source extension (e.g., soccer.db or spotify.sqlite3.artists)
     const dbExtIdx = parts.findIndex((p) =>
-      /^(db|ddb|duckdb|vscdb|sqlite3|sqlite)$/i.test(p)
+      /^(db|ddb|duckdb|vscdb|sqlite3|sqlite)$/i.test(p),
     );
 
     if (dbExtIdx > 0) {
@@ -1264,7 +1578,7 @@ export function buildQuery(parsed: ParsedArgs): string {
   }
 
   const sqlTail = smartAtToStar(
-    autoQuoteSql(smartBraceToParen(queryParts.join(" ")))
+    autoQuoteSql(smartBraceToParen(queryParts.join(" "))),
   );
 
   // Generate ATTACH statements and setup
@@ -1280,7 +1594,6 @@ export function buildQuery(parsed: ParsedArgs): string {
 
     if (/\.(sqlite3|sqlite|vscdb)$/i.test(path)) needsSqlite = true;
     attachSqls.push(`ATTACH '${path}' AS ${alias} (READ_ONLY)`);
-
   }
 
   // Auto-detect and load extensions based on function calls
@@ -1304,6 +1617,9 @@ export function buildQuery(parsed: ParsedArgs): string {
   if (sqlOptions.groupBy) detectExtensions(sqlOptions.groupBy);
   if (sqlOptions.sort) detectExtensions(sqlOptions.sort);
   for (const cte of ctes) detectExtensions(cte);
+  // console.log({ format });
+  if (format?.toLowerCase() === "lance") extensionsToLoad.add("lance");
+  if (format?.toLowerCase() === "vortex") extensionsToLoad.add("vortex");
 
   if (needsSqlite) {
     extensionsToLoad.add("sqlite");
@@ -1313,9 +1629,11 @@ export function buildQuery(parsed: ParsedArgs): string {
   const extensionStatements: string[] = [];
   for (var ext of extensionsToLoad) {
     const extInfo = Object.values(FN_TO_EXTENSION).find(
-      (e) => e.extension === ext
+      (e) => e.extension === ext,
     );
-    extensionStatements.push(`INSTALL ${ext} ${extInfo?.repo ? `FROM '${extInfo.repo}'` : ""}; LOAD ${ext};`);
+    extensionStatements.push(
+      `INSTALL ${ext} ${extInfo?.repo ? `FROM '${extInfo.repo}'` : ""}; LOAD ${ext};`,
+    );
   }
 
   if (extensionStatements.length > 0) {
@@ -1331,14 +1649,14 @@ export function buildQuery(parsed: ParsedArgs): string {
   let baseSelect = "SELECT *";
   if (sqlOptions.distinct) {
     baseSelect = `SELECT DISTINCT ON (${smartAtToStar(
-      smartBraceToParen(sqlOptions.distinct)
+      smartBraceToParen(sqlOptions.distinct),
     )}) *`;
   }
   if (sqlOptions.select) {
     const cleanSelect = smartAtToStar(smartBraceToParen(sqlOptions.select));
     if (sqlOptions.distinct) {
       baseSelect = `SELECT DISTINCT ON (${smartAtToStar(
-        smartBraceToParen(sqlOptions.distinct)
+        smartBraceToParen(sqlOptions.distinct),
       )}) ${cleanSelect}`;
     } else {
       baseSelect = `SELECT ${cleanSelect}`;
@@ -1373,7 +1691,7 @@ export function buildQuery(parsed: ParsedArgs): string {
       // LATERAL without JOIN - add JOIN after LATERAL
       joinClauses += ` ${smartAtToStar(smartBraceToParen(j)).replace(
         /^lateral\s+/i,
-        "LATERAL JOIN "
+        "LATERAL JOIN ",
       )}`;
     } else {
       joinClauses += ` JOIN ${smartAtToStar(smartBraceToParen(j))}`;
@@ -1388,13 +1706,13 @@ export function buildQuery(parsed: ParsedArgs): string {
       .join(" AND ")}`;
   if (sqlOptions.groupBy)
     modifiers += ` GROUP BY ${smartAtToStar(
-      smartBraceToParen(sqlOptions.groupBy)
+      smartBraceToParen(sqlOptions.groupBy),
     )}`;
   if (sqlOptions.sample) modifiers += ` USING SAMPLE ${sqlOptions.sample}`;
   if (sqlOptions.limit) modifiers += ` LIMIT ${sqlOptions.limit}`;
   if (sqlOptions.sort)
     modifiers += ` ORDER BY ${smartAtToStar(
-      smartBraceToParen(sqlOptions.sort)
+      smartBraceToParen(sqlOptions.sort),
     )}`;
 
   // Normalize the core SELECT part
@@ -1407,7 +1725,7 @@ export function buildQuery(parsed: ParsedArgs): string {
     ) {
       selectClause = selectClause.replace(
         /select\s+/i,
-        `SELECT DISTINCT ON (${sqlOptions.distinct}) `
+        `SELECT DISTINCT ON (${sqlOptions.distinct}) `,
       );
     }
     if (selectClause.toLowerCase().includes(" from ")) {
@@ -1487,7 +1805,7 @@ export function buildQuery(parsed: ParsedArgs): string {
         copyOptsArray.push(`COMPRESSION ${String(value).toUpperCase()}`);
       } else if (Array.isArray(value)) {
         copyOptsArray.push(
-          `${keyUpper} [${value.map((v) => `'${v}'`).join(", ")}]`
+          `${keyUpper} [${value.map((v) => `'${v}'`).join(", ")}]`,
         );
       } else if (typeof value === "string") {
         copyOptsArray.push(`${keyUpper} '${value}'`);
@@ -1499,7 +1817,7 @@ export function buildQuery(parsed: ParsedArgs): string {
     }
 
     return `${finalSetupSql}COPY (${selectQuery}) TO '${targetPath}' (${copyOptsArray.join(
-      ", "
+      ", ",
     )})`;
   }
 
@@ -1522,6 +1840,22 @@ async function main() {
 
   if (args[0] === "list_extensions") {
     showHelp("list_extensions");
+    return;
+  }
+
+  if (args[0] === "_complete_columns") {
+    const file = args[1];
+    const prefix = args[2] || "";
+    if (!file) return;
+    await completeColumns(file, prefix);
+    return;
+  }
+
+  if (args[0] === "_complete_sql") {
+    const file = args[1];
+    const partial = args[2] || "";
+    if (!file || !partial) return;
+    await completeSql(file, partial);
     return;
   }
 
@@ -1552,7 +1886,7 @@ async function main() {
       Bun.stderr,
       (command
         ? `Unknown command: ${command}`
-        : "Missing command or file path") + "\n"
+        : "Missing command or file path") + "\n",
     );
     showHelp();
     process.exit(1);
@@ -1602,7 +1936,7 @@ async function main() {
     const highlightedQuery = highlightSql(query);
     const commandLog = `duckdb ${cmdArgs
       .map((a) =>
-        a === query ? `"${highlightedQuery}"` : a.includes(" ") ? `"${a}"` : a
+        a === query ? `"${highlightedQuery}"` : a.includes(" ") ? `"${a}"` : a,
       )
       .join(" ")}\n`;
     await Bun.write(Bun.stderr, commandLog);
@@ -1644,7 +1978,7 @@ async function main() {
         const chunk = decoder
           .decode(value, { stream: true })
           .replace(/\b(\d+)(?=\srows\b)/g, (n) =>
-            n.replace(/\B(?=(\d{3})+(?!\d))/g, "_")
+            n.replace(/\B(?=(\d{3})+(?!\d))/g, "_"),
           );
         const lines = (partial + chunk).split("\n");
         partial = lines.pop() || "";
@@ -1668,8 +2002,7 @@ async function main() {
 
       await duckProcess.exited;
     }
-    if (!tui)
-    process.exit()
+    if (!tui) process.exit();
   } catch (err: any) {
     if (err.stderr) {
       await Bun.write(Bun.stderr, err.stderr.toString() + "\n");
