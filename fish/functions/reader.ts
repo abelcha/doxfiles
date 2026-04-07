@@ -1702,7 +1702,14 @@ export function buildQuery(parsed: ParsedArgs): string {
   let modifiers = "";
   if (where.length > 0)
     modifiers += ` WHERE ${where
-      .map((w) => smartAtToStar(autoQuoteWhere(smartBraceToParen(w))))
+      .map((w) => {
+        const trimmed = w.trim();
+        // !col → col IS NULL
+        if (/^!\w+$/.test(trimmed)) return `${trimmed.slice(1)} IS NULL`;
+        // bare col → col IS NOT NULL
+        if (/^\w+$/.test(trimmed)) return `${trimmed} IS NOT NULL`;
+        return smartAtToStar(autoQuoteWhere(smartBraceToParen(w)));
+      })
       .join(" AND ")}`;
   if (sqlOptions.groupBy)
     modifiers += ` GROUP BY ${smartAtToStar(
