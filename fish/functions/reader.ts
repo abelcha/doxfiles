@@ -599,6 +599,7 @@ export type SqlOptions = {
   summarize?: boolean;
   with: string[];
   groupBy?: string;
+  having?: string;
 };
 
 export type ParsedArgs = {
@@ -808,7 +809,8 @@ function showHelp(command?: string) {
   for (const [key, doc] of Object.entries(COPY_OPTIONS_DOCS)) {
     console.log(`  --${key.replace(/_/g, "-").padEnd(20)} ${doc}`);
   }
-  console.log("  --select=<cols>    Select specific columns");
+  console.log("  -s, --select=<cols> Select specific columns");
+  console.log("  --exclude=<cols>   Exclude columns (SELECT * EXCLUDE (cols))");
   console.log("  --where=<cond>     Filter rows with a WHERE clause");
   console.log(
     "  -j, --join=<expr>  Join with another table (cumulative). Prefix with LATERAL/LEFT/etc or just table ON cond",
@@ -817,15 +819,16 @@ function showHelp(command?: string) {
     "  -d, --distinct=<col> Select distinct rows based on a column (DISTINCT ON)",
   );
   console.log(
-    "  --sample=<n>       Sample N rows from the result (USING SAMPLE)",
+    "  --sample[=<n>]     Sample N rows (USING SAMPLE). Bare --sample uses default limit (1000)",
   );
   console.log("  -s, --sort=<cols>  Sort result by columns (ORDER BY)");
   console.log("  -g, --group-by=<cols> Group result by columns (GROUP BY)");
+  console.log("  --having=<cond>    Filter groups with a HAVING clause");
   console.log("  --summarize        Show summary statistics of the result");
   console.log(
     "  --sample-size=<n>  Number of lines to scan for auto-detection",
   );
-  console.log("  -l, --limit=<n>    Limit the number of rows returned (LIMIT)");
+  console.log("  -l, --limit[=<n>]  Limit rows returned. Bare --limit removes auto-limit (1000)");
   console.log("  --union-by-name    Whether to union multiple files by name");
   console.log("  --ignore-errors    Whether to ignore parsing errors");
   console.log(
@@ -1226,7 +1229,10 @@ function __fish_reader_complete_columns
     end
 end`);
   console.log(
-    `complete -c ${bin} -f -k -n "${notHasToFlag}" -l select -d "Select specific columns" -r -a "(__fish_reader_complete_columns)"`,
+    `complete -c ${bin} -f -k -n "${notHasToFlag}" -l select -s s -d "Select specific columns" -r -a "(__fish_reader_complete_columns)"`,
+  );
+  console.log(
+    `complete -c ${bin} -f -k -n "${notHasToFlag}" -l exclude -d "Exclude columns (SELECT * EXCLUDE (cols))" -r -a "(__fish_reader_complete_columns)"`,
   );
   console.log(
     `complete -c ${bin} -f -k -n "${notHasToFlag}" -l where -d "Filter rows with a WHERE clause" -r -a "(__fish_reader_complete_columns)"`,
@@ -1241,13 +1247,16 @@ end`);
     `complete -c ${bin} -f -n "${notHasToFlag}" -l sample -d "Sample N rows from the result" -r`,
   );
   console.log(
-    `complete -c ${bin} -f -k -n "${notHasToFlag}" -l sort -s s -d "Sort result by columns (ORDER BY)" -r -a "(__fish_reader_complete_columns)"`,
+    `complete -c ${bin} -f -k -n "${notHasToFlag}" -l sort -d "Sort result by columns (ORDER BY)" -r -a "(__fish_reader_complete_columns)"`,
   );
   console.log(
     `complete -c ${bin} -f -k -n "${notHasToFlag}" -l order-by -d "Sort result by columns (ORDER BY)" -r -a "(__fish_reader_complete_columns)"`,
   );
   console.log(
     `complete -c ${bin} -f -k -n "${notHasToFlag}" -l group-by -s g -d "Group result by columns (GROUP BY)" -r -a "(__fish_reader_complete_columns)"`,
+  );
+  console.log(
+    `complete -c ${bin} -f -k -n "${notHasToFlag}" -l having -d "Filter groups with a HAVING clause" -r -a "(__fish_reader_complete_columns)"`,
   );
   console.log(
     `complete -c ${bin} -f -n "${notHasToFlag}" -l summarize -d "Show summary statistics of the result"`,
@@ -1318,6 +1327,10 @@ export function parseArgs(args: string[]): ParsedArgs {
       if (key === "to") {
         toPath = rawValue || args[++i];
         isCopyTargetSeen = true;
+        const toExt = toPath.split(".").pop()?.toLowerCase();
+        if ((toExt === "vortex" || toExt === "lance") && !format) {
+          format = toExt;
+        }
         continue;
       }
 
@@ -1351,8 +1364,12 @@ export function parseArgs(args: string[]): ParsedArgs {
         continue;
       }
 
-      if (key === "select") {
+      if (key === "select" || key === "S" || key === "s") {
         sqlOptions.select = rawValue || args[++i];
+        continue;
+      }
+      if (key === "exclude") {
+        sqlOptions.exclude = rawValue || args[++i];
         continue;
       }
       if (key === "where") {
@@ -1372,15 +1389,19 @@ export function parseArgs(args: string[]): ParsedArgs {
         continue;
       }
       if (key === "sample") {
-        sqlOptions.sample = rawValue || args[++i];
+        sqlOptions.sample = rawValue ?? (args[i + 1]?.match(/^\d+(%|rows)?$/) ? args[++i] : "default");
         continue;
       }
-      if (key === "sort" || key === "order_by" || key === "s") {
+      if (key === "sort" || key === "order_by") {
         sqlOptions.sort = rawValue || args[++i];
         continue;
       }
       if (key === "group_by" || key === "g") {
         sqlOptions.groupBy = rawValue || args[++i];
+        continue;
+      }
+      if (key === "having") {
+        sqlOptions.having = rawValue || args[++i];
         continue;
       }
       if (key === "summarize") {
@@ -1389,7 +1410,8 @@ export function parseArgs(args: string[]): ParsedArgs {
       }
 
       if (key === "limit" || key === "l") {
-        sqlOptions.limit = rawValue || args[++i];
+        // bare --limit / -l (no value) means "no limit" — disable auto-limit
+        sqlOptions.limit = rawValue ?? (args[i + 1]?.match(/^\d+$/) ? args[++i] : "none");
         continue;
       }
 
@@ -1615,6 +1637,7 @@ export function buildQuery(parsed: ParsedArgs): string {
   if (sqlOptions.select) detectExtensions(sqlOptions.select);
   if (sqlOptions.distinct) detectExtensions(sqlOptions.distinct);
   if (sqlOptions.groupBy) detectExtensions(sqlOptions.groupBy);
+  if (sqlOptions.having) detectExtensions(sqlOptions.having);
   if (sqlOptions.sort) detectExtensions(sqlOptions.sort);
   for (const cte of ctes) detectExtensions(cte);
   // console.log({ format });
@@ -1652,8 +1675,11 @@ export function buildQuery(parsed: ParsedArgs): string {
       smartBraceToParen(sqlOptions.distinct),
     )}) *`;
   }
-  if (sqlOptions.select) {
-    const cleanSelect = smartAtToStar(smartBraceToParen(sqlOptions.select));
+  if (sqlOptions.select || sqlOptions.exclude) {
+    const base = sqlOptions.select
+      ? smartAtToStar(smartBraceToParen(sqlOptions.select))
+      : "*";
+    const cleanSelect = sqlOptions.exclude ? `${base} EXCLUDE (${sqlOptions.exclude})` : base;
     if (sqlOptions.distinct) {
       baseSelect = `SELECT DISTINCT ON (${smartAtToStar(
         smartBraceToParen(sqlOptions.distinct),
@@ -1715,8 +1741,12 @@ export function buildQuery(parsed: ParsedArgs): string {
     modifiers += ` GROUP BY ${smartAtToStar(
       smartBraceToParen(sqlOptions.groupBy),
     )}`;
+  if (sqlOptions.having)
+    modifiers += ` HAVING ${smartAtToStar(
+      autoQuoteWhere(smartBraceToParen(sqlOptions.having)),
+    )}`;
   if (sqlOptions.sample) modifiers += ` USING SAMPLE ${sqlOptions.sample}`;
-  if (sqlOptions.limit) modifiers += ` LIMIT ${sqlOptions.limit}`;
+  if (sqlOptions.limit && sqlOptions.limit !== "none") modifiers += ` LIMIT ${sqlOptions.limit}`;
   if (sqlOptions.sort)
     modifiers += ` ORDER BY ${smartAtToStar(
       smartBraceToParen(sqlOptions.sort),
@@ -1888,6 +1918,19 @@ async function main() {
     parsed.format = "csv";
   }
 
+  const DEFAULT_LIMIT = "1000";
+
+  // Bare --sample resolves to the default limit value
+  if (parsed.sqlOptions.sample === "default") {
+    parsed.sqlOptions.sample = DEFAULT_LIMIT;
+  }
+
+  // Auto-limit for TTY stdout — suppressed if limit/sample/summarize/to/format is set
+  // "none" sentinel means user explicitly passed bare --limit to disable auto-limit
+  if (isTTY && !tui && !toPath && !format && !parsed.sqlOptions.limit && !parsed.sqlOptions.sample && !parsed.sqlOptions.summarize) {
+    parsed.sqlOptions.limit = DEFAULT_LIMIT;
+  }
+
   if (command && !COMMANDS_DOCS[command] && command !== "sql") {
     await Bun.write(
       Bun.stderr,
@@ -1938,14 +1981,14 @@ async function main() {
     if (mode) {
       cmdArgs.push("-" + mode);
     }
+    if (isTTY) {
+      cmdArgs.push("-cmd", `.maxwidth ${process.stdout.columns || 80}`);
+      cmdArgs.push("-cmd", ".timer on");
+    }
     cmdArgs.push("-c", query);
 
     const highlightedQuery = highlightSql(query);
-    const commandLog = `duckdb ${cmdArgs
-      .map((a) =>
-        a === query ? `"${highlightedQuery}"` : a.includes(" ") ? `"${a}"` : a,
-      )
-      .join(" ")}\n`;
+    const commandLog = `duckdb -c "${highlightedQuery}"\n`;
     await Bun.write(Bun.stderr, commandLog);
 
     if (tui) {
@@ -1966,8 +2009,11 @@ async function main() {
         stderr: "inherit",
       });
       await lessProcess.exited;
+    } else if (isTTY) {
+      // Use script to give duckdb a real PTY: enables color output + correct terminal width
+      await $`script -q /dev/null duckdb ${cmdArgs}`;
     } else {
-      // Use DuckDB CLI with streaming output for efficient truncation
+      // Piped output: stream stdout for CSV/format output
       const duckProcess = Bun.spawn(["duckdb", ...cmdArgs], {
         stdout: "pipe",
         stderr: "inherit",
