@@ -1,3 +1,3 @@
 function c
-    command cursor (path resolve $argv)
+    /Applications/Cursor.app/Contents/Resources/app/bin/code (path resolve $argv)
 end

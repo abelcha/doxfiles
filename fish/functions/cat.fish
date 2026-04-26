@@ -49,10 +49,10 @@ function cat --wraps=bat
     
     if test -z "$FORCE_RENDERING"; and not isatty stdout; or not isatty stdin
         test -z "$decode"; and set decode "command cat"
-        eval (string split ' ' -- $decode) <$argv
+        command cat $argv
+        #eval (string split ' ' -- $decode) <$argv
         return 0
     end
-    
     if string match -qr 'https?\:\/\/.*' -- "$argv"
         x $argv
         return
@@ -75,11 +75,12 @@ function cat --wraps=bat
     end
     
     if [ $extension = json ]
-        set format jfmt
+        #set format jfmt
     end
     switch ( echo $extension )
         case md
-            glow --pager $argv
+            bun $argv | moor
+            #glow --pager $argv
         case zng zjson zson
             zq $argv
         case plist
@@ -95,7 +96,7 @@ function cat --wraps=bat
             else if test (string match -r '^http' -- "$filepath")
                 x $filepath
             else
-                bat $argv (fprops pre decode format ) --style header,header-filesize,header-filename,grid --theme Nord
+                bat $argv (fprops pre decode format ) --theme Nord
             end
     end
 end

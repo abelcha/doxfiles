@@ -1,16 +1,12 @@
 function _.filter_argv_opts
-    #set --append rtn
-    set --path rtn
-    for i in $argv
-        #echo $i
-        
+    set -f _rtn
+    for i in (string split ' ' --  "$argv")
         switch $i
             case '-*'
                 continue
-                #echo consitn
             case '*'
-                set --append rtn $i
+                set -f --append _rtn $i
         end
     end
-    string collect $rtn
+    string collect $_rtn
 end

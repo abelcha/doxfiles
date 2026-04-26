@@ -1,3 +1,3 @@
 function _list_port_listener
-    lsof  -iTCP -sTCP:LISTEN|choose 0  -2 |rg '(.+)\s.+:(\d+)' -r '$2'\t'\'$1\''|sort -u
+    string replace -a -r '(:?\w+)\s+(:?\d+).+\:(:?\d+).+' '$3\t$1[$2]' (lsof -iTCP -sTCP:LISTEN -P |tail +2 )
 end

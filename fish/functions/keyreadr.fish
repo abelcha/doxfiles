@@ -1,15 +1,17 @@
 function keyreadr --wraps='fish_key_reader -c'
     echo waiting your input...
+    set -f last_keycode
     while fish_key_reader 2>&- | col -b | read --tokenize --array response
-        logg 
-        logg reesp response
+        #logg
+        #logg reesp response
         set -l keycode $response[2]
         echo
         set fullb (bind --all  $keycode 2>&-)
-        logg fullb
+        #logg fullb
         switch $keycode
             case e E
-                commandline --insert "bind $keycode "
+                commandline --function beginning-of-buffer
+                commandline --insert "bind $last_keycode "
                 return
             case '' q Q ctrl-c alt-d escape
                 return
@@ -22,6 +24,7 @@ function keyreadr --wraps='fish_key_reader -c'
         test -z "$fullb"; and echo "bind: No binding found for key '$keycode'"
         echo --------------
         echo press (set_color cyan )"[e to edit]"(set_color normal )
+        set last_keycode $keycode
     end
     echo waiting your input...
     #echo (set_color brmagenta )"[ q to quit]"(set_color normal )

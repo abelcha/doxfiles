@@ -1,8 +1,8 @@
 function rm
     if not type -q rm
-        command rm $argv
+        command rm -fr $argv
     end
-    if string match -rq '\-[frv]+' -- $argv
+    if contains -- -fr $argv
         command rm $argv
         return
     end
@@ -11,6 +11,10 @@ function rm
         return
     end
     if status is-interactive
+        if not test -e $argv[-1]
+            echo2 (set_color red ) "'$argv[-1]' doesnt exists"(set_color normal )
+            return
+        end
         set cnt (find $argv -type f 2>/dev/null | head -n 101 | wc -l)
         if test $cnt -gt 100
             echo (set_color cyan --dim) Removing silently ...

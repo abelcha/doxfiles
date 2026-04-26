@@ -36,10 +36,11 @@ function vared --description 'Edit variable value'
                     __fish_vared_temp_value
                 set -S __fish_vared_temp_value
                 if test -n "$$argv"
-                    set $argv $__fish_vared_temp_value
+                    set --path $argv $__fish_vared_temp_value
                 else
                     set -g $argv $__fish_vared_temp_value
                 end
+                set -gx __fish_vared_temp_value $__fish_vared_temp_value
         end
     else
         printf (_ '%s: Expected exactly one argument, got %s.\n\nSynopsis:\n\t%svared%s VARIABLE\n') vared (count $argv) (set_color $fish_color_command; echo) (set_color $fish_color_normal; echo) >&2

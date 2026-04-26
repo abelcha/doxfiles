@@ -9,12 +9,12 @@ function __fish_print_help --description 'Print help message for the specified f
         case '['
             set item test
     end
-    
+
     # Do nothing if the file does not exist
     if not test -e "$__fish_data_dir/man/man1/$item.1" -o -e "$__fish_data_dir/man/man1/$item.1.gz"
         return 2
     end
-    
+
     # Render help output, save output into the variable 'help'
     set -l help
     set -l format
@@ -22,7 +22,7 @@ function __fish_print_help --description 'Print help message for the specified f
     if test -n "$COLUMNS"
         set cols (math $COLUMNS - 4) # leave a bit of space on the right
     end
-    
+
     # Pick which command we are using to render output or fail if none
     # We prefer mandoc because that doesn't break with unicode input.
     if command -qs mandoc
@@ -42,7 +42,7 @@ function __fish_print_help --description 'Print help message for the specified f
         echo fish: (_ "Cannot format help; no parser found") >&2
         return 1
     end
-    
+
     if test -e "$__fish_data_dir/man/man1/$item.1"
         # Some nroff versions screw up non-ascii characters.
         # (even with the locale set correctly!)
@@ -59,7 +59,7 @@ function __fish_print_help --description 'Print help message for the specified f
             set help (gunzip -c "$__fish_data_dir/man/man1/$item.1.gz" 2>/dev/null | $format 2>/dev/null)
         end
     end
-    
+
     # The original implementation trimmed off the top 5 lines and bottom 3 lines
     # from the nroff output. Perhaps that's reliable, but the magic numbers make
     # me extremely nervous. Instead, let's just strip out any lines that start
@@ -97,12 +97,12 @@ function __fish_print_help --description 'Print help message for the specified f
                     contains -- $name NAME; and set have_name 1
                     # Everything after COPYRIGHT is useless
                     contains -- $name COPYRIGHT; and break
-                    
+
                     # not leading space, and not empty, so must contain a non-space
                     # in the first column. That makes it a header/footer.
                     set line_type meta
             end
-            
+
             set -q have_name[1]; or continue
             switch $state
                 case normal
@@ -127,17 +127,17 @@ function __fish_print_help --description 'Print help message for the specified f
         set -l pager (__fish_anypager --with-manpager)
         and isatty stdout
         or set pager cat # cannot use a builtin here
-        
+
         # similar to man, but add -F to quit paging when the help output is brief (#6227)
         # Also set -X for less < v530, see #8157.
         set -l lessopts isRF
-        if type -q less; and test (less --version | string match -r 'less (\d+)')[2] -lt 530 2>/dev/null
+        if type -q less; and test (less --xversion | string match -r 'less (\d+)')[2] -lt 530 2>/dev/null
             set lessopts "$lessopts"X
         end
-        
+
         not set -qx LESS
         and set -xl LESS $lessopts
-        
+
         # less options:
         # -i (--ignore-case) search case-insensitively, like man
         # -s (--squeeze-blank-lines) not strictly necessary since we already do that above
