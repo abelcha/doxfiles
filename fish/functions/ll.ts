@@ -165,21 +165,39 @@ interface StyleSpec {
 }
 
 // Helper for apfs.util -S
-async function getApfsFastSize(dirPath: string): Promise<number> {
-    //   console.time("getApfsFastSize" + dirPath);
+async function getApfsFastSize(dirPath: string, verbose?: VerboseCtx): Promise<number> {
+    const t0 = performance.now();
     try {
-        
-    const out =
-        await Bun.$`/System/Library/Filesystems/apfs.fs/Contents/Resources/apfs.util -S ${dirPath}`.text();
-    const match = out.match(/physical size: (\d+)/);
-    //   console.timeEnd("getApfsFastSize" + dirPath);
-    return match?.[1] ? parseInt(match[1], 10) : -1;
-    const size = out;
-    return -1;
-    }catch (err) {
-        return -1
+        const proc = Bun.$`/System/Library/Filesystems/apfs.fs/Contents/Resources/apfs.util -S ${dirPath}`.quiet();
+        const out = await proc.text();
+        const match = out.match(/physical size: (\d+)/);
+        const size = match?.[1] ? parseInt(match[1], 10) : -1;
+        if (verbose) {
+            verbose.note(dirPath, `apfs.util -S → ${size} bytes in ${(performance.now() - t0).toFixed(1)}ms`);
+            if (!match) verbose.note(dirPath, `apfs.util output unparsed: ${out.trim().slice(0, 120)}`);
+        }
+        return size;
+    } catch (err: any) {
+        if (verbose) verbose.note(dirPath, `apfs.util failed: ${err?.message ?? err}`);
+        return -1;
     }
-    // return match?.[1] ? parseInt(match[1], 10) : -1;
+}
+
+interface VerboseCtx {
+    notes: Map<string, string[]>;
+    note(path: string, msg: string): void;
+}
+
+function makeVerboseCtx(): VerboseCtx {
+    const notes = new Map<string, string[]>();
+    return {
+        notes,
+        note(p, msg) {
+            const arr = notes.get(p) ?? [];
+            arr.push(msg);
+            notes.set(p, arr);
+        },
+    };
 }
 
 function makeStyle(spec?: StyleSpec): string {
@@ -695,7 +713,8 @@ async function* processEntries(
     targetDir: string,
     dirs: string[],
     flags: any,
-    deadline: number
+    deadline: number,
+    verbose?: VerboseCtx
 ): AsyncGenerator<EntryData> {
     if (!existsSync(targetDir)) {
         console.error(`"${targetDir}": No such file or directory`);
@@ -743,32 +762,36 @@ async function* processEntries(
     async function getSize(entry: any): Promise<number> {
         const fullPath = entry.fullPath || entry.parentPath + "/" + entry.name;
         if (entry.isFile()) {
-            const stat = lstatSync(fullPath);
-
-            // console.log({ stat });
             const fsize = Bun.file(fullPath).size;
-            if (fsize > 10_000_000)
-                return getPhysicalFileSize(fullPath)
-            return fsize
+            if (fsize > 10_000_000) {
+                const phys = getPhysicalFileSize(fullPath);
+                if (verbose) verbose.note(fullPath, `file >10MB: logical=${fsize}, physical(lstat st_blocks*512)=${phys}`);
+                return phys;
+            }
+            if (verbose) verbose.note(fullPath, `file: Bun.file().size=${fsize}`);
+            return fsize;
         }
         if (entry.isSymbolicLink()) {
-            //   console.log("SYMKLIIIIIINK", entry, entry.isDirectory());
             const p = existsSync(fullPath) && realpathSync(fullPath);
             if (!p) {
+                if (verbose) verbose.note(fullPath, `symlink target missing`);
                 return -1;
             }
+            if (verbose) verbose.note(fullPath, `symlink → ${p}`);
             const stat = lstatSync(p);
-            //   stat.is
-            return getSize(Object.assign(stat, { fullPath }));
+            return getSize(Object.assign(stat, { fullPath: p }));
         }
         if (entry.isDirectory()) {
             if (isMountedVolume(fullPath)) {
-                return Number(getVolumeSizePureBun(fullPath));
+                const vs = Number(getVolumeSizePureBun(fullPath));
+                if (verbose) verbose.note(fullPath, `dir is mounted volume → getattrlist ATTR_VOL_SPACEUSED=${vs}`);
+                return vs;
             }
-            return await getApfsFastSize(fullPath);
+            if (verbose) verbose.note(fullPath, `dir → apfs.util -S (APFS physical size of tree)`);
+            return await getApfsFastSize(fullPath, verbose);
         }
+        if (verbose) verbose.note(fullPath, `unknown entry type, returning -1`);
         return -1;
-       
     }
 
     const tasks = entries
@@ -805,7 +828,8 @@ async function* processEntries(
             //   console.log('->', , fullPath, entry.name)
 
             const start = performance.now();
-            const size = await getSize(entry);
+            // Pin entry.fullPath so getSize keys verbose notes by the same absolute path we display.
+            const size = await getSize(Object.assign(entry, { fullPath }));
             const duration = performance.now() - start;
 
             const ts =
@@ -815,8 +839,11 @@ async function* processEntries(
 
             return { entry, fullPath, size, ts, duration };
         });
-
+    if (flags.sort === true) {
+        flags.sort = 'name'    
+    }
     if (flags.sort) {
+        
         const results = await Promise.all(tasks);
 
         if (flags.sort.startsWith("-")) {
@@ -883,12 +910,70 @@ if (import.meta.main) {
                 type: "boolean",
                 default: false,
             },
+            verbose: {
+                short: "v",
+                type: "boolean",
+                default: false,
+            },
+            help: {
+                short: "h",
+                type: "boolean",
+                default: false,
+            },
         },
         allowPositionals: true,
     }); // end parseArgs
 
+    if (flags.help) {
+        const b = makeStyle({ bold: true });
+        const dim = makeStyle({ fg: FG.grey, dim: true });
+        const head = makeStyle({ fg: FG.yellow, bold: true });
+        const opt = makeStyle({ fg: FG.green });
+        const lines = [
+            `${paint(head, "ll")} — colourful directory listing with APFS-aware sizing`,
+            ``,
+            `${paint(b, "USAGE")}`,
+            `  ll [options] [path...]`,
+            ``,
+            `${paint(b, "OPTIONS")}`,
+            `  ${paint(opt, "-a, --all")}          include dotfiles`,
+            `  ${paint(opt, "-r, --reverse")}      reverse sort order`,
+            `  ${paint(opt, "-s, --sort <key>")}   sort by name|size|time|date (prefix '-' to reverse)`,
+            `  ${paint(opt, "-1, --one")}          one entry per line, name only`,
+            `  ${paint(opt, "-d, --dir")}          list the directory itself, not its contents`,
+            `  ${paint(opt, "    --nocache")}      bypass the sqlite size cache`,
+            `  ${paint(opt, "    --timeout <ms>")} deadline for sizing (default 1000)`,
+            `  ${paint(opt, "    --timing")}       show per-entry measurement duration`,
+            `  ${paint(opt, "-v, --verbose")}      print sizing internals (method, raw bytes, notes)`,
+            `  ${paint(opt, "-h, --help")}         show this message`,
+            ``,
+            `${paint(b, "SIZING STRATEGY")}`,
+            `  ${paint(dim, "files < 10MB")}   Bun.file().size           (logical size)`,
+            `  ${paint(dim, "files ≥ 10MB")}   lstat st_blocks * 512     (physical / on-disk)`,
+            `  ${paint(dim, "directories")}    apfs.util -S              (APFS physical tree size)`,
+            `  ${paint(dim, "mounted vols")}   getattrlist ATTR_VOL_SPACEUSED`,
+            `  ${paint(dim, "symlinks")}       resolved, then sized as above`,
+            ``,
+            `${paint(b, "EXAMPLES")}`,
+            `  ll -s size -r ~/Downloads`,
+            `  ll --verbose --timeout 5000 /Volumes`,
+            `  ll -1 -a .`,
+        ];
+        console.log(lines.join("\n"));
+        process.exit(0);
+    }
+
     const dirs = positionals.length === 0 ? ["."] : (positionals as string[]);
     const deadline = Date.now() + Number(flags.timeout || 1000);
+    const verbose = flags.verbose ? makeVerboseCtx() : undefined;
+
+    if (verbose) {
+        const dim = makeStyle({ fg: FG.grey, dim: true });
+        console.log(paint(dim, `[verbose] flags=${JSON.stringify(flags)}`));
+        console.log(paint(dim, `[verbose] dirs=${JSON.stringify(dirs)} deadline=+${Number(flags.timeout || 1000)}ms`));
+        console.log(paint(dim, `[verbose] TTY=${DISPLAY_COLORS} TOTALSIZE=${process.env.TOTALSIZE ?? ""} platform=${process.platform}`));
+        console.log(paint(dim, `[verbose] sizing: files<10MB → Bun.file().size; files≥10MB → lstat st_blocks*512; dirs → apfs.util -S; mounted volumes → getattrlist ATTR_VOL_SPACEUSED`));
+    }
 
     let spawnedWarming = false;
     for (const targetDir of dirs) {
@@ -896,7 +981,8 @@ if (import.meta.main) {
             targetDir,
             dirs,
             flags,
-            deadline
+            deadline,
+            verbose
         )) {
             if (!flags.all && entry.name.startsWith(".") && !positionnals[0]?.startsWith('.')) {
                 continue;
@@ -922,8 +1008,22 @@ if (import.meta.main) {
 
             const formatted = formatFilename(entry);
 
+            const emitVerbose = () => {
+                if (!verbose) return;
+                const dim = makeStyle({ fg: FG.grey, dim: true });
+                const notes = verbose.notes.get(fullPath) ?? [];
+                const rawSize =
+                    size === -1 ? "ERR" : size === -2 ? "TIMEOUT" : `${size} bytes`;
+                console.log(paint(dim, `    path:     ${fullPath}`));
+                console.log(paint(dim, `    raw size: ${rawSize}   duration: ${duration.toFixed(2)}ms   mtime: ${new Date(ts).toISOString()}`));
+                for (const n of notes) {
+                    console.log(paint(dim, `    • ${n}`));
+                }
+            };
+
             if (flags.one) {
                 console.log(formatted);
+                emitVerbose();
                 continue;
             }
             const datef = formatDate(new Date(ts));
@@ -965,6 +1065,7 @@ if (import.meta.main) {
                 : "";
 
             console.log("", formatSize(size), datef, timingStr, "–", pre + formatted);
+            emitVerbose();
         }
     }
 }
