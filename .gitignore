@@ -6,6 +6,7 @@
 !/karabiner/karabiner.json
 !/duckdb/
 !/lvim/
+!/nvim/
 !/bin/
 !/mods/mods.yml 
 fish/conf.d/secrets.fish

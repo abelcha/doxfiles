@@ -1,3 +1,6 @@
+/opt/zerobrew/prefix/bin
+/opt/zerobrew/bin/
+/opt/nanobrew/prefix/bin
 /mods/golang/bin
 /mods/cache/.bun/bin
 /mods/deno/bin
@@ -6,3 +9,4 @@
 /mods/cargo/bin
 /mods/vcpkg
 /mods/mint/bin
+/mods/data/nvim-mason/mason/bin/
