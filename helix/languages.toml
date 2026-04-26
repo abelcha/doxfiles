@@ -1,1 +1,89 @@
-/me/dev/helix/languages.toml
+# User overrides only. Defaults come from Helix's built-in config.
+# Docs: https://docs.helix-editor.com/languages.html
+
+# ─── JSON: enable SchemaStore + common schemas ──────────────────────────────
+[language-server.vscode-json-language-server.config]
+provideFormatter = true
+json.validate.enable = true
+json.schemas = [
+  { fileMatch = ["package.json"], url = "https://json.schemastore.org/package.json" },
+  { fileMatch = ["tsconfig*.json"], url = "https://json.schemastore.org/tsconfig.json" },
+  { fileMatch = [".eslintrc", ".eslintrc.json"], url = "https://json.schemastore.org/eslintrc.json" },
+  { fileMatch = ["biome.json", "biome.jsonc"], url = "https://biomejs.dev/schemas/latest/schema.json" },
+  { fileMatch = ["deno.json", "deno.jsonc"], url = "https://raw.githubusercontent.com/denoland/deno/main/cli/schemas/config-file.v1.json" },
+  { fileMatch = [".prettierrc", ".prettierrc.json"], url = "https://json.schemastore.org/prettierrc.json" },
+  { fileMatch = ["turbo.json"], url = "https://turbo.build/schema.json" },
+  { fileMatch = ["vercel.json"], url = "https://openapi.vercel.sh/vercel.json" },
+  { fileMatch = [".swcrc"], url = "https://json.schemastore.org/swcrc.json" },
+  { fileMatch = ["bun.lock"], url = "https://json.schemastore.org/bun-lock.json" },
+]
+
+# ─── YAML: SchemaStore auto-detects by filename ─────────────────────────────
+# Covers: .github/workflows/*, docker-compose, k8s, gitlab-ci, circleci, ansible, etc.
+[language-server.yaml-language-server.config.yaml]
+schemaStore.enable = true
+schemaStore.url = "https://www.schemastore.org/api/json/catalog.json"
+format.enable = true
+validate = true
+completion = true
+hover = true
+
+# ─── TOML: taplo auto-detects schemas from the SchemaStore ──────────────────
+# Works out-of-the-box for: Cargo.toml, pyproject.toml, rustfmt.toml, bunfig.toml,
+# netlify.toml, taplo.toml, etc. Just set schema.enabled = true.
+[language-server.taplo]
+command = "taplo"
+args = ["lsp", "stdio"]
+
+[language-server.taplo.config]
+"taplo.configFile.enabled" = true
+"schema.enabled" = true
+"schema.catalogs" = ["https://www.schemastore.org/api/json/catalog.json"]
+
+# ─── Python: prefer ruff + pyright ──────────────────────────────────────────
+[[language]]
+name = "python"
+language-servers = ["pyright", "ruff"]
+formatter = { command = "ruff", args = ["format", "-"] }
+auto-format = true
+
+# ─── TypeScript: add eslint alongside ts-language-server ────────────────────
+[[language]]
+name = "typescript"
+language-servers = ["typescript-language-server", "eslint"]
+
+[[language]]
+name = "tsx"
+language-servers = ["typescript-language-server", "eslint"]
+
+[[language]]
+name = "javascript"
+language-servers = ["typescript-language-server", "eslint"]
+
+[[language]]
+name = "jsx"
+language-servers = ["typescript-language-server", "eslint"]
+
+[language-server.eslint]
+command = "vscode-eslint-language-server"
+args = ["--stdio"]
+
+[language-server.eslint.config]
+validate = "on"
+experimental = { useFlatConfig = false }
+rulesCustomizations = []
+run = "onType"
+problems = { shortenToSingleLine = false }
+nodePath = ""
+
+[language-server.eslint.config.codeAction.disableRuleComment]
+enable = true
+location = "separateLine"
+
+[language-server.eslint.config.codeAction.showDocumentation]
+enable = false
+
+# ─── Tailwind: activate in HTML/JSX/TSX/Vue/Svelte/Astro ────────────────────
+[language-server.tailwindcss-ls]
+command = "tailwindcss-language-server"
+args = ["--stdio"]
