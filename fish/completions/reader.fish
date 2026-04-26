@@ -5,7 +5,10 @@ complete -c reader -f -n "__fish_use_subcommand" -a read_json -d "Read data usin
 complete -c reader -f -n "__fish_use_subcommand" -a read_ndjson -d "Read data using read_ndjson"
 complete -c reader -f -n "__fish_use_subcommand" -a read_parquet -d "Read data using read_parquet"
 complete -c reader -f -n "__fish_use_subcommand" -a read_xlsx -d "Read data using read_xlsx"
+complete -c reader -f -n "__fish_use_subcommand" -a read_lance -d "Read data using read_lance"
+complete -c reader -f -n "__fish_use_subcommand" -a read_vortex -d "Read data using read_vortex"
 complete -c reader -f -n "__fish_use_subcommand" -a fish_completion -d "Generate Fish shell completion script"
+complete -c reader -f -n "__fish_use_subcommand" -a list_extensions -d "List functions that auto-load extensions"
 complete -c reader -f -n "__fish_seen_subcommand_from read_csv" -l all-varchar -d "Skip type detection and assume all columns are of type VARCHAR"
 complete -c reader -f -n "__fish_seen_subcommand_from read_csv" -l allow-quoted-nulls -d "Allow the conversion of quoted values to NULL values"
 complete -c reader -f -n "__fish_seen_subcommand_from read_csv" -l auto-detect -d "Auto detect CSV parameters"
@@ -282,13 +285,81 @@ complete -c reader -f -n "commandline -opc | string match -rq -- '--to|--format'
 complete -c reader -f -n "commandline -opc | string match -rq -- '--to|--format'" -l write-partition-columns -d "COPY [all] Write partition columns into files"
 complete -c reader -F -l to -d "Export result to a file (CSV, JSON, Parquet)" -r
 complete -c reader -f -l format -d "Output format (csv, tsv, json, jsonl, parquet) to stdout" -r -a "csv tsv json jsonl parquet"
-complete -c reader -f -n "not commandline -opc | string match -rq -- '--to|--format'" -l select -d "Select specific columns" -r
-complete -c reader -f -n "not commandline -opc | string match -rq -- '--to|--format'" -l where -d "Filter rows with a WHERE clause" -r
+
+function __fish_reader_complete_columns
+    set -l tokens (commandline -opc)
+    set -l cur (commandline -ct)
+
+    # Find all data files (multiple positional args)
+    set -l files
+    for tok in $tokens
+        if string match -qr '\.(csv|tsv|txt|json|jsonl|ndjson|parquet|xlsx|lance|vortex)$' -- $tok
+            set -a files $tok
+        end
+    end
+    test (count $files) -eq 0 && return
+
+    # Join files with comma for reader
+    set -l file (string join ',' $files)
+
+    # Get the last part after comma
+    set -l prefix ""
+    set -l partial ""
+    if string match -q '*,*' -- $cur
+        set prefix (string replace -r ',[^,]*$' ',' -- $cur)
+        set partial (string replace -r '.*,' '' -- $cur)
+    else
+        set partial $cur
+    end
+
+    # Check if partial ends with dot (nested field access)
+    if string match -qr '\w+\.$' -- $partial
+        # Show all nested children for this prefix
+        set -l nested_prefix (string replace -r '\.$' '' -- $partial)
+        for col in (reader _complete_columns $file $nested_prefix 2>/dev/null)
+            set -l name (string split -m1 \t $col)[1]
+            set -l desc (string split -m1 \t $col)[2]
+            printf "%s%s\t%s\n" $prefix $name $desc
+        end
+    else if test -n "$partial"
+        # Partial input, use sql_auto_complete for functions/columns
+        for row in (reader _complete_sql $file $partial 2>/dev/null)
+            set -l name (string split -m1 \t $row)[1]
+            set -l typ (string split -m1 \t $row)[2]
+            printf "%s%s\t%s\n" $prefix $name $typ
+        end
+    else
+        # No input yet, show columns with stats
+        for col in (reader _complete_columns $file 2>/dev/null)
+            set -l name (string split -m1 \t $col)[1]
+            set -l desc (string split -m1 \t $col)[2]
+            printf "%s%s\t%s\n" $prefix $name $desc
+        end
+    end
+end
+complete -c reader -f -k -n "not commandline -opc | string match -rq -- '--to|--format'" -l select -s s -d "Select specific columns" -r -a "(__fish_reader_complete_columns)"
+complete -c reader -f -k -n "not commandline -opc | string match -rq -- '--to|--format'" -l exclude -d "Exclude columns (SELECT * EXCLUDE (cols))" -r -a "(__fish_reader_complete_columns)"
+complete -c reader -f -k -n "not commandline -opc | string match -rq -- '--to|--format'" -l where -d "Filter rows with a WHERE clause" -r -a "(__fish_reader_complete_columns)"
 complete -c reader -f -n "not commandline -opc | string match -rq -- '--to|--format'" -l join -s j -d "Join with another table (cumulative)" -r
-complete -c reader -f -n "not commandline -opc | string match -rq -- '--to|--format'" -l distinct -s d -d "Select distinct rows based on a column" -r
+complete -c reader -f -n "not commandline -opc | string match -rq -- '--to|--format'" -l left-join -d "LEFT JOIN with another table" -r
+complete -c reader -f -n "not commandline -opc | string match -rq -- '--to|--format'" -l right-join -d "RIGHT JOIN with another table" -r
+complete -c reader -f -n "not commandline -opc | string match -rq -- '--to|--format'" -l inner-join -d "INNER JOIN with another table" -r
+complete -c reader -f -n "not commandline -opc | string match -rq -- '--to|--format'" -l outer-join -d "OUTER JOIN with another table" -r
+complete -c reader -f -n "not commandline -opc | string match -rq -- '--to|--format'" -l cross-join -d "CROSS JOIN with another table" -r
+complete -c reader -f -n "not commandline -opc | string match -rq -- '--to|--format'" -l natural-join -d "NATURAL JOIN with another table" -r
+complete -c reader -f -n "not commandline -opc | string match -rq -- '--to|--format'" -l anti-join -d "ANTI JOIN with another table" -r
+complete -c reader -f -n "not commandline -opc | string match -rq -- '--to|--format'" -l semi-join -d "SEMI JOIN with another table" -r
+complete -c reader -f -n "not commandline -opc | string match -rq -- '--to|--format'" -l full-join -d "FULL JOIN with another table" -r
+complete -c reader -f -n "not commandline -opc | string match -rq -- '--to|--format'" -l positional-join -d "POSITIONAL JOIN with another table" -r
+complete -c reader -f -k -n "not commandline -opc | string match -rq -- '--to|--format'" -l on -d "Join condition for ON clause (used with --join)" -r -a "(__fish_reader_complete_columns)"
+complete -c reader -f -k -n "not commandline -opc | string match -rq -- '--to|--format'" -l using -d "Join column(s) for USING clause (used with --join)" -r -a "(__fish_reader_complete_columns)"
+complete -c reader -f -k -n "not commandline -opc | string match -rq -- '--to|--format'" -l distinct -s d -d "Select distinct rows based on a column" -r -a "(__fish_reader_complete_columns)"
 complete -c reader -f -n "not commandline -opc | string match -rq -- '--to|--format'" -l sample -d "Sample N rows from the result" -r
-complete -c reader -f -n "not commandline -opc | string match -rq -- '--to|--format'" -l sort -s s -d "Sort result by columns (ORDER BY)" -r
-complete -c reader -f -n "not commandline -opc | string match -rq -- '--to|--format'" -l group-by -s g -d "Group result by columns (GROUP BY)" -r
+complete -c reader -f -k -n "not commandline -opc | string match -rq -- '--to|--format'" -l sort -d "Sort result by columns (ORDER BY)" -r -a "(__fish_reader_complete_columns)"
+complete -c reader -f -k -n "not commandline -opc | string match -rq -- '--to|--format'" -l order-by -d "Sort result by columns (ORDER BY)" -r -a "(__fish_reader_complete_columns)"
+complete -c reader -f -k -n "not commandline -opc | string match -rq -- '--to|--format'" -l group-by -s g -d "Group result by columns (GROUP BY)" -r -a "(__fish_reader_complete_columns)"
+complete -c reader -f -k -n "not commandline -opc | string match -rq -- '--to|--format'" -l having -d "Filter groups with a HAVING clause" -r -a "(__fish_reader_complete_columns)"
+complete -c reader -f -k -n "not commandline -opc | string match -rq -- '--to|--format'" -l count-by -d "Count rows grouped by column" -r -a "(__fish_reader_complete_columns)"
 complete -c reader -f -n "not commandline -opc | string match -rq -- '--to|--format'" -l summarize -d "Show summary statistics of the result"
 complete -c reader -f -n "not commandline -opc | string match -rq -- '--to|--format'" -l sample-size -d "Number of lines to scan for auto-detection" -r
 complete -c reader -f -n "not commandline -opc | string match -rq -- '--to|--format'" -l limit -s l -d "Limit the number of rows returned" -r

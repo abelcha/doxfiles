@@ -1,0 +1,10 @@
+complete -c gen-bidpack.ts --wraps gen-bidpack
+complete -c "gen-bidpack" -l "orgs" -d "Comma-separated org IDs" # global
+complete -c "gen-bidpack" -l "segment" -d "Transport segment" -xa "colis lot palette" # global
+complete -c "gen-bidpack" -l "period" -d "Inclusive month range" # global
+complete -c "gen-bidpack" -l "out" -d "Output parquet path" # global
+complete -c "gen-bidpack" -l "destinationRegionIds" -d "Filter by destination (country / NUTS1 / NUTS2 / NUTS3)" # global
+complete -c "gen-bidpack" -l "departureRegionIds" -d "Filter by departure site (same levels)" # global
+complete -c "gen-bidpack" -l "flow" -d "Flow type" -xa "delivery all" # global
+complete -c "gen-bidpack" -l "data-dir" -d "Local parquet base dir (default: EXPORT_CACHE_DIR env)" # global
+complete -c "gen-bidpack" -s "h" -l "help" -d "Show this message" # global

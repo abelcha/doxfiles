@@ -1,39 +1,143 @@
 #!/usr/bin/env bun
-import type { BunFile } from 'bun';
-import { Database } from 'bun:sqlite';
-import { Dirent, existsSync, fstatSync, lstatSync, readdirSync, readlinkSync, realpathSync, statSync } from 'fs';
-import { lstat } from 'fs/promises';
-import { readdir } from 'fs/promises';
-import path, { join, sep as PATH_SEPARATOR } from 'path';
-import { parseArgs } from 'util';
+import { Database } from "bun:sqlite";
+import {
+    Dirent,
+    existsSync, lstatSync, readlinkSync,
+    realpathSync
+} from "fs";
+import { readdir } from "fs/promises";
+import type { Stats } from "node:fs";
+import path, { join } from "path";
+import { parseArgs } from "util";
 
-const ANSI_RESET = '\x1b[0m';
+const ANSI_RESET = "\x1b[0m";
 
 type StatPredicate = () => boolean;
-console.time('db')
-const db = new Database('/tmp/teza-cache.sqlite');
-db.run('PRAGMA journal_mode = WAL;');
-db.run('PRAGMA synchronous = NORMAL;');
-db.run('CREATE TABLE IF NOT EXISTS cache (key TEXT PRIMARY KEY, size INTEGER)');
+// console.time("db");
+const db = new Database("/tmp/teza-cache.sqlite");
+db.run("PRAGMA journal_mode = WAL;");
+db.run("PRAGMA synchronous = NORMAL;");
+db.run("CREATE TABLE IF NOT EXISTS cache (key TEXT PRIMARY KEY, size INTEGER)");
 
-const getCacheStmt = db.prepare('SELECT size FROM cache WHERE key = ?');
-const setCacheStmt = db.prepare('INSERT OR REPLACE INTO cache (key, size) VALUES (?, ?)');
-console.timeEnd('db')
+const getCacheStmt = db.prepare("SELECT size FROM cache WHERE key = ?");
+const setCacheStmt = db.prepare(
+    "INSERT OR REPLACE INTO cache (key, size) VALUES (?, ?)"
+);
+// console.timeEnd("db");
 const DISPLAY_COLORS = process.stdout.isTTY;
 const MIN_ENTRIES_CACHE = 100;
 
-export interface StatLike {
-    mode: number;
-    isDirectory: StatPredicate;
-    isFile: StatPredicate;
-    isSymbolicLink?: StatPredicate;
-    isSocket?: StatPredicate;
-    isFIFO?: StatPredicate;
-    isPipe?: StatPredicate;
-    isBlockDevice?: StatPredicate;
-    isCharacterDevice?: StatPredicate;
-    isMountPoint?: StatPredicate;
+import { dlopen, FFIType, ptr } from "bun:ffi";
+const ST_SIZE_OFFSET = 96;
+const ST_BLOCKS_OFFSET = 104;
+
+const libc = dlopen("libSystem.B.dylib", {
+    lstat: {
+        args: [FFIType.ptr, FFIType.ptr],
+        returns: FFIType.i32,
+    },
+    getattrlist: {
+        args: [FFIType.ptr, FFIType.ptr, FFIType.ptr, FFIType.usize, FFIType.u32],
+        returns: FFIType.i32,
+    },
+    statfs: {
+        args: [FFIType.ptr, FFIType.ptr],
+        returns: FFIType.i32,
+    },
+    strerror: {
+        args: [FFIType.i32],
+        returns: FFIType.cstring,
+    },
+    __error: {
+        args: [],
+        returns: FFIType.ptr,
+    },
+});
+const encoder = new TextEncoder()
+
+function getPhysicalFileSize(fullPath: string) {
+    const pathBuf = encoder.encode(fullPath + "\0");
+    const localStatBuf = new Uint8Array(144);
+    const res = libc.symbols.lstat(pathBuf, localStatBuf);
+    if (res === 0) {
+        return Number(new BigUint64Array(localStatBuf.buffer, ST_BLOCKS_OFFSET, 1)[0]) * 512
+    }
+    return -1;
 }
+
+function getErrno(): number {
+    const errnoPtr = libc.symbols.__error();
+    return new Int32Array(Bun.toArrayBuffer(errnoPtr, 0, 4))[0];
+}
+
+function getVolumeSizePureBun(path: string): bigint {
+    //console.log("mounted volume", path);
+    const encoder = new TextEncoder();
+    const pathPtr = encoder.encode(path + "\0");
+
+    const attrList = new Uint32Array([
+        5, // bitmapcount (5) + reserved (0)
+        0, // commonattr
+        0x00800000, // volattr (ATTR_VOL_SPACEUSED)
+        0, // dirattr
+        0, // fileattr
+        0, // forkattr
+    ]);
+
+    // Output buffer: size needs to be large enough for potential padding
+    const outputBuf = new Uint8Array(32);
+
+    const res = libc.symbols.getattrlist(
+        ptr(pathPtr),
+        ptr(attrList),
+        ptr(outputBuf),
+        outputBuf.length,
+        0
+    );
+
+    if (res === 0) {
+        const view = new DataView(outputBuf.buffer);
+        const length = view.getUint32(0, true);
+        // On 64-bit systems, attributes that are 8-byte aligned (like off_t)
+        // will have 4 bytes of padding after the 4-byte length field.
+        // Length: bytes 0-3
+        // Padding: bytes 4-7
+        // Data: bytes 8-15
+        if (length >= 16) {
+            return view.getBigUint64(8, true);
+        } else if (length >= 12) {
+            // Just in case it's not padded
+            return view.getBigUint64(4, true);
+        }
+        return 0n;
+    }
+
+    const errno = getErrno();
+    console.error(
+        `getattrlist failed: ${libc.symbols.strerror(errno)} (errno: ${errno})`
+    );
+    return -1n;
+}
+function isMountedVolume(
+    filename: string,
+    stat?: ReturnType<typeof lstatSync>
+) {
+    stat = stat || lstatSync(filename);
+    return lstatSync(path.dirname(filename)).dev !== stat.dev;
+}
+type StatLike = Stats;
+// export interface StatLike {
+//     mode: number;
+//     isDirectory: StatPredicate;
+//     isFile: StatPredicate;
+//     isSymbolicLink?: StatPredicate;
+//     isSocket?: StatPredicate;
+//     isFIFO?: StatPredicate;
+//     isPipe?: StatPredicate;
+//     isBlockDevice?: StatPredicate;
+//     isCharacterDevice?: StatPredicate;
+//     isMountPoint?: StatPredicate;
+// }
 
 const FG = {
     black: 30,
@@ -60,9 +164,27 @@ interface StyleSpec {
     dim?: boolean;
 }
 
+// Helper for apfs.util -S
+async function getApfsFastSize(dirPath: string): Promise<number> {
+    //   console.time("getApfsFastSize" + dirPath);
+    try {
+        
+    const out =
+        await Bun.$`/System/Library/Filesystems/apfs.fs/Contents/Resources/apfs.util -S ${dirPath}`.text();
+    const match = out.match(/physical size: (\d+)/);
+    //   console.timeEnd("getApfsFastSize" + dirPath);
+    return match?.[1] ? parseInt(match[1], 10) : -1;
+    const size = out;
+    return -1;
+    }catch (err) {
+        return -1
+    }
+    // return match?.[1] ? parseInt(match[1], 10) : -1;
+}
+
 function makeStyle(spec?: StyleSpec): string {
     if (!spec) {
-        return '';
+        return "";
     }
 
     const codes: number[] = [];
@@ -84,10 +206,10 @@ function makeStyle(spec?: StyleSpec): string {
     }
 
     if (codes.length === 0) {
-        return '';
+        return "";
     }
 
-    return `\x1b[${codes.join(';')}m`;
+    return `\x1b[${codes.join(";")}m`;
 }
 
 const themeStyles = {
@@ -129,9 +251,23 @@ const themeStyles = {
     sizeBytes: makeStyle({ fg: FG.green }),
 };
 
-type FileType = 'image' | 'video' | 'music' | 'lossless' | 'crypto' | 'document' | 'compressed' | 'temp' | 'compiled' | 'build' | 'source';
+type FileType =
+    | "image"
+    | "video"
+    | "music"
+    | "lossless"
+    | "crypto"
+    | "document"
+    | "compressed"
+    | "temp"
+    | "compiled"
+    | "build"
+    | "source";
 
-function mapValues(type: FileType, keys: readonly string[]): Record<string, FileType> {
+function mapValues(
+    type: FileType,
+    keys: readonly string[]
+): Record<string, FileType> {
     const result: Record<string, FileType> = {};
     for (const key of keys) {
         result[key] = type;
@@ -205,9 +341,9 @@ const EXTENSION_TYPES: Record<string, FileType> = {
     ),
 };
 
-const TEMP_FILENAME_PREFIX = '#';
+const TEMP_FILENAME_PREFIX = "#";
 function getFilenameExtension(name: string): string | undefined {
-    const dotIndex = name.lastIndexOf('.');
+    const dotIndex = name.lastIndexOf(".");
 
     if (dotIndex <= 0 || dotIndex === name.length - 1) {
         return undefined;
@@ -219,8 +355,8 @@ function getFilenameExtension(name: string): string | undefined {
 function getFileType(filename: string): FileType | undefined {
     const lower = filename.toLowerCase();
 
-    if (lower.startsWith('readme')) {
-        return 'build';
+    if (lower.startsWith("readme")) {
+        return "build";
     }
 
     const specific = FILENAME_TYPES[filename];
@@ -237,10 +373,11 @@ function getFileType(filename: string): FileType | undefined {
     }
 
     if (
-        filename.endsWith('~') ||
-        (filename.startsWith(TEMP_FILENAME_PREFIX) && filename.endsWith(TEMP_FILENAME_PREFIX))
+        filename.endsWith("~") ||
+        (filename.startsWith(TEMP_FILENAME_PREFIX) &&
+            filename.endsWith(TEMP_FILENAME_PREFIX))
     ) {
-        return 'temp';
+        return "temp";
     }
 
     return undefined;
@@ -255,7 +392,6 @@ function colourFile(filename: string): string {
 }
 
 function paint(style: string, text: string): string {
-
     if (!style || !DISPLAY_COLORS) {
         return text;
     }
@@ -273,12 +409,13 @@ function styleForStat(filename: string, stat: StatLike | null): string {
     if (!stat) {
         return themeStyles.symlink;
     }
-    if (stat.isMountPoint?.()) {
-        return themeStyles.mountPoint;
-    }
+
+    // if (isMountedVolume(filename, stat)) {
+    //     return themeStyles.mountPoint;
+    // }
 
     if (stat.isDirectory()) {
-        if (lstatSync(path.dirname(filename)).dev !== stat.dev) {
+        if (isMountedVolume(filename, stat)) {
             return themeStyles.mountPoint;
         }
         return themeStyles.directory;
@@ -318,38 +455,38 @@ function styleForStat(filename: string, stat: StatLike | null): string {
 function escapeControlChar(charCode: number): string {
     switch (charCode) {
         case 0x07:
-            return '\\a';
+            return "\\a";
         case 0x08:
-            return '\\b';
+            return "\\b";
         case 0x09:
-            return '\\t';
+            return "\\t";
         case 0x0a:
-            return '\\n';
+            return "\\n";
         case 0x0b:
-            return '\\v';
+            return "\\v";
         case 0x0c:
-            return '\\f';
+            return "\\f";
         case 0x0d:
-            return '\\r';
+            return "\\r";
         case 0x1b:
-            return '\\e';
+            return "\\e";
         default:
-            return `\\x${charCode.toString(16).padStart(2, '0')}`;
+            return `\\x${charCode.toString(16).padStart(2, "0")}`;
     }
 }
 
 function escapeFilename(
     name: string,
     textStyle: string,
-    controlStyle: string,
+    controlStyle: string
 ): string {
     const segments: string[] = [];
-    let currentPlain = '';
+    let currentPlain = "";
 
     const flushPlain = () => {
         if (currentPlain.length > 0) {
             segments.push(paint(textStyle, currentPlain));
-            currentPlain = '';
+            currentPlain = "";
         }
     };
 
@@ -368,45 +505,44 @@ function escapeFilename(
     }
 
     flushPlain();
-    return segments.join('');
+    return segments.join("");
 }
 
 function classifySuffix(stat: StatLike | null): string | undefined {
     if (!stat) {
-        return ''
+        return "";
     }
     if (isExecutable(stat)) {
-        return '*';
+        return "*";
     }
     if (stat.isDirectory()) {
-        return '/';
+        return "/";
     }
-    if (stat.isFIFO?.() || stat.isPipe?.()) {
-        return '|';
+    if (stat.isFIFO?.() || stat?.isPipe?.()) {
+        return "|";
     }
     if (stat.isSymbolicLink?.()) {
-        return '@';
+        return "@";
     }
     if (stat.isSocket?.()) {
-        return '=';
+        return "=";
     }
     return undefined;
 }
 
-
 function formatDate(date: Date): string {
     if (date.getFullYear() > 3000) {
-        return '     -      '
+        return "     -      ";
     }
     const now = new Date();
     const currentYear = now.getFullYear();
-    const day = date.getDate().toString().padStart(2, ' ');
-    const month = date.toLocaleDateString('en-US', { month: 'short' });
+    const day = date.getDate().toString().padStart(2, " ");
+    const month = date.toLocaleDateString("en-US", { month: "short" });
 
     if (date.getFullYear() === currentYear) {
         // This year: day month HH:MM
-        const hours = date.getHours().toString().padStart(2, '0');
-        const minutes = date.getMinutes().toString().padStart(2, '0');
+        const hours = date.getHours().toString().padStart(2, "0");
+        const minutes = date.getMinutes().toString().padStart(2, "0");
         return `${day} ${month} ${hours}:${minutes}`;
     } else {
         // Older: day month  year (two spaces before year)
@@ -416,24 +552,24 @@ function formatDate(date: Date): string {
 }
 function formatSize(size: number, padWidth: number = 4): string {
     if (size === 0) {
-        const dashStr = '-';
-        const padding = ' '.repeat(Math.max(0, padWidth - 1));
+        const dashStr = "-";
+        const padding = " ".repeat(Math.max(0, padWidth - 1));
         return paint(makeStyle({ fg: FG.grey }), `${padding}${dashStr}`);
     }
     if (size === -1) {
         // Error sentinel
-        const str = 'ERR';
-        const padding = ' '.repeat(Math.max(0, padWidth - str.length));
+        const str = "ERR";
+        const padding = " ".repeat(Math.max(0, padWidth - str.length));
         return paint(makeStyle({ fg: FG.red, bold: true }), `${padding}${str}`);
     }
     if (size === -2) {
         // Timeout sentinel
-        const str = 'T/O';
-        const padding = ' '.repeat(Math.max(0, padWidth - str.length));
+        const str = "T/O";
+        const padding = " ".repeat(Math.max(0, padWidth - str.length));
         return paint(makeStyle({ fg: FG.yellow, bold: true }), `${padding}${str}`);
     }
 
-    const units = ['', 'k', 'M', 'G', 'T'];
+    const units = ["", "k", "M", "G", "T"];
     let unitIndex = 0;
     let sizeFloat = size;
 
@@ -446,9 +582,11 @@ function formatSize(size: number, padWidth: number = 4): string {
     let colorCode: string;
 
     // Determine color based on size thresholds
-    if (size >= 1024 * 1024 * 1024) { // > 1GB
+    if (size >= 1024 * 1024 * 1024) {
+        // > 1GB
         colorCode = themeStyles.sizeGB;
-    } else if (size >= 1024 * 1024) { // > 1MB
+    } else if (size >= 1024 * 1024) {
+        // > 1MB
         colorCode = themeStyles.sizeMB;
     } else if (size >= 1024) {
         colorCode = themeStyles.sizeKB;
@@ -470,23 +608,26 @@ function formatSize(size: number, padWidth: number = 4): string {
 
     // Calculate padding for the visible part (without ANSI codes)
     const visibleLength = sizeStr.length;
-    const padding = ' '.repeat(Math.max(0, padWidth - visibleLength));
+    const padding = " ".repeat(Math.max(0, padWidth - visibleLength));
     return paint(colorCode, `${padding}${sizeStr}`);
 }
 
-export function formatFilename(
-    entry: Dirent
-): string {
+export function formatFilename(entry: Dirent): string {
     const filename = entry.name;
     const isSymlink = entry.isSymbolicLink?.();
-    const stat = isSymlink ? null : statSync(join(entry.parentPath, filename));
+    const stat = isSymlink ? null : lstatSync(join(entry.parentPath, filename));
+
     const bits: string[] = [];
 
     const primaryStyle = styleForStat(filename, stat);
-    const escapedName = escapeFilename(filename, primaryStyle, themeStyles.controlChar);
+    const escapedName = escapeFilename(
+        filename,
+        primaryStyle,
+        themeStyles.controlChar
+    );
 
     // Handle quoting for names with spaces
-    const needsQuotes = filename.includes(' ') || filename.includes("'");
+    const needsQuotes = filename.includes(" ") || filename.includes("'");
 
     if (needsQuotes) {
         const quoteChar = filename.includes("'") ? '"' : "'";
@@ -506,82 +647,27 @@ export function formatFilename(
 
     // Handle symlink targets
     if (isSymlink) {
-        bits.push(' ');
+        bits.push(" ");
         const linkTarget = readlinkSync(join(entry.parentPath, filename));
         const exists = existsSync(linkTarget);
 
-        bits.push(paint(exists ? themeStyles.linkArrow : themeStyles.linkArrowBroken, '->'));
-        bits.push(' ');
+        bits.push(
+            paint(exists ? themeStyles.linkArrow : themeStyles.linkArrowBroken, "->")
+        );
+        bits.push(" ");
 
-        const targetStyle = exists ? themeStyles.symlinkPath : themeStyles.brokenSymlink
-        const escapedTarget = escapeFilename(linkTarget, targetStyle, themeStyles.controlChar);
+        const targetStyle = exists
+            ? themeStyles.symlinkPath
+            : themeStyles.brokenSymlink;
+        const escapedTarget = escapeFilename(
+            linkTarget,
+            targetStyle,
+            themeStyles.controlChar
+        );
         bits.push(escapedTarget);
     }
 
-    return bits.join('');
-}
-
-
-// Calculate recursive directory size
-// Async version of getDirectorySize
-async function getDirectorySizeAsync(dirPath: string, cacheEnabled = true, deadline: number = Number.MAX_SAFE_INTEGER): Promise<number> {
-    try {
-        if (Date.now() > deadline) {
-            return -2;
-        }
-
-        const entries = await readdir(dirPath, { withFileTypes: true });
-        let totalSize = 0;
-
-        // Cache check
-        if (cacheEnabled && (entries.length > MIN_ENTRIES_CACHE || dirPath.split('/').length >= 9 || dirPath.match(/(node_modules|(target\/(release|debug)\/(deps|build|incremental|.fingerprint))|.build|.git|.venv)$/))) {
-            const hashK = [dirPath, Bun.file(dirPath).lastModified, Bun.hash(entries.map(e => e.name).join(','))].join('|');
-            const cachedValue = getCacheStmt.get(hashK) as { size: number } | null;
-            if (cachedValue) {
-                return cachedValue.size;
-            }
-
-            // Calculate size with caching enabled for this recursive step
-            // We use Promise.all for parallelism
-            const sizes = await Promise.all(entries.map(async (entry) => {
-                const fullPath = join(dirPath, entry.name);
-                if (entry.isDirectory()) {
-                    return getDirectorySizeAsync(fullPath, cacheEnabled, deadline);
-                } else if (entry.isFile()) {
-                    const file = Bun.file(fullPath);
-                    return file.size;
-                }
-                return 0;
-            }));
-
-            if (sizes.includes(-2)) return -2;
-
-            totalSize = sizes.reduce((acc, s) => (s > 0 ? acc + s : acc), 0);
-            setCacheStmt.run(hashK, totalSize);
-            return totalSize;
-        }
-
-
-        // Non-cached parallel calculation
-        const sizes = await Promise.all(entries.map(async (entry) => {
-            const fullPath = join(dirPath, entry.name);
-            if (entry.isDirectory()) {
-                return getDirectorySizeAsync(fullPath, cacheEnabled, deadline);
-            } else if (entry.isFile()) {
-                const file = Bun.file(fullPath);
-                return file.size;
-            }
-            return 0;
-        }));
-
-        if (sizes.includes(-2)) return -2;
-
-        totalSize = sizes.reduce((acc, s) => (s > 0 ? acc + s : acc), 0);
-        return totalSize;
-    }
-    catch (err) {
-        return -1
-    }
+    return bits.join("");
 }
 
 interface EntryData {
@@ -589,12 +675,13 @@ interface EntryData {
     fullPath: string;
     size: number;
     ts: number;
+    duration: number;
 }
 
 async function* streamResults<T>(tasks: Promise<T>[]): AsyncGenerator<T> {
     const pool = new Set<Promise<readonly [Promise<any>, T]>>();
     for (const task of tasks) {
-        const wrapper = task.then(value => [wrapper, value] as const);
+        const wrapper = task.then((value) => [wrapper, value] as const);
         pool.add(wrapper);
     }
     while (pool.size > 0) {
@@ -604,24 +691,32 @@ async function* streamResults<T>(tasks: Promise<T>[]): AsyncGenerator<T> {
     }
 }
 
-
-async function* processEntries(targetDir: string, dirs: string[], flags: any, deadline: number): AsyncGenerator<EntryData> {
+async function* processEntries(
+    targetDir: string,
+    dirs: string[],
+    flags: any,
+    deadline: number
+): AsyncGenerator<EntryData> {
     if (!existsSync(targetDir)) {
-        console.error(`"${targetDir}": No such file or directory`)
+        console.error(`"${targetDir}": No such file or directory`);
         return;
     }
 
-    const s = lstatSync(targetDir)
+    const s = lstatSync(targetDir);
 
     const isDir = (() => {
         if (s.isSymbolicLink()) {
-            const realTargetDir = existsSync(targetDir) && realpathSync(targetDir)
-            return realTargetDir && existsSync(realTargetDir) && lstatSync(realTargetDir)?.isDirectory()
+            const realTargetDir = existsSync(targetDir) && realpathSync(targetDir);
+            return (
+                realTargetDir &&
+                existsSync(realTargetDir) &&
+                lstatSync(realTargetDir)?.isDirectory()
+            );
         }
-        return s.isDirectory()
-    })()
+        return s.isDirectory();
+    })();
     if (dirs.length > 1 && isDir && !flags.dir) {
-        console.log(targetDir + ':')
+        console.log(targetDir + ":");
     }
 
     // We need to handle the case where targetDir is a file!
@@ -640,77 +735,110 @@ async function* processEntries(targetDir: string, dirs: string[], flags: any, de
         const parent = path.dirname(targetDir);
         const base = path.basename(targetDir);
         const all = await readdir(parent, { withFileTypes: true });
-        entries = all.filter(e => e.name === base);
+        entries = all.filter((e) => e.name === base);
     }
-
 
     const cacheEnabled = !process.env.TOTALSIZE && !flags.nocache;
 
-    const tasks = entries.map(async (entry) => {
-        // Caution: logic for fullPath depends on where entry came from.
-        // If entry came from readdir(targetDir), parentPath is targetDir.
-        // If entry came from readdir(parent), parentPath is parent.
-        // entry.parentPath is available in Node 20+, Bun supports it? 
-        // Original code used `join(realpathSync(entry.parentPath), entry.name)`.
-        // Let's assume entry.parentPath is compliant or re-derive it.
-        // Actually, to be safe, if we read from `targetDir`, then parent is `targetDir`.
-        // If we read from `dirname(targetDir)`, parent is `dirname(targetDir)`.
+    async function getSize(entry: any): Promise<number> {
+        const fullPath = entry.fullPath || entry.parentPath + "/" + entry.name;
+        if (entry.isFile()) {
+            const stat = lstatSync(fullPath);
 
-        let parentPath: string;
-        if (isDir && !flags.dir) {
-            parentPath = targetDir;
-        } else {
-            parentPath = path.dirname(targetDir);
+            // console.log({ stat });
+            const fsize = Bun.file(fullPath).size;
+            if (fsize > 10_000_000)
+                return getPhysicalFileSize(fullPath)
+            return fsize
         }
-
-        // Ensure realpath
-        try {
-            parentPath = realpathSync(parentPath);
-        } catch (e) {
-            // ignore if fails?
+        if (entry.isSymbolicLink()) {
+            //   console.log("SYMKLIIIIIINK", entry, entry.isDirectory());
+            const p = existsSync(fullPath) && realpathSync(fullPath);
+            if (!p) {
+                return -1;
+            }
+            const stat = lstatSync(p);
+            //   stat.is
+            return getSize(Object.assign(stat, { fullPath }));
         }
-
-        const fullPath = join(parentPath, entry.name);
-        if (Date.now() > deadline) {
-            return { entry, fullPath, size: -2, ts: Date.now() };
+        if (entry.isDirectory()) {
+            if (isMountedVolume(fullPath)) {
+                return Number(getVolumeSizePureBun(fullPath));
+            }
+            return await getApfsFastSize(fullPath);
         }
-        const bf = Bun.file(fullPath)
+        return -1;
+       
+    }
 
-        const size = entry.isDirectory()
-            ? await getDirectorySizeAsync(fullPath, cacheEnabled, deadline)
-            : bf.size;
+    const tasks = entries
+        .filter((entry) => flags.all || !entry.name.startsWith("."))
+        .map(async (entry) => {
+            // Caution: logic for fullPath depends on where entry came from.
+            // If entry came from readdir(targetDir), parentPath is targetDir.
+            // If entry came from readdir(parent), parentPath is parent.
+            // entry.parentPath is available in Node 20+, Bun supports it?
+            // Original code used `join(realpathSync(entry.parentPath), entry.name)`.
+            // Let's assume entry.parentPath is compliant or re-derive it.
+            // Actually, to be safe, if we read from `targetDir`, then parent is `targetDir`.
+            // If we read from `dirname(targetDir)`, parent is `dirname(targetDir)`.
 
-        const ts = new Date(bf.lastModified).getFullYear() > 3000
-            ? lstatSync(fullPath).mtimeMs
-            : bf.lastModified;
+            let parentPath: string;
+            if (isDir && !flags.dir) {
+                parentPath = targetDir;
+            } else {
+                parentPath = path.dirname(targetDir);
+            }
 
-        return { entry, fullPath, size, ts }
-    });
+            // Ensure realpath
+            try {
+                parentPath = realpathSync(parentPath);
+            } catch (e) {
+                // ignore if fails?
+            }
+
+            const fullPath = join(parentPath, entry.name);
+            if (Date.now() > deadline) {
+                return { entry, fullPath, size: -2, ts: Date.now(), duration: 0 };
+            }
+            const bf = Bun.file(fullPath);
+            //   console.log('->', , fullPath, entry.name)
+
+            const start = performance.now();
+            const size = await getSize(entry);
+            const duration = performance.now() - start;
+
+            const ts =
+                new Date(bf.lastModified).getFullYear() > 3000
+                    ? lstatSync(fullPath).mtimeMs
+                    : bf.lastModified;
+
+            return { entry, fullPath, size, ts, duration };
+        });
 
     if (flags.sort) {
         const results = await Promise.all(tasks);
 
-        if (flags.sort.startsWith('-')) {
-            flags.sort = flags.sort.slice(1)
-            flags.reverse = !flags.reverse
+        if (flags.sort.startsWith("-")) {
+            flags.sort = flags.sort.slice(1);
+            flags.reverse = !flags.reverse;
         }
         results.sort((b, a) => {
-            if (flags.sort === 'size') {
-                return b.size - a.size
+            if (flags.sort === "size") {
+                return b.size - a.size;
             }
-            if (flags.sort === 'time' || flags.sort === 'date') {
-                return b.ts - a.ts
+            if (flags.sort === "time" || flags.sort === "date") {
+                return b.ts - a.ts;
             }
-            return a.entry.name.localeCompare(b.entry.name)
-        })
+            return a.entry.name.localeCompare(b.entry.name);
+        });
         if (flags.reverse) {
-            results.reverse()
+            results.reverse();
         }
 
         for (const item of results) {
             yield item;
         }
-
     } else {
         for await (const item of streamResults(tasks)) {
             yield item;
@@ -719,90 +847,127 @@ async function* processEntries(targetDir: string, dirs: string[], flags: any, de
 }
 
 if (import.meta.main) {
-
-
     const { values: flags, positionals } = parseArgs({
         strict: false,
         args: Bun.argv.slice(2),
         options: {
             all: {
-                short: 'a',
-                type: 'boolean',
+                short: "a",
+                type: "boolean",
                 default: false,
             },
             reverse: {
-                short: 'r',
-                type: 'boolean',
+                short: "r",
+                type: "boolean",
                 default: false,
             },
             sort: {
-                short: 's',
-                type: 'string',
+                short: "s",
+                type: "string",
             },
             one: {
-                short: '1',
-                type: 'boolean'
+                short: "1",
+                type: "boolean",
             },
             dir: {
-                short: 'd',
-                type: 'boolean',
+                short: "d",
+                type: "boolean",
             },
             nocache: {
-                type: 'boolean',
+                type: "boolean",
             },
             timeout: {
-                type: 'string', // parsed as int really
-            }
-
+                type: "string", // parsed as int really
+            },
+            timing: {
+                type: "boolean",
+                default: false,
+            },
         },
         allowPositionals: true,
     }); // end parseArgs
 
-    const dirs = positionals.length === 0 ? ['.'] : (positionals as string[])
-    const deadline = Date.now() + Number(flags.timeout || 1000)
+    const dirs = positionals.length === 0 ? ["."] : (positionals as string[]);
+    const deadline = Date.now() + Number(flags.timeout || 1000);
 
     let spawnedWarming = false;
     for (const targetDir of dirs) {
-        for await (const { entry, fullPath, size, ts } of processEntries(targetDir, dirs, flags, deadline)) {
-            if (!flags.all && entry.name.startsWith('.')) {
+        for await (const { entry, fullPath, size, ts, duration } of processEntries(
+            targetDir,
+            dirs,
+            flags,
+            deadline
+        )) {
+            if (!flags.all && entry.name.startsWith(".") && !positionnals[0]?.startsWith('.')) {
                 continue;
             }
 
             if (size === -2 && !spawnedWarming) {
                 spawnedWarming = true;
                 // Background cache warming: spawn the same command once with a huge timeout
-                Bun.spawn([Bun.argv[0], Bun.argv[1], ...Bun.argv.slice(2), '--timeout', '999999999'], {
-                    stdio: ['ignore', 'ignore', 'ignore'],
-                    detached: true,
-                }).unref();
+                Bun.spawn(
+                    [
+                        Bun.argv[0],
+                        Bun.argv[1],
+                        ...Bun.argv.slice(2),
+                        "--timeout",
+                        "999999999",
+                    ],
+                    {
+                        stdio: ["ignore", "ignore", "ignore"],
+                        detached: true,
+                    }
+                ).unref();
             }
 
             const formatted = formatFilename(entry);
 
             if (flags.one) {
-                console.log(formatted)
-                continue
+                console.log(formatted);
+                continue;
             }
-            const datef = formatDate(new Date(ts))
+            const datef = formatDate(new Date(ts));
 
             // Re-derive prefix logic
-            const s = lstatSync(targetDir as string)
+            const s = lstatSync(targetDir as string);
             const targetIsDir = (() => {
                 if (s.isSymbolicLink()) {
-                    const realTargetDir = existsSync(targetDir as string) && realpathSync(targetDir as string)
-                    return realTargetDir && existsSync(realTargetDir) && lstatSync(realTargetDir)?.isDirectory()
+                    const realTargetDir =
+                        existsSync(targetDir as string) &&
+                        realpathSync(targetDir as string);
+                    return (
+                        realTargetDir &&
+                        existsSync(realTargetDir) &&
+                        lstatSync(realTargetDir)?.isDirectory()
+                    );
                 }
-                return s.isDirectory()
-            })()
+                return s.isDirectory();
+            })();
 
             // "pre" is only non-empty if we are listing the CONTENT of a directory (not just the dir itself via -d)
-            // AND we want to show the full path context? 
-            // Original code: `isDir` (of target) ? '' : paint(...) 
+            // AND we want to show the full path context?
+            // Original code: `isDir` (of target) ? '' : paint(...)
             // If target is a file, we prepend directory.
-            const pre = (targetIsDir && !flags.dir) ? '' : paint(themeStyles.basepath, path.dirname(targetDir as string) + '/')
+            const pre =
+                targetIsDir && !flags.dir
+                    ? ""
+                    : paint(
+                        themeStyles.basepath,
+                        path.dirname(targetDir as string) + "/"
+                    );
 
-            console.log('', formatSize(size), datef, '–', pre + formatted)
+            const timingStr = flags.timing
+                ? paint(
+                    makeStyle({ fg: FG.grey, dim: true }),
+                    ` (${duration < 100 ? duration.toFixed(1) : Math.round(duration)
+                    }ms)`
+                )
+                : "";
 
+            console.log("", formatSize(size), datef, timingStr, "–", pre + formatted);
         }
     }
 }
+
+// console.log('after')
+process.exit()

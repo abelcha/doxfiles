@@ -1,0 +1,10 @@
+complete -c "duts" -l "bun" # global
+complete -c "duts" -l "fs" # global
+complete -c "duts" -l "ffi" # global
+complete -c "duts" -l "macos" # global
+complete -c "duts" -l "zig" # global
+complete -c "duts" -l "c" # global
+complete -c "duts" -l "objc" # global
+complete -c "duts" -l "bulk" # global
+complete -c "duts" -l "apfs" # global
+complete -c "duts" -l "help" # global
