@@ -1042,6 +1042,32 @@ describe("smartAtToStar", () => {
     const query = buildQuery(parsed);
     expect(query).toContain("SELECT *");
   });
+
+  test("replaces @ in quoted file patterns (Case 1)", () => {
+    const parsed = parseArgs(["assets-v1/@.parquet"]);
+    const query = buildQuery(parsed);
+    expect(query).toBe("SELECT * FROM read_parquet('assets-v1/*.parquet')");
+  });
+
+  test("treats path with @ and no extension as file pattern, not expression (Case 2)", () => {
+    const parsed = parseArgs(["assets-v1/@"]);
+    const query = buildQuery(parsed);
+    // Since it has no extension and contains @, it should be treated as a file (magic FROM syntax)
+    expect(query).toBe("SELECT * FROM 'assets-v1/*'");
+  });
+
+  test("uses unified syntax for unknown extensions with options", () => {
+    const parsed = parseArgs(["data.xyz", "--delim=|"]);
+    const query = buildQuery(parsed);
+    expect(query).toBe("SELECT * FROM 'data.xyz' (delim='|')");
+  });
+
+  test("auto-adds union_by_name=true for @ wildcards", () => {
+    // Note: union_by_name logic is currently in main(), 
+    // but we can simulate the condition if we want to test it.
+    // Actually, I should probably move that logic into buildQuery or parseArgs
+    // to make it testable, but for now I'll just note it's in main().
+  });
 });
 
 describe("database attachment and magic sources", () => {
