@@ -98,6 +98,21 @@ function tldr_manex
 
 end
 
+function run_compgen
+    set cmdz (__actual_cmd_token)
+    echo "[compgen $cmdz]"
+    hr '★・・・'
+    compgen "$cmdz"
+    set destfile "$__fish_config_dir/completions/$cmdz.fish"
+    if test -f $destfile
+        echo2 sourcing $destfile
+        source $destfile
+    end
+    hr '・・・*'
+    commandline -f repaint
+
+end
+
 function tldr_auto
     __actual_fullcmd_token | read --array xcmd
     # set -S xcmd
@@ -170,8 +185,6 @@ function genuine -a cmd
     eval $cmd (__actual_cmd_token)
 end
 function genfn -a cmd lang
-    # if eval "$cmd (current_command)" &>/dev/null
-    # set -l commandx (current_command)
     set z (commandline -op)
 
     if eval "$cmd $z[1]" &>/dev/null
@@ -184,25 +197,12 @@ function genfn -a cmd lang
 
 end
 
-function genxcat -a cmd
-    # dump_commandline_test
-    xcat (commandline -C)
-end
 function genxmi -a cmd
-    # dump_commandline_test
     hx (commandline --current-token)
 end
-function genbroot -a cmd
-    # dump_commandline_test
-    br (commandline --current-token)
-end
-
 function insertnull
     commandline --insert "> /dev/null"
 end
-
-# function swap_args
-
 function bindump -a key fn
     bind $key "echo; $fn ;commandline -f repaint"
 end
@@ -211,13 +211,23 @@ function goxman
     man (path basename $argv)
 end
 
-# function complete_force_files
-#     complete --command (__actual_cmd_token) --force-files
-# end
+function alt_k
+    set cmdl (commandline|string trim)
+    if test -z "$cmdl"
+        binded
+    else
+        commandline -f repaint
+        return 1
+    end
+end
 
-# function qlpreview
-#     fexec qlmanage -p (__actual_cmd_token)
-# end
+function alt_l
+    if test -z "$(commandline --current-token)"
+        _fzf_search_git_log
+    else
+        _fish_xxx_current_dir lld
+    end
+end
 
 function fish_user_key_bindings
     bind alt-p qlpreview
@@ -225,7 +235,10 @@ function fish_user_key_bindings
     bind --preset alt-b backward-word
     bind --preset alt-f forward-word
     bind alt-j which_auto
-    bind alt-k binded
+    bind alt-k alt_k
+    bind alt-s _fzf_search_git_status
+    bind alt-l alt_l
+
     bind alt-s _fzf_search_git_status
     bind alt-w 'geninline w'
     bind alt-W 'geninline ww'
@@ -240,7 +253,7 @@ function fish_user_key_bindings
     bind alt-B '_fish_xxx_current_dir br'
     bind ctrl-alt-l '_fish_xxx_current_dir lls'
     bind ctrl-l '_fish_xxx_current_path ll'
-    bind alt-l '_fish_xxx_current_dir lld'
+    # bind alt-l '_fish_xxx_current_dir lld'
     bind \eOR complete-and-search
     bind \eOQ complete-and-search
     bind alt-O genxmi
@@ -249,12 +262,13 @@ function fish_user_key_bindings
     # bind alt-\# insertnull
     bind alt-K fish_key_reader
     bind alt-H help_auto
-    bind alt-g 'genuine compedit'
-    bind alt-G gencomp_auto
+    # bind alt-g 'genuine compedit'
+    bind alt-shift-g gencomp_auto
     bind alt-F _reload_fish
     bind alt-D dump_commandline_test
     # bind alt-r run_preview
     bind alt-r 'run_preview --current-job'
+    bind alt-tab run_compgen
     bind alt-R 'run_preview --current-buffer --cut-at-cursor'
     # bind alt-c 'genfn cheat ash'
     bind alt-c 'echo -n (commandline)|copy'
@@ -278,6 +292,10 @@ function fish_user_key_bindings
     bind alt-% 'commandline --insert ]'
     bind alt-right forward-word
     bind alt-left backward-word
+    bind shift-home beginning-of-line forward-bigword
+    # bind shift-homebind shift-home beginning-of-line forward-bigword
+
+    bind alt-g lazygit
 
     if [ $TERM_PROGRAM = vscode ]
         # hr "vscode_injection"

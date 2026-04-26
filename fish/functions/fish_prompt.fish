@@ -4,7 +4,7 @@ function fish_prompt --description 'Write out the prompt'
     set -l normal (set_color normal)
     set -q fish_color_status
     or set -g fish_color_status red
-    
+
     # Color the prompt differently when we're root
     set -l color_cwd $fish_color_cwd
     set -l suffix '>'
@@ -14,11 +14,13 @@ function fish_prompt --description 'Write out the prompt'
         end
         set suffix '#'
     end
-    
+
     # Write pipestatus
     # If the status was carried over (if no command is issued or if `set` leaves the status untouched), don't bold it.
-    if [ $SHELL != $__fish_bin_dir/fish ]
-        echo -n (set_color brred ) "[$SHELL]"
+    #if [ (realpath $SHELL) != /usr/local/bin/fish ]
+    if test (string length $FISH_VERSION) -gt 10
+        echo -n (set_color brred ) "[$(echo (string split - -- $FISH_VERSION)[2])]"
+        set color_cwd $fish_color_operator
     end
     set -l bold_flag --bold
     set -q __fish_prompt_status_generation; or set -g __fish_prompt_status_generation $status_generation
@@ -29,7 +31,7 @@ function fish_prompt --description 'Write out the prompt'
     set -l status_color (set_color $fish_color_status)
     set -l statusb_color (set_color $bold_flag $fish_color_status)
     set -l prompt_status (__fish_print_pipestatus "[" "]" "|" "$status_color" "$statusb_color" $last_pipestatus)
-    
+
     if [ "$__fish_uname" = Darwin ]
         set colx (switch $FISH_VERSION;case '*dirty'; echo brgreen; case '*';echo brmagenta; end)
         if test (tput cols) -gt 90
@@ -41,12 +43,14 @@ function fish_prompt --description 'Write out the prompt'
                                             )" ⌁ "abel' '
         end
         set git_prompt (fish_vcs_prompt)
-        if test (tput cols) -gt (math 60 + (string length -- "$git_prompt"))
-            echo -n -s (set_color normal )(set_color $fish_color_cwd  ) (prompt_pwd ) $normal $git_prompt $normal | sd '~' /me | sd '/.*a[\w]{11}r' /me | sd .0.2.6.1.3.1.0 ::1
+        #set pr_prompt (__fish_pr_prompt)
+
+        if test (tput cols) -gt (math 60 + (string length -- "$git_prompt") + (string length -- "$pr_prompt"))
+            echo -n -s (set_color normal )(set_color $fish_color_cwd  ) (prompt_pwd ) $normal $git_prompt $normal $pr_prompt | sd '~' /me | sd '/.*a[\w]{11}r' /me | sd .0.2.6.1.3.1.0 ::1
             echo -n -s " "$prompt_status
         end
         echo -n -s $suffix " "
     else
-        echo -n -s (prompt_login)' ' (set_color $color_cwd) (prompt_pwd) $normal (fish_vcs_prompt) $normal " "$prompt_status $suffix " "
+        echo -n -s (false && prompt_login)' ' (set_color $color_cwd) (prompt_pwd) $normal (fish_vcs_prompt) $normal " "$prompt_status $suffix " "
     end
 end

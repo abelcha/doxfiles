@@ -46,10 +46,8 @@ function _fzf_extract_var_info --argument-names variable_name set_show_output --
     # Extract only the lines about the variable, all of which begin with either
     # $variable_name: ...or... $variable_name[
     string match --regex "^\\\$$variable_name(?::|\[).*" <$set_show_output |
-
         # Strip the variable name prefix, including ": " for scope info lines
         string replace --regex "^\\\$$variable_name(?:: )?" '' |
-
         # Distill the lines of values, replacing...
         #   [1]: |value|
         # ...with...
@@ -71,7 +69,8 @@ function _fzf_preview_changed_file --argument-names path_status --description "S
     set -f index_status (string sub --length 1 $path_status)
     set -f working_tree_status (string sub --start 2 --length 1 $path_status)
 
-    set -f diff_opts --color=always
+    set -f diff_opts --color=always --no-ext-diff
+    # set -x DFT_DISPLAY inline
 
     if test $index_status = '?'
         _fzf_report_diff_type Untracked
@@ -81,7 +80,7 @@ function _fzf_preview_changed_file --argument-names path_status --description "S
         # Unmerged statuses are mutually exclusive with other statuses, so if we see
         # these, then safe to assume the path is unmerged
         _fzf_report_diff_type Unmerged
-        git diff $diff_opts -- $path
+        git -c diff.external= diff $diff_opts -- $path
     else
         if test $index_status != ' '
             _fzf_report_diff_type Staged
@@ -198,7 +197,6 @@ function _fzf_search_directory --description "Search the current directory. Repl
         set -f file_paths_selected ($fd_cmd 2>/dev/null | _fzf_wrapper $fzf_arguments)
     end
 
-
     if test $status -eq 0
         commandline --current-token --replace -- (string escape -- $file_paths_selected | string join ' ')
     end
@@ -249,7 +247,7 @@ function _fzf_search_git_status --description 'Search the output of git status. 
         if set --query fzf_diff_highlighter
             set preview_cmd "$preview_cmd | $fzf_diff_highlighter"
         end
-        
+
         set -f selected_paths (
                         # Pass configuration color.status=always to force status to use colors even though output is sent to a pipe
                         git -c color.status=always status --short . |
@@ -265,7 +263,7 @@ function _fzf_search_git_status --description 'Search the output of git status. 
             # git status --short automatically escapes the paths of most files for us so not going to bother trying to handle
             # the few edges cases of weird file names that should be extremely rare (e.g. "this;needs;escaping")
             set -f cleaned_paths
-            
+
             for path in $selected_paths
                 if test (string sub --length 1 $path) = R
                     # path has been renamed and looks like "R LICENSE -> LICENSE.md"
@@ -275,11 +273,11 @@ function _fzf_search_git_status --description 'Search the output of git status. 
                     set --append cleaned_paths (string sub --start=4 $path)
                 end
             end
-            
+
             commandline --current-token --replace -- "git add $(string join ' ' $cleaned_paths)"
         end
     end
-    
+
     commandline --function repaint
 end
 function _fzf_search_history --description "Search command history. Replace the command line with the selected command."
@@ -427,7 +425,7 @@ function fzf_custom --description "Custom fzf wrapper with configurable lines an
     set -l preview_cmd ""
     set -l prompt "Custom> "
     set -l fzf_opts
-    
+
     # Parse named arguments
     for arg in $argv
         if string match --quiet -- '--lines=*' $arg
@@ -440,42 +438,42 @@ function fzf_custom --description "Custom fzf wrapper with configurable lines an
             set -a fzf_opts $arg
         end
     end
-    
+
     # Validate required arguments
     if test -z "$lines_cmd"
         echo "Error: --lines command is required" >&2
         return 1
     end
-    
+
     # Set up fzf arguments
     set -f fzf_arguments --multi --ansi --prompt="$prompt"
-    
+
     # Add preview if provided
     if test -n "$preview_cmd"
         set -a fzf_arguments --preview="bkt --ttl 10m -- $preview_cmd"
     end
-    
+
     # Add any additional fzf options
     if test (count $fzf_opts) -gt 0
         set -a fzf_arguments $fzf_opts
     end
-    
+
     # Get current token for query
     set -f token (commandline --current-token)
     set -f expanded_token (eval echo -- $token)
     set -f unescaped_exp_token (string unescape -- $expanded_token)
-    
+
     if test -n "$unescaped_exp_token"
         set -a fzf_arguments --query="$unescaped_exp_token"
     end
-    
+
     # Execute the lines command and pipe to fzf
     set -f selected_items (eval $lines_cmd 2>/dev/null | _fzf_wrapper $fzf_arguments)
-    
+
     if test $status -eq 0
         commandline --current-token --replace -- (string escape -- $selected_items | string join ' ')
     end
-    
+
     commandline --function repaint
 end
 
@@ -515,4 +513,3 @@ function _fzf_uninstall --on-event fzf_uninstall
     echo "You may need to manually remove fzf_configure_bindings from your config.fish if you were using custom key bindings."
     set_color normal
 end
-
