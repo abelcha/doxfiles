@@ -1,9 +1,26 @@
-alias claude " claude --dangerously-skip-permissions"
+# alias brew zb
+
+alias apfsm 'apfs.util -M '
+alias ffds "fds  -I -H"
+alias ducklean "duckdb -init /dev/null"
+alias pm "bun pm"
+# alias u url-to-md
+alias codex "/Applications/Codex.app/Contents/Resources/codex"
+alias sc scw
+alias sl scw
+alias code code-insiders
+alias claude " claude --permission-mode bypassPermissions --allow-dangerously-skip-permissions"
+alias oky "oco -y"
+alias b zb
+# alias c
+alias chme "chown -R abel:staff"
+alias rgphone 'rrg -w "$regphonefr"'
 alias from reader
-alias dev "bun run dev"
+# alias dev "bun run dev"
 alias pv "command pv --average-rate --progress --bits"
 alias ass applesauce
 alias cdp "cd (pwd)"
+alias nv nvim
 alias aic aicommits
 alias aicommit "aicommit -y"
 alias gstore "gcloud storage"
@@ -23,11 +40,11 @@ alias h 'BROWSER=w3m help'
 alias m moor
 alias trash-empty "osascript -e 'tell application \"Finder\" to empty trash'"
 alias ispiped "not isatty stdout"
-alias b bun
+# alias b bun
 alias configure "./configure"
 alias unset 'set --erase'
-alias g git-forgit
-alias forgit git-forgit
+alias g "git forgit"
+alias forgit "git forgit"
 alias untracked "git ls-files --others --exclude-standard"
 alias aicommit "OPENAI_API_KEY=\$OPENAI_API_KEY command aicommit"
 alias wtfis "VT_API_KEY=\$VT_API_KEY command wtfis"
@@ -36,29 +53,28 @@ alias comai aicommit
 alias croc "croc --yes"
 alias fish_gencomp "$__fish_data_dir/tools/create_manpage_completions.py"
 alias xc " bkt -- xh --follow"
-alias x "xh --follow"
-alias codi code
+alias x "xh --verify=no --follow"
+alias codi code-insiders
 alias rrg "rg --no-ignore"
 alias parallel "command parallel --ungroup --eta --progress --bar"
 alias csv "csvlens --delimiter auto"
 # alias chroma "command chroma --formatter=terminal256 --style trac --lexer"
 alias unz unzstd
+alias zrm "zstd --rm"
 alias pu pueue
 alias r rclone
 alias sherlock "bun run /me/datasets/sherlock/cli.ts"
 alias wtest "bun-release test --watch --bail"
 alias __ echo
-alias chexec "chmod 777"
+# alias chexec "chmod 777"
 alias dus "du -sh"
 alias 7z 7zz
 alias npx bunx
-alias codi="/Applications/VisualStudioCode-Insiders.app/Contents/Resources/app/bin/code"
-alias codi /Applications/Trae.app/Contents/Resources/app/bin/marscode
 alias diskattach 'diskimage attach'
 # alias c cursor
 alias speedtest cfspeedtest
-if not type -q mi
-    alias mi hx
+if not type -q mi; and test -n "$EDITOR"
+    alias mi "$EDITOR"
 end
 # alias docker container
 alias hopper="/Applications/Hopper\ Disassembler\ v4.app/Contents/MacOS/hopper"
@@ -134,6 +150,8 @@ alias llld "leza --sort date"
 alias llls "leza --sort size"
 alias lllt "leza --sort type"
 alias lll leza
+alias llda "lld -a"
+alias llsa "lls -a"
 
 alias ls "ls --color=auto -t"
 
@@ -141,8 +159,8 @@ alias ne /opt/homebrew/bin/emacs
 alias plines "tr ' ' '\n'"
 alias pline "sd '\s.+' ' '"
 alias prv "qlmanage -p"
-alias psv "git push"
-alias psvf "psv --force"
+alias psv "git push --no-verify"
+alias psvf "psv --force --no-verify"
 alias py python
 alias rrg "command rg --no-ignore"
 alias runw "bun --watch run"
@@ -154,8 +172,11 @@ function set_display -a res origin degree
 end
 alias s180 'set_display 1280x720 "1512,131" 180'
 alias s90 'set_display 720x1280 "1512,-243" 90'
-alias screen_ls 'system_profiler SPDisplaysDataType'
-# alias screen 'if displayplacer list | grep degree:90; then screen180; else screen90; fi'
+# alias screen_ls 'system_profiler SPDisplaysDataType'
+# alias screen 'if displayplacer list | grep degree:90
+# then screen180
+# else screen90
+# fi'
 alias sentry sentry-cli
 alias st "git status"
 alias timecurl curltime

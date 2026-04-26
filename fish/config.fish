@@ -1,7 +1,7 @@
 # set -gx base16_fish_shell_disable_prompt_colors TRUE
 #
 if [ "$ANTIGRAVITY_AGENT" = 1 ]
-    exec zsh
+    exec bash
 end
 if test -e /opt/homebrew/bin/brew
     eval (/opt/homebrew/bin/brew shellenv 2>&-)
@@ -32,7 +32,7 @@ set regphone2 '(33|0033|\+33|0)\W?[67](\d{8}|(\.\d\d){4}|(\s\d\d){4})'
 set regfr 'fr(ance|ench)?'
 set regemail '[\w\d\-\_\.]+@\w+\.\w{2,3}'
 
-set -gx --path fish_complete_path $__fish_data_dir/completions $config_dir/fish/completions $HOMEBREW_PREFIX/share/fish/vendor_completions.d
+set -gx --path fish_complete_path $config_dir/fish/completions $HOMEBREW_PREFIX/share/fish/vendor_completions.d $__fish_data_dir/completions
 # if not contains -- $BREW_COMPLETE_PATH $fish_complete_path
 # set --append fish_complete_path $BREW_COMPLETE_PATH
 # end
@@ -77,8 +77,8 @@ complete --command bunx --wraps command
 complete --command uvx --wraps command
 complete --command duckdb@1.4 --wraps duckdb
 complete -c bun -n "__fish_seen_subcommand_from run" --force-files
-# complete -c bun -n --force-files
 complete -c run --force-files
+complete -c bak --force-files
 complete -c '*' -n __cursor_token_match_file_path --force-files
 
 function preexec --on-event fish_preexec
@@ -92,11 +92,3 @@ function preexec --on-event fish_preexec
         echo (set_color red )'❌ DIR REMOVED'
     end
 end
-
-# Added by Antigravity
-fish_add_path /Users/abel/.antigravity/antigravity/bin
-
-# bun
-
-# opencode
-fish_add_path /me/.opencode/bin

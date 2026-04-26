@@ -1,6 +1,14 @@
-abbr -a -- l "7z l"
+#abbr -a -- l "7z l"
+
+#abbr -a -- 7 "7z x"
 
 # abbr -a -- act 'source .venv/bin/activate.fish'
+abbr -a -- dev "bun run dev"
+abbr -a -- ndev "bun run --hot index.ts --no-auth"
+
+# abbr -a -p pk anywhere packages/
+abbr -p anywhere pk --set-cursor 'packages/%'
+
 abbr -a -- gst "git restore -s stash@{0} -- "
 abbr -a -- gss "git show stash@{0} -- "
 abbr -a -- grc "git rebase --continue"
@@ -11,7 +19,7 @@ abbr -a -- gco "git checkout --ours"
 abbr -a -- gc "git checkout"
 
 abbr -a -- gd "git diff"
-abbr -a -- gw "git switch"
+# abbr -a -- gw "git switch"
 abbr --add gda --position anywhere --regex '[ba]\/.+\.\w+' --function git_diff_abr
 # https://github.com/pynappo/dotfiles/blob/ebc81db4a96575b053a9ff1eebd0b8a73c8ce703/.config/fish/config.fish#L65
 abbr -p anywhere /mo --set-cursor '/mods/%'
@@ -33,7 +41,7 @@ abbr -a -- sqb sqlitebiter
 abbr -a -- pi 'pip install -r requirements.txt'
 abbr -a -- ss 'set -S'
 abbr -a -- bs 'brew search --eval-all --desc'
-abbr -a -- bi 'brew info'
+abbr -a -- bi 'bun install'
 abbr -a -- do doctl
 abbr -a -- bn 'brew install'
 
@@ -87,7 +95,7 @@ function checkFirstCharType
     end
 end
 
-abbr -a --position anywhere lastdl --function last_download_file #'ls -U ~/Downloads |head -n 1'
+abbr -a --position anywhere lastdl --function last-downloaded #'ls -U ~/Downloads |head -n 1'
 
 # abbr -a --set-cursor f 'fd . % | fzf'
 abbr -a --set-cursor --position anywhere :ps '(% | psub)'
@@ -294,9 +302,19 @@ dict dmap set ff /me/config/fish/functions/
 dict dmap set fg /me/config/fish/completions/
 dict dmap set fa "/me/config/fish/conf.d/aliases.fish"
 dict dmap set fb "/me/config/fish/conf.d/abbr.fish"
-dict dmap set fs "/me/config/fish/conf.d/secrets.fish"
+dict dmap set fs /me/config/.secrets
 dict dmap set ch /me/config/hammerspoon
-dict dmap set a /work/aiway/
+dict dmap set a /work/ai-way/
+dict dmap set ax /work/ai-next/
+dict dmap set af /work/ai-feat/
+dict dmap set ap /work/ai-plan/
+dict dmap set mp /work/ai-map/
+dict dmap set av /work/ai-visual/
+
+dict dmap set at /work/ai-tmp/
+dict dmap set am /work/ai-map/
+dict dmap set ma /work/ai-main/
+
 # dict dmap set cm "/me/config/micro/"
 # dict dmap set e /Volumes/explore/
 dict dmap set z /me/config/zsh/
@@ -317,7 +335,7 @@ dict dmap set tt /Volumes/T9
 dict dmap set wd /wd/
 dict dmap set n /nvme/
 dict dmap set wa /wd/watson/
-dict dmap set s /me/datasets/sherlock/
+dict dmap set s /stash/
 dict dmap set e /me/datasets/entreprise/
 dict dmap set se /dev/stderr
 dict dmap set so /dev/stdout
