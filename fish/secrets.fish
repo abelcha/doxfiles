@@ -1,1 +1,0 @@
-/me/config/fish/conf.d/secrets.fish
