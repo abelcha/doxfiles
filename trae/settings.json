@@ -1,0 +1,445 @@
+{
+  "[astro]": {
+    "editor.defaultFormatter": "astro-build.astro-vscode"
+  },
+  "[cpp]": {
+    "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd",
+    "editor.formatOnSave": true,
+    "editor.formatOnType": true
+  },
+  "[fish]": {
+    "editor.defaultFormatter": "bmalehorn.vscode-fish"
+  },
+  "[go]": {
+    "editor.defaultFormatter": "golang.go"
+  },
+  "[html]": {
+    "editor.defaultFormatter": "vscode.html-language-features"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "vscode.json-language-features"
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "vscode.json-language-features"
+  },
+  "[markdown]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[plaintext]": {
+    "editor.defaultFormatter": "1nVitr0.blocksort"
+  },
+  "[python]": {
+    "editor.defaultFormatter": "1nVitr0.blocksort"
+  },
+  "[rust]": {
+    "editor.defaultFormatter": "rust-lang.rust-analyzer"
+  },
+  "[sql]": {
+    "editor.defaultFormatter": "mtxr.sqltools"
+  },
+  "[swift]": {
+    "editor.defaultFormatter": "vknabel.vscode-apple-swift-format"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[yaml]": {
+    "editor.defaultFormatter": "denoland.vscode-deno"
+  },
+  "accessibility.signalOptions.volume": 0,
+  "AI.terminal.profileName": "Trae AI Terminal",
+  "AI.terminal.separateInstance": true,
+  "AI.toolcall.autoRun.command.denyList": "[\"rm\",\"kill\"]",
+  "AI.toolcall.confirmMode": "autoRun",
+  "apc.stylesheet": {
+    ".monaco-workbench .part.sidebar": "font-size: 12px !important;"
+  },
+  "C_Cpp.default.cppStandard": "c++11",
+  "chat.tools.terminal.autoRun": "alwaysRun",
+  // "chat.expero"
+  "chat.tools.terminal.autoApprove": {
+    // curl*
+    "/.*/": true,
+    "curl.*": true
+  },
+  "clangd.arguments": [
+    "-compile-commands-dir=/Volumes/mods/builds/duckdb/build/release"
+  ],
+  "commands.commands": [
+    {
+      "command": "script.script.suggestCreateScript",
+      "text": "Zen",
+      "tooltip": "Toggle Zen mode"
+    }
+  ],
+  "coolcline.allowedCommands": [
+    "npm test",
+    "npm install",
+    "tsc",
+    "git log",
+    "git diff",
+    "git show"
+  ],
+  "cursor.composer.shouldAllowCustomModes": true,
+  "cursor.composer.shouldChimeAfterChatFinishes": true,
+  "cursor.composer.textSizeScale": 0.85,
+  "cursor.composer.usageSummaryDisplay": "always",
+  "cursor.terminal.enableAiChecks": true,
+  "cursor.terminal.usePreviewBox": true,
+  "debug.confirmOnExit": "false",
+  "debug.openExplorerOnEnd": true,
+  "debug.toolBarLocation": "docked",
+  "diffEditor.codeLens": true,
+  "diffEditor.experimental.showMoves": true,
+  "diffEditor.experimental.useTrueInlineView": true,
+  "diffEditor.ignoreTrimWhitespace": true,
+  "diffEditor.maxComputationTime": 0,
+  "diffEditor.renderSideBySideInlineBreakpoint": 500,
+  "editor.accessibilitySupport": "off",
+  "editor.autoIndent": "advanced",
+  "editor.codeLens": false,
+  "editor.codeLensFontFamily": "Comic Mono",
+  "editor.codeLensFontSize": 7,
+  "editor.colorDecoratorsActivatedOn": "click",
+  "editor.cursorSmoothCaretAnimation": "on",
+  "editor.cursorSurroundingLinesStyle": "all",
+  "editor.defaultColorDecorators": "auto",
+  "editor.definitionLinkOpensInPeek": true,
+  "editor.find.seedSearchStringFromSelection": "never",
+  "editor.foldingMaximumRegions": 50000,
+  "editor.fontFamily": "Comic Mono",
+  "editor.fontSize": 12,
+  "editor.fontVariations": true,
+  "editor.fontWeight": "100",
+  "editor.hover.delay": 500,
+  "editor.inlayHints.fontFamily": "Comic Mono",
+  "editor.inlayHints.fontSize": 9,
+  "editor.inlayHints.maximumLength": 0,
+  "editor.inlayHints.padding": true,
+  "editor.inlineSuggest.edits.allowCodeShifting": "horizontal",
+  "editor.inlineSuggest.edits.showCollapsed": true,
+  "editor.inlineSuggest.showToolbar": "always",
+  "editor.inlineSuggest.suppressSuggestions": true,
+  "editor.lightbulb.enabled": "on",
+  "editor.minimap.maxColumn": 40,
+  "editor.minimap.scale": 1,
+  "editor.minimap.showSlider": "always",
+  "editor.quickSuggestionsDelay": 1500,
+  "editor.semanticHighlighting.enabled": true,
+  "editor.smartSelect.selectLeadingAndTrailingWhitespace": false,
+  "editor.smartSelect.selectSubwords": false,
+  "editor.stickyScroll.enabled": false,
+  "editor.suggest.insertMode": "replace",
+  "editor.suggest.preview": true,
+  "editor.suggest.selectionMode": "never",
+  "editor.unicodeHighlight.ambiguousCharacters": false,
+  "eslint.runtime": "/opt/homebrew/bin/bun",
+  "eslint.timeBudget.onFixes": {
+    "error": 10000,
+    "warn": 10000
+  },
+  "eslint.timeBudget.onValidation": {
+    "error": 8000,
+    "warn": 8000
+  },
+  "extensions.experimental.affinity": {
+    "ms-python.python": 1,
+    "ms-python.vscode-pylance": 1,
+    "ms-toolsai.jupyter": 1,
+    "ms-toolsai.jupyter-renderers": 1
+  },
+  // "extensions.experimental.issueQuickAccess": true,
+  // "extensions.gallery.serviceUrl": "https://marketplace.visualstudio.com/_apis/public/gallery",
+  // "extensions.gallery.useUnpkgResourceApi": true,
+  // "extensions.ignoreRecommendations": true,
+  "extensions.supportUntrustedWorkspaces": {
+    "*": true
+  },
+  "extensions.supportVirtualWorkspaces": true,
+  "extensions.webWorker": true,
+  "files.associations": {
+    "*.cpp": "cpp",
+    "*.geojson": "plaintext",
+    "*.hjson": "coffeescript",
+    "*.rs": "rust",
+    "*.sql": "sql",
+    "*.toml": "toml",
+    "*.ts": "typescript",
+    "*.xcuserstate": "properties"
+  },
+  "files.exclude": {
+    "*.lock": true
+  },
+  "git.openRepositoryInParentFolders": "always",
+  "gitHistory.sideBySide": true,
+  "github.copilot.advanced": {
+    "useLanguageServer": true
+  },
+  "github.copilot.nextEditSuggestions.enabled": true,
+  "github.copilot.selectedCompletionModel": "",
+  "github.gitProtocol": "ssh",
+  "inlineChat.accessibleDiffView": "on",
+  "interactiveWindow.promptToSaveOnClose": false,
+  "javascript.inlayHints.variableTypes.enabled": true,
+  "javascript.referencesCodeLens.enabled": true,
+  "javascript.referencesCodeLens.showOnAllFunctions": true,
+  "javascript.suggest.enabled": false,
+  "js/ts.implicitProjectConfig.target": "ESNext",
+  "less.lint.argumentsInColorFunction": "warning",
+  "less.lint.boxModel": "warning",
+  "lldb.launch.expressions": "native",
+  "lldb.library": "/Applications/Xcode.app/Contents/SharedFrameworks/LLDB.framework/Versions/A/LLDB",
+  "Lua.completion.keywordSnippet": "Disable",
+  "Lua.completion.showWord": "Disable",
+  "Lua.completion.workspaceWord": false,
+  "Lua.workspace.library": [
+    "/me/.hammerspoon/Spoons/EmmyLua.spoon/annotations"
+  ],
+  "malloy.telemetry": false,
+  "merge-conflict.diffViewPosition": "Beside",
+  "notebook.backup.sizeLimit": 0,
+  "notebook.cellToolbarLocation": {
+    "default": "right",
+    "jupyter-notebook": "left"
+  },
+  "notebook.lineNumbers": "on",
+  "npm.packageManager": "bun",
+  "outline-map.customFont": "Comic Mono",
+  "outline-map.defaultMaxDepth": 1,
+  "problems.showCurrentInStatus": true,
+  "python.analysis.autoFormatStrings": true,
+  "python.analysis.completeFunctionParens": true,
+  "python.analysis.diagnosticsSource": "Pyright",
+  "python.analysis.enableNotebookDataTips": true,
+  "python.analysis.importFormat": "relative",
+  "python.analysis.regenerateStdLibIndices": true,
+  "python.analysis.typeEvaluation.deprecateTypingAliases": true,
+  "python.analysis.typeEvaluation.disableBytesTypePromotions": true,
+  "python.analysis.typeEvaluation.enableExperimentalFeatures": true,
+  "python.analysis.typeEvaluation.strictDictionaryInference": true,
+  "python.analysis.typeEvaluation.strictListInference": true,
+  "python.analysis.typeEvaluation.strictSetInference": true,
+  "python.pythonPath": "uv python",
+  "python.terminal.shellIntegration.enabled": true,
+  "remote.extensionKind": {
+    "pub.name": [
+      "ui",
+      "workspace"
+    ]
+  },
+  "remote.SSH.enableRemoteCommand": true,
+  "remote.SSH.permitPtyAllocation": true,
+  "rust-analyzer.cargo.allTargets": false,
+  "rust-analyzer.diagnostics.disabled": [
+    "unlinked-file"
+  ],
+  "rust-analyzer.inlayHints.chainingHints.enable": false,
+  "rust-analyzer.inlayHints.closingBraceHints.enable": false,
+  "rust-analyzer.inlayHints.genericParameterHints.const.enable": false,
+  "rust-analyzer.inlayHints.parameterHints.enable": false,
+  "rust-analyzer.inlayHints.renderColons": false,
+  "rust-analyzer.inlayHints.typeHints.enable": false,
+  "rust-analyzer.showSyntaxTree": true,
+  "scm.diffDecorationsGutterPattern": {
+    "added": true
+  },
+  "scm.diffDecorationsIgnoreTrimWhitespace": "true",
+  "script.commands": {
+    "commands": [
+      {
+        "button": {
+          "text": "My command",
+          "tooltip": "This is a tooltip for my command"
+        },
+        "id": "mkloubert.mycommand4",
+        "script": "/Users/abel/.config/vscode/my-command.js"
+      }
+    ]
+  },
+  "security.promptForLocalFileProtocolHandling": false,
+  "security.workspace.trust.banner": "never",
+  "security.workspace.trust.startupPrompt": "never",
+  "security.workspace.trust.untrustedFiles": "open",
+  "sqltools.highlightQuery": false,
+  "svelte.enable-ts-plugin": true,
+  "swift.searchSubfoldersForPackages": true,
+  "tailwind-fold.autoFold": false,
+  "tailwind-fold.showTailwindImage": false,
+  "tailwind-fold.supportedLanguages": [
+    "html",
+    "typescriptreact",
+    "javascriptreact",
+    "typescript",
+    "javascript",
+    "vue-html",
+    "vue",
+    "php",
+    "markdown",
+    "coffeescript",
+    "svelte",
+    "astro",
+    "erb"
+  ],
+  "telemetry.feedback.enabled": false,
+  "telemetry.telemetryLevel": "off",
+  "terminal.external.osxExec": "iTerm.app",
+  "terminal.integrated.allowChords": false,
+  "terminal.integrated.commandsToSkipShell": [
+    "workbench.action.terminal.copySelection",
+    "workbench.action.terminal.paste",
+    "workbench.action.toggleMaximizeEditorGroup"
+  ],
+  "terminal.integrated.defaultProfile.osx": "zsh",
+  "terminal.integrated.shellIntegration.environmentReporting": true,
+  "typescript.implementationsCodeLens.enabled": true,
+  "typescript.implementationsCodeLens.showOnInterfaceMethods": true,
+  "typescript.inlayHints.enumMemberValues.enabled": true,
+  "typescript.inlayHints.parameterNames.suppressWhenArgumentMatchesName": false,
+  "typescript.inlayHints.variableTypes.enabled": true,
+  "typescript.inlayHints.variableTypes.suppressWhenTypeMatchesName": false,
+  "typescript.locale": "en",
+  "typescript.native-preview.goMemLimit": "1024MiB",
+  "typescript.npm": "/mods/volta/bin/npm",
+  "typescript.preferences.includePackageJsonAutoImports": "off",
+  "typescript.preferGoToSourceDefinition": true,
+  "typescript.referencesCodeLens.enabled": true,
+  "typescript.referencesCodeLens.showOnAllFunctions": true,
+  "typescript.suggest.includeCompletionsForImportStatements": false,
+  "typescript.suggestionActions.enabled": true,
+  "typescript.tsserver.enableTracing": true,
+  "typescript.tsserver.globalPlugins": [
+    {
+      "name": "bun-types"
+    }
+  ],
+  "typescript.suggest.paths": false,
+  "javascript.suggest.paths": false,
+  "editor.suggest.showWords": false,
+  "editor.suggest.showSnippets": false,
+  // "typescript.tsserver.experimental.useBundledNode": false,
+  "typescript.tsserver.watchOptions": "vscode",
+  // "extensions.gallery.serviceUrl": "https://marketplace.visualstudio.com/vscode",
+  // use https://marketplace.visualstudio.com/vscode
+  "typescriptExplorer.errorMessages.showDialogue": true,
+  "typescriptExplorer.typeTree.maxRecursionDepth": 6,
+  "typescriptExplorer.typeTree.meta.typeArguments.includeInFunctions": true,
+  "typescriptExplorer.typeTree.view.show.typeParameters": false,
+  "update.mode": "silentlyApplyOnQuit",
+  "update.releaseTrack": "dev",
+  "vscode-command-server.autoRestart": true,
+  "vscode-command-server.defaultPort": 1024,
+  "windmill.additionalWorkspaces": [
+    {
+      "name": "VV19uqWY62KFkcm4feMMbJh0bh7Y2do5",
+      "workspaceId": "w.abe.lc"
+    },
+    {}
+  ],
+  "windmill.remote": "https://w.abe.lc",
+  "windmill.token": "e6dpOYPpk7uuCRN0YelTr1rmpDbMAoWL",
+  "windmill.workspaceId": "work",
+  "window.closeWhenEmpty": true,
+  "window.confirmBeforeClose": "never",
+  "window.confirmSaveUntitledWorkspace": false,
+  "window.newWindowDimensions": "maximized",
+  // "workbench.colorCustomizations": {
+  //   "[Default Dark Modern]": {
+  //     "terminal.background": "#ffff"
+  //   },
+  //   "[Default Dark+]": {
+  //     "terminal.background": "#0015"
+  //   }
+  // },
+  "workbench.commandPalette.experimental.suggestCommands": true,
+  "workbench.editor.editorActionsLocation": "hidden",
+  "workbench.editor.enablePreviewFromQuickOpen": true,
+  "workbench.editor.pinnedTabSizing": "shrink",
+  "workbench.editor.tabSizingFixedMaxWidth": 88,
+  "workbench.editorAssociations": {
+    "*.copilotmd": "vscode.markdown.preview.editor",
+    "{hexdiff}:/**/*.*": "hexEditor.hexedit",
+    "*.csv": "default",
+    "*.parquet": "duckdb.dataFileViewer",
+    "*.tsv": "duckdb.dataFileViewer",
+    "*.xlsx": "duckdb.dataFileViewer"
+  },
+  "workbench.localHistory.enabled": true,
+  "workbench.panel.showLabels": false,
+  "zig.zls.enabled": "on",
+  "sqltools.format": {
+    "language": "duckdb"
+  },
+  "editor.inlayHints.enabled": "offUnlessPressed",
+  // "typescript.native-preview.pprofDir": "/work/pprof",
+  "typescript.tsserver.log": "off",
+  "evenBetterToml.schema.associations": {
+    "bunfig.toml": "file:///Volumes/work/ai-way/.vscode/bunfig.schema.json"
+  },
+  "evenBetterToml.completion.maxKeys": 100,
+  "json.schemaDownload.enable": true,
+  "git.autofetch": true,
+  "claudeCode.preferredLocation": "panel",
+  "githubPullRequests.pullBranch": "never",
+  "cursor.cpp.disabledLanguages": [
+    "markdown",
+    "plaintext",
+    "untitled"
+  ],
+  "AI.toolcall.v2.ide.mcp.autoRun": "alwaysRun",
+  "AI.toolcall.v2.ide.command.mode": "alwaysRun",
+  "AI.toolcall.v2.command.denyList": "[\"rm\",\"kill\"]",
+  "AI.toolcall.v2.command.allowList": "[\"bun\",\"python3\",\"npx\",\"duckdb\"]",
+  "terminal.integrated.enableMultiLinePasteWarning": "never",
+  "editor.copyWithSyntaxHighlighting": false,
+  "AI.toolcall.v2.solo.command.mode": "alwaysRun",
+  "markdown.preview.scrollEditorWithPreview": false,
+  "workbench.editor.highlightModifiedTabs": true,
+  "workbench.editor.enablePreviewFromCodeNavigation": true,
+  "editor.experimentalEditContextEnabled": true,
+  "chat.checkpoints.showFileChanges": true,
+  "chat.agent.thinking.collapsedTools": "withThinking",
+  "chat.agent.thinkingStyle": "collapsed",
+  "chat.editor.fontFamily": "Comic mono",
+  "scm.diffDecorationsGutterWidth": 2,
+  "inlineChat.affordance": "editor",
+  "workbench.fontAliasing": "auto",
+  "chat.experimental.useSkillAdherencePrompt": true,
+  "workbench.editor.doubleClickTabToToggleEditorGroupSizes": "off",
+  "editor.peekWidgetDefaultFocus": "tree",
+  "tailwindCSS.emmetCompletions": true,
+  "claudeCode.allowDangerouslySkipPermissions": true,
+  "claudeCode.selectedModel": "default",
+  "workbench.colorTheme": "Monokai Dimmed",
+  "claudeCode.useTerminal": true,
+  "chat.tools.urls.autoApprove": {
+    "https://code.visualstudio.com": true,
+    "https://github.com/microsoft/vscode/wiki/*": true,
+    "https://bun.com/docs/bundler/macros": true,
+    "https://bun.com/docs/bundler": true,
+    "https://bun.com/docs": true,
+    "https://bun.com": true,
+    "https://bun.com/docs/bundler/loaders": true
+  },
+  "extensions.ignoreRecommendations": true,
+  "workbench.activityBar.location": "bottom",
+  "workbench.activityBar.autoHide": true,
+  "workbench.secondarySideBar.showLabels": false,
+  "git.blame.editorDecoration.enabled": false,
+  "git.blame.statusBarItem.enabled": true,
+  "chat.viewSessions.orientation": "stacked",
+  "cmake.showConfigureWithDebuggerNotification": false,
+  "chat.agent.sandbox.enabled": "off",
+  "eslint.enable": false
+  // "typescript.native-preview.trace.server": "verbose",
+  // "typescript.tsserver.enableTracing": true,
+  // "typescript.tsserver.log": "off",
+  // "typescript.tsserver.trace": "verbose",
+  // "typescript.native-preview.tsdk": "/Volumes/dev/typescript-go/built/local",
+  // "typescript.native-preview.pprofDir": "/work/pprof",
+}
