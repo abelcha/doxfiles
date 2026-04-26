@@ -1,162 +1,175 @@
 #!/usr/bin/env bun
 
-require('dotenv').config({
-	quiet: true,
-	path: '~/.config/.secrets'
+require("dotenv").config({
+  quiet: true,
+  path: "~/.config/.secrets",
 });
 
-import parseArgs from 'mri'
+import parseArgs from "mri";
 import { generateObject } from "ai";
 import { z } from "zod";
 import { Database } from "bun:sqlite";
 
-const MODEL = "anthropic/claude-sonnet-4.5";
-import { createXai } from '@ai-sdk/xai';
-import { createOpenRouter } from '@openrouter/ai-sdk-provider';
-const openrouter = createOpenRouter({
-  apiKey: process.env.OPENROUTER_API_KEY,
-
+const MODEL = "grok-4.20-beta-0309-non-reasoning";
+import { createXai } from "@ai-sdk/xai";
+import { createOpenRouter } from "@openrouter/ai-sdk-provider";
+const xai = createXai({
+  apiKey: process.env.XAI_API_KEY,
 });
+// const openrouter = createOpenRouter({
+//   apiKey: process.env.OPENROUTER_API_KEY,
+
+// });
 // import { openai} from '@ai-sdk/openai';
 // const openai = createOpenai({
-	// apiKey: process.env.OPENAI_API_KEY,
+// apiKey: process.env.OPENAI_API_KEY,
 // });
 
 if (process.argv.length < 2) {
-	console.error("Please provide a command to generate completions for");
-	process.exit(1);
+  console.error("Please provide a command to generate completions for");
+  process.exit(1);
 }
-const Args = parseArgs(process.argv.slice(2),
-	{
-		alias: {
-			'S': 'subcommands',
-			'p': 'prompt',
-			U: 'use',
-			m: 'model',
-			'maxDepth': 'max-depth',
-		},
-		default: {
-			model: MODEL,
-			force: false,
-			subcommands: null,
-			maxDepth: 1
-		},
-		boolean: ['force'],
-		string: ['subcommands', 'prompt', 'max-depth', 'model']
-	})
+const Args = parseArgs(process.argv.slice(2), {
+  alias: {
+    S: "subcommands",
+    p: "prompt",
+    U: "use",
+    m: "model",
+    maxDepth: "max-depth",
+  },
+  default: {
+    model: MODEL,
+    force: false,
+    subcommands: null,
+    maxDepth: 1,
+  },
+  boolean: ["force"],
+  string: ["subcommands", "prompt", "max-depth", "model"],
+});
 if (Args.help || !Args._.length) {
-	console.log('Usage: compgen [options] <command>')
-	console.log('Options:')
-	console.log('  -h, --help        Show this help message')
-	console.log('  -p, --prompt      Prompt to use for completion')
-	console.log('  -m, --model       Model to use for completion')
-	console.log('  -S, --subcommands Subcommands to use for completion')
-	console.log('  -U, --use         Use cached response for prompt')
-	console.log('  -m, --max-depth   Maximum depth to search for subcommands')
-	console.table(Args)
-		process.exit(0)
+  console.log("Usage: compgen [options] <command>");
+  console.log("Options:");
+  console.log("  -h, --help        Show this help message");
+  console.log("  -p, --prompt      Prompt to use for completion");
+  console.log("  -m, --model       Model to use for completion");
+  console.log("  -S, --subcommands Subcommands to use for completion");
+  console.log("  -U, --use         Use cached response for prompt");
+  console.log("  -m, --max-depth   Maximum depth to search for subcommands");
+  console.table(Args);
+  process.exit(0);
 }
 // flags.S = flags.subcommands
-console.table(Args)
+console.table(Args);
 // process.exit()
 // // console.log('==>', flags.subcommands)
-const forcedSubs = Args.subcommands === null ? null : Args.subcommands.split(' ').filter(Boolean)
+const forcedSubs =
+  Args.subcommands === null
+    ? null
+    : Args.subcommands.split(" ").filter(Boolean);
 // // console.log({forcedSubs});
-const cmd = Args._[0]
+const inputPath = Args._[0];
+const isScript = inputPath.includes("/") || inputPath.endsWith(".ts") || inputPath.endsWith(".js");
+const cmd = isScript
+  ? inputPath.replace(/\.(ts|js)$/, "").split("/").pop()!
+  : inputPath;
 
 // Define schemas for structured output
 const CliCommandSchema = z.object({
-	command: z.string().catch(""),
-	description: z.string().catch(""),
-	subcommands: z
-		.array(
-			z.object({
-				name: z.string().catch(""),
-				description: z.string().catch(""),
-			}),
-		)
-		.catch([]),
-	flags: z
-		.array(
-			z.object({
-				short: z.string().optional().catch(undefined),
-				long: z.string().optional().catch(undefined),
-				old: z.string().optional().catch(undefined),
-				description: z.string().optional().catch(""),
-				argument: z
-					.object({
-						required: z.boolean().optional().catch(false),
-						description: z.string().optional().catch(""),
-						values: z
-							.array(
-								z.union([
-									z.string(),
-									z.object({
-										value: z.string(),
-										description: z.string().optional().catch(""),
-									}),
-								]),
-							)
-							.optional()
-							.catch(undefined),
-						command: z.string().optional().catch(undefined),
-					})
-					.optional()
-					.catch(undefined),
-			}),
-		)
-		.catch([]),
+  command: z.string().catch(""),
+  description: z.string().catch(""),
+  subcommands: z
+    .array(
+      z.object({
+        name: z.string().catch(""),
+        description: z.string().catch(""),
+      }),
+    )
+    .catch([]),
+  flags: z
+    .array(
+      z.object({
+        short: z.string().optional().catch(undefined),
+        long: z.string().optional().catch(undefined),
+        old: z.string().optional().catch(undefined),
+        description: z.string().optional().catch(""),
+        argument: z
+          .object({
+            required: z.boolean().optional().catch(false),
+            description: z.string().optional().catch(""),
+            values: z
+              .array(
+                z.union([
+                  z.string(),
+                  z.object({
+                    value: z.string(),
+                    description: z.string().optional().catch(""),
+                  }),
+                ]),
+              )
+              .optional()
+              .catch(undefined),
+            command: z.string().optional().catch(undefined),
+          })
+          .optional()
+          .catch(undefined),
+      }),
+    )
+    .catch([]),
 });
 
 const db = new Database("/tmp/ai.db");
 db.prepare(
-	`CREATE TABLE IF NOT EXISTS cache (id INTEGER PRIMARY KEY AUTOINCREMENT, prompt TEXT, response TEXT)`,
+  `CREATE TABLE IF NOT EXISTS cache (id INTEGER PRIMARY KEY AUTOINCREMENT, prompt TEXT, response TEXT)`,
 ).run();
 
 function cachePromptResponse(prompt: string, response: any) {
-	db.query("INSERT INTO cache (prompt, response) VALUES (?, ?)").run(
-		prompt,
-		JSON.stringify(response),
-	);
+  db.query("INSERT INTO cache (prompt, response) VALUES (?, ?)").run(
+    prompt,
+    JSON.stringify(response),
+  );
 }
 
 function getCachedResponse(prompt: string): any | null {
-	const row = db
-		.query(
-			"SELECT response FROM cache WHERE prompt = ? ORDER BY id DESC LIMIT 1",
-		)
-		.get(prompt) as { response: string; prompt: string };
-	if (row && row.response) {
-		try {
-			return JSON.parse(row.response);
-		} catch {
-			return null;
-		}
-	}
-	return null;
+  const row = db
+    .query(
+      "SELECT response FROM cache WHERE prompt = ? ORDER BY id DESC LIMIT 1",
+    )
+    .get(prompt) as { response: string; prompt: string };
+  if (row && row.response) {
+    try {
+      return JSON.parse(row.response);
+    } catch {
+      return null;
+    }
+  }
+  return null;
 }
 
-async function getHelp(cmd: string[]) {
-	try {
-		if (Args.use) {
-			// console.log('using', [flags.use])
-			const tmpl = Args.use.replace('{}', cmd.join(' '))
-			console.log({ tmpl })
-			return await Bun.$`${tmpl.split(' ')} 2>&1`.nothrow().text();
-		}
-		// console.log('running', [cmd])
-		return await Bun.$`${cmd} --help 2>&1`.nothrow().text();
-	} catch (e) {
-		if (cmd.length > 1) {
-			console.error('retrying', 'failed', { cmd })
-			return getHelp([cmd.join(' ')])
-		}
-		console.error(`Failed to run: ${cmd} --help`);
-		return "";
-	}
+async function getHelp(cmdParts: string[]) {
+  try {
+    if (Args.use) {
+      const tmpl = Args.use.replace("{}", cmdParts.join(" "));
+      console.log({ tmpl });
+      return await Bun.$`${tmpl.split(" ")} 2>&1`.nothrow().text();
+    }
+    // For scripts, replace the cmd name with the actual script path
+    const execCmd = isScript
+      ? [inputPath, ...cmdParts.slice(1)]
+      : cmdParts;
+    return await Bun.$`fish -c "${execCmd} --help 2>&1"`.nothrow().text();
+  } catch (e) {
+    if (cmdParts.length > 1) {
+      console.error("retrying", "failed", { cmd: cmdParts });
+      return getHelp([cmdParts.join(" ")]);
+    }
+    console.error(`Failed to run: ${cmdParts} --help`);
+    return "";
+  }
 }
 const formatPrePrompt = (prompt: string) => {
-	return !Args.prompt ? '' : `
+  return !Args.prompt
+    ? ""
+    : `
     ### CRITICAL INSTRUCTIONS ###
     
     Important: The following prompt requires careful attention to:
@@ -164,178 +177,208 @@ const formatPrePrompt = (prompt: string) => {
     ${prompt}
     ------------------------------------------
     ### END CONTEXT ###
-    `
-}
+    `;
+};
 async function parseHelp(
-	helpText: string,
-	fullCommand: string,
+  helpText: string,
+  fullCommand: string,
 ): Promise<z.infer<typeof CliCommandSchema> | null> {
-	if (!helpText?.trim()) {
-		console.error(`Empty help text for command: ${fullCommand}`);
-		return null
-	}
-	const prompt = formatPrePrompt(Args.prompt) + template.replace("#fullCommand", fullCommand) + helpText
-	await Bun.$`echo  ${prompt} >> /tmp/prompts.logs.txt`.quiet()
-	const h = Bun.hash(prompt).toString();
-	// Check cache first
-	const cached = getCachedResponse(h);
-	if (cached) {
-		console.info('cached', fullCommand)
-		return cached;
-	}
-	// // console.log("parseHelp", arguments);
-	console.info('requesting', fullCommand)
+  if (!helpText?.trim()) {
+    console.error(`Empty help text for command: ${fullCommand}`);
+    return null;
+  }
+  const prompt =
+    formatPrePrompt(Args.prompt) +
+    template.replace("#fullCommand", fullCommand) +
+    helpText;
+  await Bun.$`echo  ${prompt} >> /tmp/prompts.logs.txt`.quiet();
+  const h = Bun.hash(prompt).toString();
+  // Check cache first
+  const cached = getCachedResponse(h);
+  if (cached) {
+    console.info("cached", fullCommand);
+    return cached;
+  }
+  // // console.log("parseHelp", arguments);
+  console.info("requesting", fullCommand);
 
-	const r = await generateObject({
-		model: openrouter(Args.model),
-		schema: CliCommandSchema,
-		prompt,
-	});
-	console.log({ r })
-	const { object } = r
-	console.info('generated')
-	object.subcommands = object.subcommands
-		.map((e) => ({ ...e, name: e.name.replaceAll(/[^\w\-\_]+/g, "") }))
-		.filter((e) => e.name);
-	console.info('OK', fullCommand)
-	console.table(object.flags)
-	console.table(object.subcommands)
-	// console.log('==========')
+  const r = await generateObject({
+    model: xai(Args.model),
+    schema: CliCommandSchema,
+    prompt,
+  });
+  console.log({ r });
+  const { object } = r;
+  console.info("generated");
+  object.subcommands = object.subcommands
+    .map((e) => ({ ...e, name: e.name.replaceAll(/[^\w\-\_]+/g, "") }))
+    .filter((e) => e.name);
+  console.info("OK", fullCommand);
+  console.table(object.flags);
+  console.table(object.subcommands);
+  // console.log('==========')
 
-	cachePromptResponse(h, object);
-	return object;
+  cachePromptResponse(h, object);
+  return object;
 }
 const escapeFish = (v = "") =>
-	JSON.stringify(v.replace(/^\-+/, "").replaceAll('$', '＄'));
+  JSON.stringify(v.replace(/^\-+/, "").replaceAll("$", "＄"));
 
 const getArgs = (...flags: z.infer<typeof CliCommandSchema>["flags"]) => {
-	const [flag] = flags;
-	if (!flag?.argument) {
-		return "";
-	}
+  const [flag] = flags;
+  if (!flag?.argument) {
+    return "";
+  }
 
-	// flag.argument?.values.map(e => e.)
-	if (flag.argument?.command) {
-		return `'(${flag.argument.command})'`;
-	}
-	const { values } = flag.argument;
-	if (!values) {
-		return "";
-	}
-	if (!values?.every((e) => e?.description)) {
-		return values.map((e) => e?.value || e).join(" ");
-	}
-	const aa = values
-		.map((e) => [e.value, e.description || ""].join("\\t"))
-		.join(",");
-	return `{${aa}}`;
+  // flag.argument?.values.map(e => e.)
+  if (flag.argument?.command) {
+    return `'(${flag.argument.command})'`;
+  }
+  const { values } = flag.argument;
+  if (!values) {
+    return "";
+  }
+  if (!values?.every((e) => e?.description)) {
+    return values.map((e) => e?.value || e).join(" ");
+  }
+  const aa = values
+    .map((e) => [e.value, e.description || ""].join("\\t"))
+    .join(",");
+  return `{${aa}}`;
 };
 
 const getCommand = (op: Record<string, any>) => {
-	if (op.o)
-		delete op.l
-	return "complete " +
-		Object.entries(op)
-			.filter(([k, v]) => v)
-			.map(([k, v]) => `-${k} ${k === "a" ? `"${v}"` : escapeFish(v)}`)
-			.join(" ")
-			.replace("-fc ", "-f -c ");
-}
+  if (op.o) delete op.l;
+  return (
+    "complete " +
+    Object.entries(op)
+      .filter(([k, v]) => v)
+      .map(([k, v]) => `-${k} ${k === "a" ? `"${v}"` : escapeFish(v)}`)
+      .join(" ")
+      .replace("-fc ", "-f -c ")
+  );
+};
 async function generateFishFromJSON(
-	commands: string[],
-	parsed: any,
+  commands: string[],
+  parsed: any,
 ): Promise<string[]> {
-	// // console.log("generateFishFromJSON", arguments);
-	const command = commands[0];
-	const completions: string[] = [];
+  // // console.log("generateFishFromJSON", arguments);
+  const command = commands[0];
+  const completions: string[] = [];
 
-	// Helper to escape fish strings
-	// Global options
-	for (const flag of parsed.flags || []) {
-		completions.push(
-			getCommand({
-				c: command, n: commands.length > 1 && `__fish_seen_subcommand_from '${commands.slice(1).join(' ')}'`, s: flag.short, o: flag.old, l: flag.long, d: flag.description, xa: getArgs(flag),
-			}) + ' # global'
-		);
-	}
+  // Helper to escape fish strings
+  // Global options
+  for (const flag of parsed.flags || []) {
+    completions.push(
+      getCommand({
+        c: command,
+        n:
+          commands.length > 1 &&
+          `__fish_seen_subcommand_from '${commands.slice(1).join(" ")}'`,
+        s: flag.short,
+        o: flag.old,
+        l: flag.long,
+        d: flag.description,
+        xa: getArgs(flag),
+      }) + " # global",
+    );
+  }
 
-	const prexx = commands.slice(1);
-	// Subcommands
-	for (const sub of parsed.subcommands || []) {
-		completions.push(getCommand({
-			fc: command, n: (commands.length >= 2 ? `__fish_seen_subcommand_from '${prexx.join(' ')}'` : '__fish_use_subcommand'), a: sub.name, d: sub.description,
-		}) + ' # sub');
-	}
+  const prexx = commands.slice(1);
+  // Subcommands
+  for (const sub of parsed.subcommands || []) {
+    completions.push(
+      getCommand({
+        fc: command,
+        n:
+          commands.length >= 2
+            ? `__fish_seen_subcommand_from '${prexx.join(" ")}'`
+            : "__fish_use_subcommand",
+        a: sub.name,
+        d: sub.description,
+      }) + " # sub",
+    );
+  }
 
-	// Subcommand-specific flags
-	for (const sub of parsed.subcommands || []) {
-		for (const flag of parsed.flags || []) {
-			if (["help", "version"].includes(flag.long)) continue;
-			completions.push(getCommand({
-				c: command, n: `__fish_seen_subcommand_from '${[...prexx, sub.name].join(' ')}'`, s: flag.short, o: flag.old, l: flag.long, d: flag.description, xa: getArgs(flag),
-			}) + ' # subcommands flags');
-		}
-	}
+  // Subcommand-specific flags
+  for (const sub of parsed.subcommands || []) {
+    for (const flag of parsed.flags || []) {
+      if (["help", "version"].includes(flag.long)) continue;
+      completions.push(
+        getCommand({
+          c: command,
+          n: `__fish_seen_subcommand_from '${[...prexx, sub.name].join(" ")}'`,
+          s: flag.short,
+          o: flag.old,
+          l: flag.long,
+          d: flag.description,
+          xa: getArgs(flag),
+        }) + " # subcommands flags",
+      );
+    }
+  }
 
-	return completions;
+  return completions;
 }
 
-const visited = new Set<string>()
+const visited = new Set<string>();
 
 async function crawlCommandTree(
-	commandArray: Array<string>,
-	forcedSubs: string[] | undefined,
-	depth = 0
+  commandArray: Array<string>,
+  forcedSubs: string[] | undefined,
+  depth = 0,
 ): Promise<string[]> {
-	// // console.log("crawlCommandTree", commandArray);
-	const fullCmd = commandArray.join(" ");
-	console.warn("_crawlCommandTree", depth, commandArray);
-	if (visited.has(commandArray[commandArray.length - 1] as string)) {
-		console.error(`Skipping duplicate command: ${fullCmd}`);
-		return [];
-	}
-	visited.add(fullCmd);
-	const help = (await getHelp(commandArray))
-	// console.log('=========')
-	// console.log({ help })
-	// console.log('=========')
+  // // console.log("crawlCommandTree", commandArray);
+  const fullCmd = commandArray.join(" ");
+  console.warn("_crawlCommandTree", depth, commandArray);
+  if (visited.has(commandArray[commandArray.length - 1] as string)) {
+    console.error(`Skipping duplicate command: ${fullCmd}`);
+    return [];
+  }
+  visited.add(fullCmd);
+  const help = await getHelp(commandArray);
+  // console.log('=========')
+  // console.log({ help })
+  // console.log('=========')
 
-	// .replaceAll(/^\s+(create|update|add|info|remove)\s+[^\s]+/g, '\n  $1\t @module/name');;
+  // .replaceAll(/^\s+(create|update|add|info|remove)\s+[^\s]+/g, '\n  $1\t @module/name');;
 
-	const parsed = (await parseHelp(help, fullCmd))
-	// // console.log({parsed})
-	if (parsed === null) {
-		return []
-	}
-	let { flags = [], subcommands = [], ...rest } = parsed;
-	if (forcedSubs !== null && Array.isArray(forcedSubs)) {
-		const fsubs = new Set<string>(forcedSubs)
-		subcommands = subcommands.filter(e => {
-			if (fsubs.has(e.name)) {
-				fsubs.delete(e.name)
-				return true
-			}
-		})
-			.concat(Array.from(fsubs).map(e => ({ name: e, description: 'desc: ' + e })))
-	}
-	console.table(subcommands)
-	const all = await generateFishFromJSON(commandArray, parsed);
-	// // console.log(all)
-	if (
-		commandArray.length <= Args.maxDepth &&
-		subcommands.length > 0 &&
-		commandArray[commandArray.length - 1] !== "help"
-	) {
-		const subPromises = subcommands.map(async (sub: any) => {
-			const subCmdArray = [...commandArray, sub.name];
-			return crawlCommandTree(subCmdArray, forcedSubs, depth + 1);
-		});
-		all.push(...(await Promise.all(subPromises)).flat());
-	}
+  const parsed = await parseHelp(help, fullCmd);
+  // // console.log({parsed})
+  if (parsed === null) {
+    return [];
+  }
+  let { flags = [], subcommands = [], ...rest } = parsed;
+  if (forcedSubs !== null && Array.isArray(forcedSubs)) {
+    const fsubs = new Set<string>(forcedSubs);
+    subcommands = subcommands
+      .filter((e) => {
+        if (fsubs.has(e.name)) {
+          fsubs.delete(e.name);
+          return true;
+        }
+      })
+      .concat(
+        Array.from(fsubs).map((e) => ({ name: e, description: "desc: " + e })),
+      );
+  }
+  console.table(subcommands);
+  const all = await generateFishFromJSON(commandArray, parsed);
+  // // console.log(all)
+  if (
+    commandArray.length <= Args.maxDepth &&
+    subcommands.length > 0 &&
+    commandArray[commandArray.length - 1] !== "help"
+  ) {
+    const subPromises = subcommands.map(async (sub: any) => {
+      const subCmdArray = [...commandArray, sub.name];
+      return crawlCommandTree(subCmdArray, forcedSubs, depth + 1);
+    });
+    all.push(...(await Promise.all(subPromises)).flat());
+  }
 
-	return all;
+  return all;
 }
-
 
 const template = `
 Extract CLI command information from help text and return a structured JSON object that follows this schema:
@@ -393,20 +436,47 @@ Return ONLY the JSON object, no additional text.
 Help text to parse:
 
 ===============================================================
-`
+`;
 
 // console.log({ forcedSubs })
 const allCompletions = await crawlCommandTree([cmd], forcedSubs);
-// // console.log(allCompletions.join("\n\n"));
-const file = Bun.file(`/me/.config/fish/completions/${cmd}.fish`);
-await Bun.$`cat < ${new Response(allCompletions.join('\n'))} | bat --style grid,header-filename  --language=fish --color=always`
-if (await file.exists() && !Args.force) {
-	const answer = await prompt("Overwrite existing completion file? (y/n)");
 
-	if (answer !== "y" && answer !== null) {
-		// console.log("Aborting");
-		process.exit(0);
-	}
+// For scripts, add wraps line so simulate-cli.ts wraps simulate-cli
+if (isScript) {
+  const filename = inputPath.split("/").pop()!;
+  allCompletions.unshift(`complete -c "${inputPath}" --wraps ${cmd}`);
+}
+
+// // console.log(allCompletions.join("\n\n"));
+const filename = isScript ? inputPath.split("/").pop()! : cmd;
+const file = Bun.file(`/me/.config/fish/completions/${filename}.fish`);
+await Bun.$`cat < ${new Response(allCompletions.join("\n"))} | bat --style grid,header-filename  --language=fish --color=always`;
+if ((await file.exists()) && !Args.force) {
+  await Bun.$`mv ${file.name} ${file.name}.${new Date().toISOString()}.txt`
+  // const answer = await prompt("Overwrite existing completion file? (y/n)");
+  // for await (const line of console) {
+    // console.log(`You typed: ${line}`);
+    // process.stdout.write(prompt);
+  // }
+  // console.log({answer})
+  // if (answer !== "y" && answer !== null) {
+    // console.log("Aborting");
+    // process.exit(0);
+  // }
 }
 // console.log("write");
 await file.write(allCompletions.join("\n"));
+
+// For scripts, also add to conf.d to ensure autoloading
+if (isScript) {
+  const confDir = "/me/.config/fish/conf.d";
+  const confFile = Bun.file(`${confDir}/compgen-scripts.fish`);
+  const existing = (await confFile.exists()) ? await confFile.text() : "";
+  const sourceLine = `source ~/.config/fish/completions/${filename}.fish`;
+  if (!existing.includes(sourceLine)) {
+    await confFile.write(existing + sourceLine + "\n");
+    console.log(`Added to ${confDir}/compgen-scripts.fish`);
+  }
+}
+
+process.exit()
