@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 
-import { $ } from "bun";
+import { $, Glob } from "bun";
 import { existsSync } from "node:fs";
 import { launchTablens } from "/me/dev/tablens";
 import { DuckDBInstance } from "@duckdb/node-api";
@@ -45,7 +45,9 @@ export const fnSerial = (
     return `${fileArg} (${serializedOpts})`;
   }
 
-  if (keys.length === 0) return `${name}(${fileArg})`;
+  // DuckDB natively auto-detects these via bare path — skip the wrapping function when no options
+  const AUTO_DETECTED = new Set(["read_csv", "read_json", "read_ndjson", "read_parquet"]);
+  if (keys.length === 0) return AUTO_DETECTED.has(name) ? fileArg : `${name}(${fileArg})`;
   const serializedOpts = keys
     .map((k) => `${k}=${serializeValue(opts[k])}`)
     .join(",");
@@ -74,10 +76,9 @@ export const autoQuoteWhere = (sql: string): string => {
   return sql.replace(
     /(\b\w+\s*)(=|!=|<>|~|~~|!~|!~~|>=|<=|>|<)(\s*)([^\s'",)]+)/g,
     (match, col, op, space, value) => {
-      // Skip if value is already quoted or is a number
-      if (/^'.*'$/.test(value) || /^-?\d+(\.\d+)?$/.test(value)) {
-        return match;
-      }
+      // Skip if value is already quoted; for regex ops always quote (regex can't be integer)
+      if (/^'.*'$/.test(value)) return match;
+      if (/^-?\d+(\.\d+)?$/.test(value) && !/^[~!][~]?$/.test(op)) return match;
       return `${col}${op}${space}'${value}'`;
     },
   );
@@ -306,6 +307,7 @@ export const EXT_TO_CMD: Record<string, string> = {
   xlsx: "read_xlsx",
   lance: "read_lance",
   vortex: "read_vortex",
+  pbf: "osmium_read",
 };
 
 /**
@@ -331,18 +333,6 @@ export const FN_TO_EXTENSION: Record<
   read_xlsx: { extension: "excel" },
   read_xls: { extension: "excel" },
   spreadsheet_query: { extension: "excel" },
-
-  // spatial extension
-  st_point: { extension: "spatial" },
-  st_aswkt: { extension: "spatial" },
-  st_astext: { extension: "spatial" },
-  st_geomfromtext: { extension: "spatial" },
-  st_geomfromwkt: { extension: "spatial" },
-  st_contains: { extension: "spatial" },
-  st_intersects: { extension: "spatial" },
-  st_distance: { extension: "spatial" },
-  st_buffer: { extension: "spatial" },
-  st_transform: { extension: "spatial" },
 
   // fts (full-text search) extension
   fts_main: { extension: "fts" },
@@ -404,6 +394,13 @@ export const FN_TO_EXTENSION: Record<
   // lance/vortex table formats
   read_lance: { extension: "lance" },
   read_vortex: { extension: "vortex" },
+
+  // glob keys — match any function matching the pattern
+  "st_*": { extension: "spatial" },
+  "annofox_*": { extension: "annofox", repo: "community" },
+
+  // osmium extension (community) — for .osm.pbf files
+  "osmium_*": { extension: "osmium", repo: "community" },
 };
 
 /** COPY TO options documentation - extracted from src/copy.ts */
@@ -592,14 +589,19 @@ export type SqlOptions = {
   select?: string;
   where: string[];
   join: string[];
+  using?: string;
+  on?: string;
   distinct?: string;
   sample?: string;
   sort?: string;
   limit?: string;
   summarize?: boolean;
+  analyze?: boolean;
   with: string[];
   groupBy?: string;
   having?: string;
+  countBy?: string;
+  pipe: string[];
 };
 
 export type ParsedArgs = {
@@ -609,7 +611,6 @@ export type ParsedArgs = {
   toPath?: string;
   mode?: string;
   truncate: boolean;
-  paging: string | boolean;
   tui: boolean;
   queryParts: string[];
   sqlOptions: SqlOptions;
@@ -735,6 +736,7 @@ export const COMMANDS_DOCS: Record<string, Record<string, string>> = {
   },
   read_lance: {},
   read_vortex: {},
+  osmium_read: {},
 };
 
 function showHelp(command?: string) {
@@ -816,6 +818,15 @@ function showHelp(command?: string) {
     "  -j, --join=<expr>  Join with another table (cumulative). Prefix with LATERAL/LEFT/etc or just table ON cond",
   );
   console.log(
+    "  --left-join, --anti-join, --semi-join, etc.  Typed joins",
+  );
+  console.log(
+    "  --on=<cond>        Join condition for ON clause (used with --join)",
+  );
+  console.log(
+    "  --using=<col>      Join column(s) for USING clause (used with --join)",
+  );
+  console.log(
     "  -d, --distinct=<col> Select distinct rows based on a column (DISTINCT ON)",
   );
   console.log(
@@ -824,7 +835,11 @@ function showHelp(command?: string) {
   console.log("  -s, --sort=<cols>  Sort result by columns (ORDER BY)");
   console.log("  -g, --group-by=<cols> Group result by columns (GROUP BY)");
   console.log("  --having=<cond>    Filter groups with a HAVING clause");
+  console.log(
+    "  --count-by=<col>   Count rows grouped by column (shortcut for select+group+sort)",
+  );
   console.log("  --summarize        Show summary statistics of the result");
+  console.log("  --analyze          Pretty per-column analysis: enums show value counts, numerics show bars");
   console.log(
     "  --sample-size=<n>  Number of lines to scan for auto-detection",
   );
@@ -834,12 +849,14 @@ function showHelp(command?: string) {
   console.log(
     "  -m, --mode=<mode>  DuckDB output mode (box, line, json, csv, etc.). @default 'box'",
   );
-  console.log("  -p, --paging       Enable pagination using less -SR");
   console.log("  -t, --tui          Open result in tablens TUI");
   console.log(
     "  --with=<cte>       Add a CTE. The base table is injected into the first one.",
   );
   console.log('                     Example: --with "X1 AS (SELECT contact)"');
+  console.log(
+    "  --pipe=<sql>       Pipe result through another query (chainable). The previous result becomes a subquery.",
+  );
   console.log("  --no-truncate      Do not truncate output to terminal width");
   console.log("  -h, --help         Show this help message");
 }
@@ -1240,6 +1257,17 @@ end`);
   console.log(
     `complete -c ${bin} -f -n "${notHasToFlag}" -l join -s j -d "Join with another table (cumulative)" -r`,
   );
+  for (const jt of ["left", "right", "inner", "outer", "cross", "natural", "anti", "semi", "full", "positional"]) {
+    console.log(
+      `complete -c ${bin} -f -n "${notHasToFlag}" -l ${jt}-join -d "${jt.toUpperCase()} JOIN with another table" -r`,
+    );
+  }
+  console.log(
+    `complete -c ${bin} -f -k -n "${notHasToFlag}" -l on -d "Join condition for ON clause (used with --join)" -r -a "(__fish_reader_complete_columns)"`,
+  );
+  console.log(
+    `complete -c ${bin} -f -k -n "${notHasToFlag}" -l using -d "Join column(s) for USING clause (used with --join)" -r -a "(__fish_reader_complete_columns)"`,
+  );
   console.log(
     `complete -c ${bin} -f -k -n "${notHasToFlag}" -l distinct -s d -d "Select distinct rows based on a column" -r -a "(__fish_reader_complete_columns)"`,
   );
@@ -1259,7 +1287,13 @@ end`);
     `complete -c ${bin} -f -k -n "${notHasToFlag}" -l having -d "Filter groups with a HAVING clause" -r -a "(__fish_reader_complete_columns)"`,
   );
   console.log(
+    `complete -c ${bin} -f -k -n "${notHasToFlag}" -l count-by -d "Count rows grouped by column" -r -a "(__fish_reader_complete_columns)"`,
+  );
+  console.log(
     `complete -c ${bin} -f -n "${notHasToFlag}" -l summarize -d "Show summary statistics of the result"`,
+  );
+  console.log(
+    `complete -c ${bin} -f -n "${notHasToFlag}" -l analyze -d "Pretty per-column analysis with enum counts & bars"`,
   );
   console.log(
     `complete -c ${bin} -f -n "${notHasToFlag}" -l sample-size -d "Number of lines to scan for auto-detection" -r`,
@@ -1283,13 +1317,13 @@ end`);
     `complete -c ${bin} -f -n "${notHasToFlag}" -l mode -s m -a "box line json csv markdown" -d "Output format"`,
   );
   console.log(
-    `complete -c ${bin} -f -n "${notHasToFlag}" -l paging -s p -d "Enable pagination using less"`,
-  );
-  console.log(
     `complete -c ${bin} -f -n "${notHasToFlag}" -l tui -s t -d "Open result in tablens TUI"`,
   );
   console.log(
     `complete -c ${bin} -f -n "${notHasToFlag}" -l with -d "Add a CTE (Common Table Expression)" -r`,
+  );
+  console.log(
+    `complete -c ${bin} -f -n "${notHasToFlag}" -l pipe -d "Pipe result through another query (chainable)" -r`,
   );
   console.log(
     `complete -c ${bin} -f -n "${notHasToFlag}" -l no-truncate -d "Do not truncate output to terminal width"`,
@@ -1307,10 +1341,9 @@ export function parseArgs(args: string[]): ParsedArgs {
   let toPath: string | undefined = undefined;
   let mode: string | undefined = undefined;
   let truncate = true;
-  let paging: string | boolean = false;
   let tui = false;
   let queryParts: string[] = [];
-  const sqlOptions: SqlOptions = { where: [], join: [], with: [] };
+  const sqlOptions: SqlOptions = { where: [], join: [], with: [], pipe: [] };
   const copyOptions: Record<string, any> = {};
   let format: string | undefined = undefined;
   let isCopyTargetSeen = false;
@@ -1345,11 +1378,6 @@ export function parseArgs(args: string[]): ParsedArgs {
         continue;
       }
 
-      if (key === "paging" || key === "p") {
-        paging = rawValue || process.env.PAGER || "less";
-        continue;
-      }
-
       if (key === "tui" || key === "t") {
         tui = true;
         continue;
@@ -1380,6 +1408,14 @@ export function parseArgs(args: string[]): ParsedArgs {
         sqlOptions.join.push(autoQuoteSql(rawValue || args[++i]));
         continue;
       }
+      {
+        const joinMatch = key.match(/^(left|right|inner|outer|cross|natural|anti|semi|full|positional)_join$/);
+        if (joinMatch) {
+          const type = joinMatch[1].toUpperCase();
+          sqlOptions.join.push(`${type} JOIN ${autoQuoteSql(rawValue || args[++i])}`);
+          continue;
+        }
+      }
       if (key === "with") {
         sqlOptions.with.push(autoQuoteSql(rawValue || args[++i]));
         continue;
@@ -1404,8 +1440,28 @@ export function parseArgs(args: string[]): ParsedArgs {
         sqlOptions.having = rawValue || args[++i];
         continue;
       }
+      if (key === "count_by") {
+        sqlOptions.countBy = rawValue || args[++i];
+        continue;
+      }
+      if (key === "using") {
+        sqlOptions.using = rawValue || args[++i];
+        continue;
+      }
+      if (key === "on") {
+        sqlOptions.on = rawValue || args[++i];
+        continue;
+      }
+      if (key === "pipe") {
+        sqlOptions.pipe.push(rawValue || args[++i]);
+        continue;
+      }
       if (key === "summarize") {
         sqlOptions.summarize = true;
+        continue;
+      }
+      if (key === "analyze") {
+        sqlOptions.analyze = true;
         continue;
       }
 
@@ -1511,13 +1567,376 @@ export function parseArgs(args: string[]): ParsedArgs {
     toPath,
     mode,
     truncate,
-    paging,
     tui,
     queryParts,
     sqlOptions,
     copyOptions,
     format,
   };
+}
+
+// ---- --analyze implementation ----------------------------------------------
+
+// Dark, cool-leaning palette tuned for dark terminals (2026 minimal TUI).
+const PALETTE = {
+  accent: "#7aa2ff",   // primary (column name)
+  accent2: "#89ddff",  // secondary highlight
+  type: "#6e7a99",     // type label (muted)
+  label: "#5b6478",    // key/label dimmer
+  value: "#d6deeb",    // primary value fg
+  number: "#c3e88d",   // numeric value
+  good: "#73daca",     // filled / ok (teal)
+  warn: "#ffc777",     // median / warn
+  bad: "#ff757f",      // nulls / error
+  enum: "#c099ff",     // categorical
+  rule: "#2d3343",     // faint rule lines
+  bracket: "#3d4453",  // glyphs/dividers
+};
+
+// Gradient ramps (start = muted, end = bright). Each is a 5-stop palette.
+const GRAD_GOOD = ["#2f4a48", "#3a5c58", "#456e68", "#507f78", "#5a9088"];
+const GRAD_ENUM = ["#5a4a78", "#7a5fa0", "#9577c4", "#ac88dd", "#c099ff"];
+
+/** Color each glyph of `s` using ramp — left = darkest, right = brightest. */
+const applyGradient = (glyphs: string, ramp: string[]): string => {
+  if (glyphs.length === 0) return "";
+  if (glyphs.length === 1) return tc(ramp[ramp.length - 1], glyphs);
+  const n = glyphs.length, R = ramp.length - 1;
+  let out = "";
+  for (let i = 0; i < n; i++) {
+    const col = ramp[Math.round((i / (n - 1)) * R)];
+    out += tc(col, glyphs[i]);
+  }
+  return out;
+};
+
+const tc = (hex: string, t: string) => `${Bun.color(hex, "ansi") ?? ""}${t}\x1b[39m`;
+const DIM = "\x1b[2m", BOLD = "\x1b[1m", RESET = "\x1b[0m", NRM = "\x1b[22m";
+const dim = (t: string) => `${DIM}${t}${RESET}`;
+const bold = (t: string) => `${BOLD}${t}${NRM}`;
+
+const NUMERIC_TYPES = /^(TINYINT|SMALLINT|INTEGER|BIGINT|HUGEINT|UTINYINT|USMALLINT|UINTEGER|UBIGINT|UHUGEINT|FLOAT|DOUBLE|REAL|DECIMAL|NUMERIC)/i;
+const TEMPORAL_TYPES = /^(DATE|TIMESTAMP|TIME|INTERVAL)/i;
+
+/** Strip ANSI escapes for width measurement (SGR + OSC). */
+const visLen = (s: string) =>
+  s.replace(/\x1b\[[0-9;]*m/g, "").replace(/\x1b\][^\x07]*\x07?/g, "")
+    // Handle common wide characters — assume width 2 for CJK / emoji. Good enough for our data.
+    .replace(/[\u2E80-\u9FFF\uAC00-\uD7AF\uFF00-\uFFEF]/g, "xx").length;
+
+const pad = (s: string, w: number, align: "l" | "r" = "l") => {
+  const n = Math.max(0, w - visLen(s));
+  const sp = " ".repeat(n);
+  return align === "r" ? sp + s : s + sp;
+};
+
+/** Compact number: always ≤6 visible chars, 2 decimals, SI suffix past 1k. */
+const fmtNum = (v: any): string => {
+  if (v == null) return "·";
+  const n = Number(v);
+  if (!Number.isFinite(n)) return String(v);
+  const a = Math.abs(n);
+  if (a === 0) return "0";
+  if (a >= 1e12) return `${(n / 1e12).toFixed(2)}T`;
+  if (a >= 1e9) return `${(n / 1e9).toFixed(2)}G`;
+  if (a >= 1e6) return `${(n / 1e6).toFixed(2)}M`;
+  if (a >= 1e3) return `${(n / 1e3).toFixed(2)}k`;
+  if (Number.isInteger(n)) return String(n);
+  if (a >= 100) return n.toFixed(1);
+  if (a >= 1) return n.toFixed(2);
+  return n.toPrecision(2);
+};
+
+const fmtInt = (v: any): string => {
+  if (v == null) return "·";
+  const n = typeof v === "bigint" ? v : BigInt(Math.trunc(Number(v)));
+  return n.toLocaleString("en-US").replace(/,/g, "_");
+};
+
+/** Fill bar — gradient (muted → bright) + faint track behind unfilled portion. */
+const fillBar = (frac: number, width = 12): string => {
+  const blocks = " ▏▎▍▌▋▊▉█";
+  const f = Math.max(0, Math.min(1, frac));
+  const total = f * width;
+  const full = Math.floor(total);
+  const part = blocks[Math.round((total - full) * (blocks.length - 1))];
+  const filledStr = "█".repeat(full) + (full < width ? part : "");
+  const trackLen = Math.max(0, width - visLen(filledStr));
+  return applyGradient(filledStr, GRAD_GOOD) + tc(PALETTE.rule, "─".repeat(trackLen));
+};
+
+/** Enum proportion bar — gradient, same glyph system as fillBar. */
+const propBar = (frac: number, width = 18): string => {
+  const blocks = " ▏▎▍▌▋▊▉█";
+  const f = Math.max(0, Math.min(1, frac));
+  const total = f * width;
+  const full = Math.floor(total);
+  const part = blocks[Math.round((total - full) * (blocks.length - 1))];
+  const filledStr = "█".repeat(full) + (full < width ? part : "");
+  const trackLen = Math.max(0, width - visLen(filledStr));
+  return applyGradient(filledStr, GRAD_ENUM) + tc(PALETTE.rule, "─".repeat(trackLen));
+};
+
+/** Numeric distribution bar with min/q25/med/q75/max markers. */
+const distBar = (min: number, q25: number, q50: number, q75: number, max: number, width = 28): string => {
+  if (!Number.isFinite(min) || !Number.isFinite(max) || max <= min)
+    return dim("·".repeat(width));
+  const pos = (v: number) => Math.max(0, Math.min(width - 1, Math.round(((v - min) / (max - min)) * (width - 1))));
+  const p25 = pos(q25), p50 = pos(q50), p75 = pos(q75);
+  const out: string[] = [];
+  for (let i = 0; i < width; i++) {
+    if (i === p50) out.push(tc(PALETTE.warn, "┃"));
+    else if (i === p25 || i === p75) out.push(tc(PALETTE.accent2, "│"));
+    else if (i > p25 && i < p75) out.push(tc(PALETTE.accent, "━"));
+    else out.push(tc(PALETTE.rule, "─"));
+  }
+  return out.join("");
+};
+
+async function runAnalyze(query: string): Promise<void> {
+  const instance = await DuckDBInstance.create();
+  const conn = await instance.connect();
+
+  // Materialize into a temp table for compression metadata access.
+  await conn.run(`CREATE OR REPLACE TEMP TABLE _src AS ${query}`);
+
+  const descRes = await conn.run(`DESCRIBE SELECT * FROM _src`);
+  const descRows = (await descRes.getRowObjectsJS()) as any[];
+  const cols = descRows.map((r) => ({ name: String(r.column_name), type: String(r.column_type) }));
+
+  const totalRes = await conn.run(`SELECT count(*)::BIGINT AS n FROM _src`);
+  const total = Number(((await totalRes.getRowObjectsJS())[0] as any).n);
+
+  // Per-column stats in a single query.
+  const statProjections: string[] = [];
+  for (const { name, type } of cols) {
+    const q = `"${name.replace(/"/g, '""')}"`;
+    if (NUMERIC_TYPES.test(type)) {
+      statProjections.push(`struct_pack(
+        nulls := count(*) - count(${q}),
+        uniq  := approx_count_distinct(${q}),
+        mn    := min(${q})::DOUBLE,
+        mx    := max(${q})::DOUBLE,
+        av    := avg(${q})::DOUBLE,
+        q25   := approx_quantile(${q}, 0.25)::DOUBLE,
+        q50   := approx_quantile(${q}, 0.50)::DOUBLE,
+        q75   := approx_quantile(${q}, 0.75)::DOUBLE
+      ) AS "${name}"`);
+    } else if (TEMPORAL_TYPES.test(type)) {
+      statProjections.push(`struct_pack(
+        nulls := count(*) - count(${q}),
+        uniq  := approx_count_distinct(${q}),
+        mn    := min(${q})::VARCHAR,
+        mx    := max(${q})::VARCHAR
+      ) AS "${name}"`);
+    } else {
+      statProjections.push(`struct_pack(
+        nulls   := count(*) - count(${q}),
+        uniq    := approx_count_distinct(${q}),
+        mn      := min(${q})::VARCHAR,
+        mx      := max(${q})::VARCHAR,
+        avg_len := avg(length(${q}::VARCHAR))::DOUBLE
+      ) AS "${name}"`);
+    }
+  }
+
+  const ENUM_THRESHOLD = 20;
+  let stats: Record<string, any> = {};
+  if (statProjections.length > 0) {
+    const statsRes = await conn.run(`SELECT ${statProjections.join(",\n")} FROM _src`);
+    stats = (await statsRes.getRowObjectsJS())[0] as any;
+  }
+
+  const enumCounts: Record<string, { v: any; n: number }[]> = {};
+  for (const { name, type } of cols) {
+    const uniq = Number(stats[name]?.uniq ?? 0);
+    if (uniq > 0 && uniq <= ENUM_THRESHOLD && !TEMPORAL_TYPES.test(type)) {
+      const q = `"${name.replace(/"/g, '""')}"`;
+      const res = await conn.run(
+        `SELECT ${q} AS v, count(*)::BIGINT AS n FROM _src WHERE ${q} IS NOT NULL GROUP BY 1 ORDER BY n DESC LIMIT ${ENUM_THRESHOLD}`,
+      );
+      enumCounts[name] = ((await res.getRowObjectsJS()) as any[]).map((r) => ({ v: r.v, n: Number(r.n) }));
+    }
+  }
+
+  // Fetch compression metadata: compression method, level, and size info.
+  let compressionInfo: Record<string, any> = {};
+  let totalSize = 0;
+  try {
+    const comprRes = await conn.run(
+      `SELECT * FROM pragma_storage_info('_src') ORDER BY segment_id`,
+    );
+    const comprRows = (await comprRes.getRowObjectsJS()) as any[];
+    let colSize: Record<string, { compressed: number; uncompressed: number; method: string }> = {};
+    for (const r of comprRows) {
+      const col = String(r.column_name || "");
+      const method = String(r.compression || "uncompressed");
+      const size = Number(r.segment_data_bytes || 0);
+      const origSize = Number(r.uncompressed_size || size);
+      if (!colSize[col]) colSize[col] = { compressed: 0, uncompressed: 0, method };
+      colSize[col].compressed += size;
+      colSize[col].uncompressed += origSize;
+      totalSize += size;
+    }
+    compressionInfo = colSize;
+  } catch {
+    // If compression info is not available, skip it.
+  }
+
+  // ---- Layout -----------------------------------------------------------
+  const W = Math.max(80, process.stdout.columns || 120);
+
+  // Header-row column widths (must match for every row → clean alignment).
+  const nameW = Math.min(30, Math.max(6, ...cols.map((c) => c.name.length)));
+  const typeW = Math.min(14, Math.max(4, ...cols.map((c) => c.type.length)));
+  const PCT_W = 4; // "100%"
+  const UNIQ_W = Math.max(6, ...cols.map((c) => fmtInt(stats[c.name]?.uniq ?? 0).length));
+  const NULL_W = Math.max(4, ...cols.map((c) => {
+    const n = Number(stats[c.name]?.nulls ?? 0);
+    return n > 0 ? fmtInt(n).length : 1;
+  }));
+
+  // Header row: name  type  pct  uniq  null  [FILL]
+  // gaps: 2,2,2,2,2 → 10 spaces of separators; FILL takes remaining space but capped.
+  const MAX_BAR = 48;
+  const headerFixed = nameW + typeW + PCT_W + UNIQ_W + NULL_W + 10;
+  const FILL_W = Math.max(10, Math.min(MAX_BAR, W - headerFixed));
+
+  // Banner
+  const rule = tc(PALETTE.rule, "━".repeat(W));
+  const dashrule = tc(PALETTE.rule, "─".repeat(W));
+  const title =
+    `${tc(PALETTE.accent, bold("▍ analyze"))}  ` +
+    `${tc(PALETTE.value, fmtInt(total))} ${tc(PALETTE.label, "rows")}  ` +
+    `${tc(PALETTE.bracket, "·")}  ` +
+    `${tc(PALETTE.value, String(cols.length))} ${tc(PALETTE.label, "cols")}`;
+  console.log("\n" + title);
+  console.log(rule);
+
+  // Legend aligned on the same grid
+  const legend =
+    pad(tc(PALETTE.label, "column"), nameW) + "  " +
+    pad(tc(PALETTE.label, "type"), typeW) + "  " +
+    pad(tc(PALETTE.label, "%"), PCT_W, "r") + "  " +
+    pad(tc(PALETTE.label, "uniq"), UNIQ_W, "r") + "  " +
+    pad(tc(PALETTE.label, "null"), NULL_W, "r");
+  console.log(legend);
+  console.log(dashrule);
+  void FILL_W; // fill bar hidden for now
+
+  // Detail-row grid:  "  │ " gutter = 4 chars, stretch the rest to W.
+  const detailIndent = "  " + tc(PALETTE.rule, "│") + " ";
+  const detailInnerW = W - 4;
+
+  // Fixed widths for hard alignment — computed once and applied to all detail rows.
+  const ENUM_VAL_W = 24; // fixed value column width
+  const ENUM_BAR_W = Math.max(12, Math.min(MAX_BAR, Math.floor((detailInnerW - ENUM_VAL_W - 20) * 0.6)));
+  const PCT_SLOT = 6;
+  const ENUM_CNT_W = 8;
+
+  for (const [idx, { name, type }] of cols.entries()) {
+    const st = stats[name] || {};
+    const nulls = Number(st.nulls ?? 0);
+    const filled = total > 0 ? 1 - nulls / total : 0;
+    const uniq = Number(st.uniq ?? 0);
+
+    const nameStr = name.length > nameW ? name.slice(0, nameW - 1) + "…" : name;
+    const typeStr = type.length > typeW ? type.slice(0, typeW - 1) + "…" : type;
+    const pctStr = `${Math.round(filled * 100)}%`;
+    const uniqStr = fmtInt(uniq);
+    const nullStr = nulls > 0 ? fmtInt(nulls) : "·";
+    const nullColor = nulls > 0 ? PALETTE.bad : PALETTE.rule;
+
+    // Light separator between column blocks (not before the first one)
+    if (idx > 0) console.log(tc(PALETTE.rule, "╌".repeat(W)));
+
+    const headerLhs =
+      pad(tc(PALETTE.accent, bold(nameStr)), nameW) + "  " +
+      pad(tc(PALETTE.type, typeStr), typeW) + "  " +
+      pad(tc(PALETTE.label, pctStr), PCT_W, "r") + "  " +
+      pad(tc(PALETTE.warn, uniqStr), UNIQ_W, "r") + "  " +
+      pad(tc(nullColor, nullStr), NULL_W, "r");
+
+    console.log(headerLhs);
+    void filled;
+
+    // Display compression info if available.
+    const cmpr = compressionInfo[name];
+    if (cmpr && cmpr.method && cmpr.method !== "Uncompressed") {
+      const ratio = cmpr.uncompressed > 0 ? cmpr.compressed / cmpr.uncompressed : 1;
+      const pctCompressed = Math.round((1 - ratio) * 100);
+      const sizeMb = cmpr.compressed / (1024 * 1024);
+      const comprStr =
+        `${tc(PALETTE.label, "compr")} ${tc(PALETTE.accent2, cmpr.method.toLowerCase())}  ` +
+        `${tc(PALETTE.label, "size")} ${tc(PALETTE.number, sizeMb.toFixed(2))}M  ` +
+        `${tc(PALETTE.label, "saved")} ${tc(PALETTE.good, `${pctCompressed}%`)}`;
+      console.log(detailIndent + comprStr);
+    }
+
+    const enumRows = enumCounts[name];
+    if (enumRows) {
+      const nonNull = total - nulls;
+      for (const r of enumRows) {
+        const pct = nonNull > 0 ? r.n / nonNull : 0;
+        const val = String(r.v ?? "");
+        const valStr = val.length > ENUM_VAL_W ? val.slice(0, ENUM_VAL_W - 1) + "…" : val;
+        const cntStr = fmtInt(r.n);
+        const cntPadded = pad(tc(PALETTE.number, cntStr), ENUM_CNT_W, "r");
+        console.log(
+          detailIndent +
+            pad(tc(PALETTE.value, valStr), ENUM_VAL_W) + "  " +
+            propBar(pct, ENUM_BAR_W) + "  " +
+            pad(tc(PALETTE.label, `${(pct * 100).toFixed(1)}%`), PCT_SLOT, "r") + "  " +
+            cntPadded,
+        );
+      }
+    } else if (NUMERIC_TYPES.test(type)) {
+      const mn = Number(st.mn), mx = Number(st.mx);
+      const q25 = Number(st.q25), q50 = Number(st.q50), q75 = Number(st.q75);
+      const av = Number(st.av);
+      // Compact glyph-driven summary: ↓ min  ◆ avg  ↑ max
+      const rhs =
+        `${tc(PALETTE.label, "↓")} ${tc(PALETTE.number, fmtNum(mn))}` +
+        tc(PALETTE.rule, "  ") +
+        `${tc(PALETTE.accent2, "◆")} ${tc(PALETTE.accent2, fmtNum(av))}` +
+        tc(PALETTE.rule, "  ") +
+        `${tc(PALETTE.label, "↑")} ${tc(PALETTE.number, fmtNum(mx))}`;
+      const rhsLen = visLen(rhs);
+      const barW = Math.max(14, Math.min(MAX_BAR, detailInnerW - rhsLen - 2));
+      console.log(detailIndent + distBar(mn, q25, q50, q75, mx, barW) + "  " + rhs);
+    } else if (TEMPORAL_TYPES.test(type)) {
+      const mn = String(st.mn ?? "·");
+      const mx = String(st.mx ?? "·");
+      console.log(
+        detailIndent +
+          `${tc(PALETTE.label, "min")} ${tc(PALETTE.value, mn)}` +
+          tc(PALETTE.rule, "  →  ") +
+          `${tc(PALETTE.label, "max")} ${tc(PALETTE.value, mx)}`,
+      );
+    } else {
+      const mn = st.mn == null ? "·" : String(st.mn);
+      const mx = st.mx == null ? "·" : String(st.mx);
+      const avgLen = st.avg_len == null ? null : Number(st.avg_len);
+      // Stretch min/max to the full remaining width.
+      const rightExtras = avgLen != null ? `  ${tc(PALETTE.rule, "·")}  ${tc(PALETTE.label, "len")} ${tc(PALETTE.accent2, fmtNum(avgLen))}` : "";
+      const rightLen = visLen(rightExtras);
+      // Available width for min + sep + max
+      const sep = tc(PALETTE.rule, "  →  ");
+      const sepLen = visLen(sep);
+      const avail = Math.max(20, detailInnerW - rightLen - sepLen - 8); // 8 for "min " + "max "
+      const half = Math.floor(avail / 2);
+      const clip = (s: string, n: number) => (s.length > n ? s.slice(0, n - 1) + "…" : s);
+      const mnS = clip(mn, half);
+      const mxS = clip(mx, half);
+      console.log(
+        detailIndent +
+          `${tc(PALETTE.label, "min")} ${tc(PALETTE.value, mnS)}` + sep +
+          `${tc(PALETTE.label, "max")} ${tc(PALETTE.value, mxS)}` + rightExtras,
+      );
+    }
+  }
+
+  console.log(rule);
 }
 
 export function buildQuery(parsed: ParsedArgs): string {
@@ -1618,12 +2037,12 @@ export function buildQuery(parsed: ParsedArgs): string {
     attachSqls.push(`ATTACH '${path}' AS ${alias} (READ_ONLY)`);
   }
 
-  // Auto-detect and load extensions based on function calls
+  // Auto-detect and load extensions based on function calls (supports glob keys like "st_*")
   const detectExtensions = (sql: string): void => {
-    for (const [fn, extInfo] of Object.entries(FN_TO_EXTENSION)) {
-      // Check if function name appears in SQL
-      const fnPattern = new RegExp(`\\b${fn}\\s*\\(`, "i");
-      if (fnPattern.test(sql) || sql.toLowerCase().includes(` ${fn}(`)) {
+    const calledFns = [...sql.matchAll(/\b([a-zA-Z_]\w*)\s*\(/g)].map((m) => m[1].toLowerCase());
+    for (const [pattern, extInfo] of Object.entries(FN_TO_EXTENSION)) {
+      const glob = new Glob(pattern.toLowerCase());
+      if (calledFns.some((fn) => glob.match(fn))) {
         extensionsToLoad.add(extInfo.extension);
       }
     }
@@ -1668,6 +2087,14 @@ export function buildQuery(parsed: ParsedArgs): string {
   const useSql = magicDbAlias ? `USE ${magicDbAlias}; ` : "";
   const finalSetupSql = `${setupSql}${fullAttachSql}${useSql}`;
 
+  // --count-by sugar: override select, groupBy, sort
+  if (sqlOptions.countBy) {
+    const field = smartAtToStar(smartBraceToParen(sqlOptions.countBy));
+    sqlOptions.select = `${field}, count(*) as count`;
+    sqlOptions.groupBy = sqlOptions.groupBy || field;
+    sqlOptions.sort = sqlOptions.sort || "count DESC";
+  }
+
   // Determine the base SELECT clause
   let baseSelect = "SELECT *";
   if (sqlOptions.distinct) {
@@ -1692,35 +2119,39 @@ export function buildQuery(parsed: ParsedArgs): string {
   // Determine if the positional tail already has a SELECT
   const hasSelectInTail = sqlTail.toLowerCase().trim().startsWith("select");
 
+  // Wrap bare file paths in read_*() calls
   // Construct JOIN clauses
   let joinClauses = "";
+  const joinCondition = sqlOptions.using
+    ? ` USING (${sqlOptions.using})`
+    : sqlOptions.on
+      ? ` ON ${smartAtToStar(smartBraceToParen(sqlOptions.on))}`
+      : "";
   for (const j of join) {
-    // If it starts with a JOIN keyword, use as-is; otherwise prepend JOIN
+    // If it starts with a JOIN keyword, use as-is; otherwise prepend default join verb
     const upperJ = j.trim().toUpperCase();
-    const hasJoinKeyword =
-      upperJ.startsWith("JOIN") ||
-      upperJ.startsWith("LEFT JOIN") ||
-      upperJ.startsWith("RIGHT JOIN") ||
-      upperJ.startsWith("INNER JOIN") ||
-      upperJ.startsWith("OUTER JOIN") ||
-      upperJ.startsWith("CROSS JOIN") ||
-      upperJ.startsWith("NATURAL JOIN") ||
-      upperJ.startsWith("LATERAL JOIN") ||
-      upperJ.startsWith("LEFT OUTER") ||
-      upperJ.startsWith("RIGHT OUTER") ||
-      upperJ.startsWith("FULL OUTER") ||
-      upperJ.startsWith("FULL JOIN");
+    const hasJoinKeyword = /^(JOIN|LEFT|RIGHT|INNER|OUTER|CROSS|NATURAL|LATERAL|FULL|ANTI|SEMI|POSITIONAL)\b/.test(upperJ);
+
+    // Wrap file paths inside the join expression — use bare quoted path (DuckDB auto-detects format)
+    const processed = smartBraceToParen(j).replace(
+      /(?<=^|\bJOIN\s+)(\S+\.(?:csv|tsv|txt|json|jsonl|ndjson|parquet|xlsx|lance|vortex))\b/i,
+      (_, path) => `'${smartAtToStar(path)}'`,
+    );
+    const transformed = smartAtToStar(processed);
+    // Append USING/ON clause if set and this join doesn't already have one
+    const upperTransformed = transformed.toUpperCase();
+    const hasCondition =
+      upperTransformed.includes(" ON ") || upperTransformed.includes(" USING ");
+    const suffix = !hasCondition ? joinCondition : "";
 
     if (hasJoinKeyword) {
-      joinClauses += ` ${smartAtToStar(smartBraceToParen(j))}`;
-    } else if (upperJ.startsWith("LATERAL")) {
-      // LATERAL without JOIN - add JOIN after LATERAL
-      joinClauses += ` ${smartAtToStar(smartBraceToParen(j)).replace(
-        /^lateral\s+/i,
-        "LATERAL JOIN ",
-      )}`;
+      // Ensure "LATERAL table" becomes "LATERAL JOIN table"
+      const final = upperJ.startsWith("LATERAL") && !upperJ.startsWith("LATERAL JOIN")
+        ? transformed.replace(/^lateral\s+/i, "LATERAL JOIN ")
+        : transformed;
+      joinClauses += ` ${final}${suffix}`;
     } else {
-      joinClauses += ` JOIN ${smartAtToStar(smartBraceToParen(j))}`;
+      joinClauses += ` JOIN ${transformed}${suffix}`;
     }
   }
 
@@ -1734,6 +2165,9 @@ export function buildQuery(parsed: ParsedArgs): string {
         if (/^!\w+$/.test(trimmed)) return `${trimmed.slice(1)} IS NULL`;
         // bare col → col IS NOT NULL
         if (/^\w+$/.test(trimmed)) return `${trimmed} IS NOT NULL`;
+        // col~=val → col ~ '.*val.*'  (contains regex shorthand)
+        const containsMatch = trimmed.match(/^(\w+)\s*~=\s*(.+)$/);
+        if (containsMatch) return `${containsMatch[1]} ~ '.*${containsMatch[2]}.*'`;
         return smartAtToStar(autoQuoteWhere(smartBraceToParen(w)));
       })
       .join(" AND ")}`;
@@ -1746,11 +2180,11 @@ export function buildQuery(parsed: ParsedArgs): string {
       autoQuoteWhere(smartBraceToParen(sqlOptions.having)),
     )}`;
   if (sqlOptions.sample) modifiers += ` USING SAMPLE ${sqlOptions.sample}`;
-  if (sqlOptions.limit && sqlOptions.limit !== "none") modifiers += ` LIMIT ${sqlOptions.limit}`;
   if (sqlOptions.sort)
     modifiers += ` ORDER BY ${smartAtToStar(
       smartBraceToParen(sqlOptions.sort),
     )}`;
+  if (sqlOptions.limit && sqlOptions.limit !== "none") modifiers += ` LIMIT ${sqlOptions.limit}`;
 
   // Normalize the core SELECT part
   let selectQuery = "";
@@ -1793,6 +2227,23 @@ export function buildQuery(parsed: ParsedArgs): string {
     selectQuery = `WITH ${finalCtes.join(", ")} ${selectQuery}`;
   }
 
+  // Wrap with --pipe stages: each wraps the current query as a subquery
+  for (const pipeSql of sqlOptions.pipe) {
+    const transformed = smartAtToStar(smartBraceToParen(pipeSql));
+    // If pipe starts with SELECT, use as-is with FROM subquery
+    if (/^\s*select\b/i.test(transformed)) {
+      // Insert FROM (subquery) after the SELECT ... clause if no FROM present
+      if (/\bfrom\b/i.test(transformed)) {
+        selectQuery = transformed.replace(/\bfrom\b/i, `FROM (${selectQuery})`);
+      } else {
+        selectQuery = `${transformed} FROM (${selectQuery})`;
+      }
+    } else {
+      // Treat as a full SQL tail appended to FROM (subquery)
+      selectQuery = `SELECT * FROM (${selectQuery}) ${transformed}`;
+    }
+  }
+
   if (toPath || format) {
     const targetPath = toPath || "/dev/stdout";
     const ext = targetPath.split(".").pop()?.toLowerCase() || "";
@@ -1805,6 +2256,28 @@ export function buildQuery(parsed: ParsedArgs): string {
         formatStr = "JSON";
       else if (ext === "csv") formatStr = "CSV";
       else if (ext === "tsv") formatStr = "CSV"; // DELIMITER handled below if needed, or by copyOptions
+    }
+
+    // Auto-detect compression from filename: xx.zst.parquet, xx.br.parquet, xx.zst22.parquet
+    if (!copyOptions.compression && toPath) {
+      const parts = toPath.split("/").pop()?.split(".") || [];
+      // Look for compression hint in the part before the final extension
+      // e.g. ["data", "zst22", "parquet"] or ["data", "br", "parquet"]
+      const COMP_ALIASES: Record<string, string> = {
+        br: "brotli", brotli: "brotli",
+        zst: "zstd", zstd: "zstd",
+        gz: "gzip", gzip: "gzip",
+        snappy: "snappy",
+        lz4: "lz4",
+      };
+      if (parts.length >= 3) {
+        const hint = parts[parts.length - 2];
+        const match = hint.match(/^([a-z]+)(\d+)?$/);
+        if (match && COMP_ALIASES[match[1]]) {
+          copyOptions.compression = COMP_ALIASES[match[1]];
+          if (match[2]) copyOptions.compression_level = Number(match[2]);
+        }
+      }
     }
 
     // Build COPY options array
@@ -1865,7 +2338,7 @@ async function main() {
   const args = process.argv.slice(2);
   const hasHelp = args.includes("--help") || args.includes("-h");
 
-  if (args.length === 0 || (hasHelp && args.length === 1)) {
+  if (args.length === 0 || hasHelp) {
     showHelp();
     return;
   }
@@ -1904,7 +2377,6 @@ async function main() {
     toPath,
     mode,
     truncate,
-    paging,
     tui,
     queryParts,
     sqlOptions,
@@ -1913,12 +2385,12 @@ async function main() {
   } = parsed;
 
   // If piped into another process, default to CSV format
-  if (!isTTY && !format && !toPath) {
+  if (!isTTY && !format && !toPath && !parsed.sqlOptions.analyze) {
     format = "csv";
     parsed.format = "csv";
   }
 
-  const DEFAULT_LIMIT = "1000";
+  const DEFAULT_LIMIT = "30";
 
   // Bare --sample resolves to the default limit value
   if (parsed.sqlOptions.sample === "default") {
@@ -1927,8 +2399,10 @@ async function main() {
 
   // Auto-limit for TTY stdout — suppressed if limit/sample/summarize/to/format is set
   // "none" sentinel means user explicitly passed bare --limit to disable auto-limit
-  if (isTTY && !tui && !toPath && !format && !parsed.sqlOptions.limit && !parsed.sqlOptions.sample && !parsed.sqlOptions.summarize) {
+  let autoLimited = false;
+  if (isTTY && !tui && !toPath && !format && !parsed.sqlOptions.limit && !parsed.sqlOptions.sample && !parsed.sqlOptions.summarize && !parsed.sqlOptions.analyze) {
     parsed.sqlOptions.limit = DEFAULT_LIMIT;
+    autoLimited = true;
   }
 
   if (command && !COMMANDS_DOCS[command] && command !== "sql") {
@@ -1975,6 +2449,9 @@ async function main() {
 
   try {
     const query = buildQuery(parsed);
+    const countQuery = autoLimited
+      ? `SELECT count(*)::int as total FROM (${buildQuery({ ...parsed, sqlOptions: { ...parsed.sqlOptions, limit: undefined } })})`
+      : "";
 
     // Construct command arguments
     const cmdArgs: string[] = [];
@@ -1991,30 +2468,144 @@ async function main() {
     const commandLog = `duckdb -c "${highlightedQuery}"\n`;
     await Bun.write(Bun.stderr, commandLog);
 
+    // Detect init-file failure and retry without -init
+    const runScript = async (extraArgs: string[] = []) => {
+      const args = [...extraArgs, ...cmdArgs];
+      let out = await $`script -q /dev/null duckdb ${args}`.nothrow().text();
+      if (/Encountered errors while executing init file/i.test(out)) {
+        out = await $`script -q /dev/null duckdb -init /dev/null ${cmdArgs}`.nothrow().text();
+      }
+      return out;
+    };
+
+    if (parsed.sqlOptions.analyze) {
+      await runAnalyze(query);
+      process.exit(0);
+    }
+
     if (tui) {
       await launchTablens({ query });
     } else if (toPath || format) {
-      await $`duckdb -c ${query}`;
-      if (toPath) {
+      // Stream live so the progress bar renders in real time.
+      // Parent ignores SIGINT so the child gets it cleanly and we can observe its exit.
+      const onSigint = () => {};
+      process.on("SIGINT", onSigint);
+      const spawnLive = (initArg: string[]) =>
+        Bun.spawn(["script", "-q", "/dev/null", "duckdb", ...initArg, ...cmdArgs], {
+          stdin: "inherit",
+          stdout: "inherit",
+          stderr: "inherit",
+        });
+      let proc = spawnLive([]);
+      let code = await proc.exited;
+      if (code !== 0 && code !== 130) {
+        proc = spawnLive(["-init", "/dev/null"]);
+        code = await proc.exited;
+      }
+      process.off("SIGINT", onSigint);
+      if (code === 0 && toPath) {
         console.log(`Successfully exported to ${toPath}`);
       }
-    } else if (paging) {
-      const modeFlag = mode ? `-${mode}` : "";
-      const duckProcess = Bun.spawn(["duckdb", ...cmdArgs]);
-      const pager =
-        typeof paging === "string" ? paging : process.env.PAGER || "less";
-      const lessProcess = Bun.spawn([pager], {
-        stdin: duckProcess.stdout,
-        stdout: "inherit",
-        stderr: "inherit",
-      });
-      await lessProcess.exited;
+      process.exit(code ?? 0);
     } else if (isTTY) {
-      // Use script to give duckdb a real PTY: enables color output + correct terminal width
-      await $`script -q /dev/null duckdb ${cmdArgs}`;
+      // Capture PTY output to strip DuckDB's summary lines and replace with compact one
+      const raw = await runScript();
+      let rows = "", cols = "", shown = "", time = "";
+      const lines = raw.split("\n");
+      const output: string[] = [];
+      for (const line of lines) {
+        const stripped = line.replace(/\x1b\[[0-9;]*m/g, "").replace(/\x1b\][^\x07]*\x07?/g, "").replace(/\r/g, "").trim();
+        const rowMatch = stripped.match(/^(\d+)\s+rows?\s*(?:\((\d+)\s+shown\))?.*?(\d+)\s+columns?/);
+        const timeMatch = stripped.match(/^Run Time.*?real\s+([\d.]+)/);
+        if (rowMatch) {
+          rows = rowMatch[1]; shown = rowMatch[2] || rows; cols = rowMatch[3];
+          continue;
+        }
+        if (timeMatch) { time = timeMatch[1]; continue; }
+        // Strip OSC sequences (terminal color queries) but keep the rest of the line
+        const cleaned = line.replace(/\x1b\][^\x07]*\x07?/g, "");
+        if (cleaned.replace(/\x1b\[[0-9;]*m/g, "").replace(/\r/g, "").trim()) output.push(cleaned);
+      }
+      // Detect and reformat DuckDB errors
+      const R = "\x1b[0m";
+      const c = (color: string, text: string) => `${Bun.color(color, "ansi")}${text}${R}`;
+      const dim = (text: string) => `\x1b[2m${text}${R}`;
+      const bold = (text: string) => `\x1b[1m${text}${R}`;
+
+      const errorLines: string[] = [];
+      const cleanOutput: string[] = [];
+      let inError = false;
+      for (const line of output) {
+        const stripped = line.replace(/\x1b\[[0-9;]*m/g, "").replace(/\x1b\][^\x07]*\x07?/g, "").replace(/\r/g, "").trim();
+        if (/^-- Loading resources/.test(stripped)) continue;
+        if (/^\w[\w ]*Error:/.test(stripped)) inError = true;
+        if (inError) {
+          if (stripped) errorLines.push(stripped);
+        } else {
+          cleanOutput.push(line);
+        }
+      }
+
+      if (errorLines.length) {
+        // Parse: first line is "Binder Error:" (title only), message on next lines
+        const errType = errorLines[0].match(/^([\w ]+Error):?\s*(.*)/);
+        const title = errType ? errType[1] : "Error";
+        const firstMsg = errType?.[2] || "";
+        const rest = (firstMsg ? [firstMsg, ...errorLines.slice(1)] : errorLines.slice(1));
+
+        const candidates = rest.find(l => /^Candidate bindings?:/.test(l));
+        const lineLine = rest.find(l => /^LINE \d+:/.test(l));
+        const caretLine = rest.find(l => /^\s*\^$/.test(l));
+        const msgLines = rest.filter(l => l !== candidates && l !== lineLine && l !== caretLine);
+        const message = msgLines.join(" ").trim();
+
+        await Bun.write(Bun.stderr, `\n${c("red", "×")} ${bold(c("red", title))}`);
+        if (message) await Bun.write(Bun.stderr, ` ${message}`);
+        await Bun.write(Bun.stderr, "\n");
+        if (candidates) {
+          const vals = candidates.replace(/^Candidate bindings?:\s*/, "");
+          await Bun.write(Bun.stderr, `  ${c("yellow", "hint:")} ${c("green", vals)}\n`);
+        }
+        if (lineLine) {
+          const sqlSnippet = lineLine.replace(/^LINE \d+:\s*/, "");
+          await Bun.write(Bun.stderr, `  ${dim(sqlSnippet)}\n`);
+          if (caretLine) await Bun.write(Bun.stderr, `  ${c("red", caretLine)}\n`);
+        }
+        await Bun.write(Bun.stderr, "\n");
+      } else {
+        // Print table without trailing blank lines
+        while (cleanOutput.length && cleanOutput[cleanOutput.length - 1].trim() === "") cleanOutput.pop();
+        process.stdout.write(cleanOutput.join("\n") + "\n");
+      }
+      // Compact status line with optional total count
+      if (rows) {
+        let totalStr = "";
+        if (countQuery) {
+          try {
+            let countResult = await $`duckdb -noheader -csv -c ${countQuery}`.nothrow().text();
+            if (/Encountered errors while executing init file/i.test(countResult)) {
+              countResult = await $`duckdb -init /dev/null -noheader -csv -c ${countQuery}`.nothrow().text();
+            }
+            if (countResult) {
+              const total = parseInt(countResult.trim(), 10);
+              if (total > parseInt(rows)) {
+                totalStr = total >= 1e6 ? `${(total/1e6).toFixed(1)}M` : total >= 1e3 ? `${(total/1e3).toFixed(1)}k` : String(total);
+              }
+            }
+          } catch {}
+        }
+        const rowLabel = totalStr
+          ? `${c("cyan", rows)}${dim("/")}${c("yellow", totalStr)} ${dim("rows")}`
+          : `${c("cyan", rows)} ${dim("rows")}`;
+        const parts: string[] = [rowLabel];
+        if (cols) parts.push(`${c("magenta", cols)} ${dim("cols")}`);
+        if (time) parts.push(c("green", `${time}s`));
+        await Bun.write(Bun.stderr, parts.join(dim(" · ")) + "\n");
+      }
     } else {
       // Piped output: stream stdout for CSV/format output
-      const duckProcess = Bun.spawn(["duckdb", ...cmdArgs], {
+      // Skip .duckdbrc — reader pipe output doesn't need interactive init
+      const duckProcess = Bun.spawn(["duckdb", "-init", "/dev/null", ...cmdArgs], {
         stdout: "pipe",
         stderr: "inherit",
       });
@@ -2055,6 +2646,7 @@ async function main() {
 
       await duckProcess.exited;
     }
+
     if (!tui) process.exit();
   } catch (err: any) {
     if (err.stderr) {
