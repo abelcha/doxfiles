@@ -14,6 +14,6 @@ function mv --wraps='advmv -gi' --wraps=umv
     else if type -q umv
         umv --interactive --progress --verbose $argv
     else
-        mv $argv
+        command mv $argv
     end
 end
