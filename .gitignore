@@ -21,6 +21,7 @@ fish/fish_variables
 !/trae/argv.json
 !/trae/extensions/extensions.json
 !/.env
+!/.paths
 !/Dockerfile
 hammerspoon/Spoons/
 .trash
