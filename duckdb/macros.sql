@@ -22,32 +22,21 @@ CREATE OR REPLACE MACRO duckdb_master() AS TABLE(
             type: 'view',
             sql
     );
-CREATE OR REPLACE MACRO phone_fmt3 (a) AS CASE
-        WHEN LEFT (a, 2) = '33' THEN '+' || a
-        ELSE a
-    END;
     
 CREATE OR REPLACE MACRO is_mobile (a) AS IFNULL(a[4] = '7' OR a[4] = '6', false);
 
-
-
-CREATE OR REPLACE MACRO phone_fmt4 (a) AS CASE
-        WHEN LENGTH(a) = 9 THEN '+33' || a
-        ELSE a
+CREATE OR REPLACE MACRO phclean(a) AS COALESCE(TRY_CAST(a AS VARCHAR), '').regexp_replace('[^0-9+]', '', 'g').regexp_replace('^(\+?)0+', '\1');
+CREATE OR REPLACE MACRO phormat(a) AS CASE
+        WHEN len(phclean(a)) < 8 THEN NULL
+        WHEN phclean(a) [:1] = '+' THEN phclean(a)
+        WHEN phclean(a) [:2] = '33' THEN '+' || phclean(a)
+        WHEN len(phclean(a)) = 9 THEN '+33' || phclean(a)
+        ELSE phclean(a)
     END;
-CREATE OR REPLACE MACRO phone_fmtn (a) AS CASE
-        WHEN LENGTH(a) < 8 THEN NULL
-        ELSE phone_fmt4 (phone_fmt3 (a))
-    END;
-CREATE OR REPLACE MACRO phormat (a) AS phone_fmtn (
-        REGEXP_REPLACE (
-            COALESCE(TRY_CAST(a AS VARCHAR), ''),
-            '[^0-9+]',
-            '',
-            'g'
-        ).regexp_replace ('^0', '')
-    );
+CREATE OR REPLACE MACRO uint_phormat (a) AS try_cast(phormat(a).replace('+', '') as UINT64);
+CREATE OR REPLACE MACRO phormat_strict (a) AS IF(LEN(phormat(a)) = 12, phormat(a), null);
 CREATE OR REPLACE MACRO phormat_strict (a) AS IF(LEN(phormat(a))=12, phormat(a), null);
+
 CREATE OR REPLACE MACRO phmobile (a) AS IF(LEN(phormat(a))=12 and phormat(a)[4] in ('6', '7') , phormat(a), null);
 
 
@@ -60,7 +49,7 @@ CREATE OR REPLACE MACRO phemail (a) AS (
     );
 
 CREATE OR REPLACE MACRO phemails (arr) AS list_transform(arr, lambda x: phemail(x)).list_filter(lambda x: x IS NOT NULL);
-CREATE OR REPLACE MACRO phormats (arr) AS list_transform(arr, lambda x: phormat(x)).list_filter(lambda x: x.len () = 12);
+
 CREATE OR REPLACE MACRO phmobiles (arr) AS list_transform(arr, lambda x: phmobile(x)).list_filter(lambda x: x.len () = 12);
 CREATE OR REPLACE MACRO safe_unnest (arr) AS UNNEST (
         CASE
@@ -72,7 +61,7 @@ CREATE OR REPLACE MACRO SLUGIFY(text) AS text.lower().regexp_replace('[^a-z0-9]+
 CREATE OR REPLACE MACRO normalizeCarrier(carrier) AS carrier.upper().regexp_replace('[^A-Z0-9]+', '-', 'g').regexp_replace('^-|-$', '', 'g');
 CREATE OR REPLACE MACRO normalizeCountry(country) AS country.upper().left(2);
 CREATE OR REPLACE MACRO stripDecimalZero(value) AS regexp_replace(value::varchar, '\.0+$', '', 'g');
-CREATE OR REPLACE MACRO stripAccents(value) AS regexp_replace(value, '[àáâãäå]', 'a', 'gi').regexp_replace('[èéêë]', 'e', 'gi').regexp_replace('[ìíîï]', 'i', 'gi').regexp_replace('[òóôõö]', 'o', 'gi').regexp_replace('[ùúûü]', 'u', 'gi').regexp_replace('[ç]', 'c', 'gi').regexp_replace('[ñ]', 'n', 'gi').regexp_replace('[ýÿ]', 'y', 'gi').regexp_replace('[œ]', 'oe', 'gi').regexp_replace('[æ]', 'ae', 'gi').regexp_replace('[ß]', 'ss', 'gi');
+CREATE OR REPLACE MACRO stripAccents(value) AS strip_accents(value);
 CREATE OR REPLACE MACRO deburr(value) AS stripAccents(value).regexp_replace('[^a-zA-Z0-9\-]+', '', 'g');
 CREATE OR REPLACE MACRO phname (a) AS stripAccents(a.trim().lower());
 
