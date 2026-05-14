@@ -42,7 +42,8 @@ CREATE OR REPLACE MACRO _valid_birthdate(d) AS if (year(d) BETWEEN 1900 AND 2050
 CREATE OR REPLACE MACRO _dcast(d, f) AS _valid_birthdate(try_strptime(d, f));
 CREATE OR REPLACE MACRO _parse_birthdate(b) AS COALESCE(_dcast(b,'%Y-%m-%d'), _dcast(b,'%d-%m-%Y'), _dcast(b, '%m-%d-%Y'), _dcast(b, '%Y%m%d'), _dcast(b, '%d%m%Y'), _dcast(b, '%m%d%Y'), _parse_subdate(b));
 CREATE OR REPLACE MACRO _dclean(s) AS s.regexp_replace('[^0-9]+', '-', 'g').trim('-').left(10);
-CREATE OR REPLACE MACRO phbirthdate(s) AS COALESCE(_parse_birthdate(_dclean(s)), [NULL, NULL, NULL]);
+CREATE OR REPLACE MACRO phbirthdate_strict(s) AS _parse_birthdate(_dclean(s));
+CREATE OR REPLACE MACRO phbirthdate(s) AS COALESCE(phbirthdate_strict(s), [NULL, NULL, NULL]);
 
 
 
