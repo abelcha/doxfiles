@@ -22,7 +22,31 @@ CREATE OR REPLACE MACRO duckdb_master() AS TABLE(
             type: 'view',
             sql
     );
-    
+
+
+
+
+
+CREATE OR REPLACE MACRO _datepair(a, b) AS (
+CASE
+      WHEN a BETWEEN 1900 AND 2050 AND b BETWEEN 1 AND 12 THEN [a, b, NULL]
+      WHEN a BETWEEN 1 AND 12 AND b BETWEEN 1800 AND 2050 THEN [b, a, NULL]
+      WHEN a BETWEEN 13 AND 31 AND b BETWEEN 1 AND 12 THEN [NULL, b, a]
+      WHEN a BETWEEN 1 AND 12 AND b BETWEEN 1 AND 31 THEN [NULL, a, b]
+      ELSE NULL
+    END
+);
+CREATE OR REPLACE MACRO _extract_num(str, x) AS try_cast(regexp_extract(str, '^[^\d]*(\d{1,4})[^\d](\d{1,4})[^\d]*$', x) as int);
+CREATE OR REPLACE MACRO _parse_subdate(str) AS _datepair(_extract_num(str, 1), _extract_num(str, 2));
+CREATE OR REPLACE MACRO _valid_birthdate(d) AS if (year(d) BETWEEN 1900 AND 2050,[year(d), month(d), day(d)], if(month(d)>0, [null, month(d), day(d)], null));
+CREATE OR REPLACE MACRO _dcast(d, f) AS _valid_birthdate(try_strptime(d, f));
+CREATE OR REPLACE MACRO _parse_birthdate(b) AS COALESCE(_dcast(b,'%Y-%m-%d'), _dcast(b,'%d-%m-%Y'), _dcast(b, '%m-%d-%Y'), _dcast(b, '%Y%m%d'), _dcast(b, '%d%m%Y'), _dcast(b, '%m%d%Y'), _parse_subdate(b));
+CREATE OR REPLACE MACRO _dclean(s) AS s.regexp_replace('[^0-9]+', '-', 'g').trim('-').left(10);
+CREATE OR REPLACE MACRO phbirthdate(s) AS COALESCE(_parse_birthdate(_dclean(s)), [NULL, NULL, NULL]);
+
+
+
+
 CREATE OR REPLACE MACRO is_mobile (a) AS IFNULL(a[4] = '7' OR a[4] = '6', false);
 
 CREATE OR REPLACE MACRO phclean(a) AS COALESCE(TRY_CAST(a AS VARCHAR), '').regexp_replace('[^0-9+]', '', 'g').regexp_replace('^(\+?)0+', '\1');
