@@ -17,7 +17,7 @@ alias chme "chown -R abel:staff"
 alias rgphone 'rrg -w "$regphonefr"'
 alias from reader
 # alias dev "bun run dev"
-alias pv "command pv --average-rate --progress --bits"
+alias pv "/opt/homebrew/bin/pv --average-rate --progress --bits"
 alias ass applesauce
 alias cdp "cd (pwd)"
 alias nv nvim

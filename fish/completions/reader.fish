@@ -1,14 +1,14 @@
 # Fish completion for reader
 complete -c reader -f
-complete -c reader -f -n "__fish_use_subcommand" -a read_csv -d "Read data using read_csv"
-complete -c reader -f -n "__fish_use_subcommand" -a read_json -d "Read data using read_json"
-complete -c reader -f -n "__fish_use_subcommand" -a read_ndjson -d "Read data using read_ndjson"
-complete -c reader -f -n "__fish_use_subcommand" -a read_parquet -d "Read data using read_parquet"
-complete -c reader -f -n "__fish_use_subcommand" -a read_xlsx -d "Read data using read_xlsx"
-complete -c reader -f -n "__fish_use_subcommand" -a read_lance -d "Read data using read_lance"
-complete -c reader -f -n "__fish_use_subcommand" -a read_vortex -d "Read data using read_vortex"
-complete -c reader -f -n "__fish_use_subcommand" -a fish_completion -d "Generate Fish shell completion script"
-complete -c reader -f -n "__fish_use_subcommand" -a list_extensions -d "List functions that auto-load extensions"
+complete -c reader -f -n __fish_use_subcommand -a read_csv -d "Read data using read_csv"
+complete -c reader -f -n __fish_use_subcommand -a read_json -d "Read data using read_json"
+complete -c reader -f -n __fish_use_subcommand -a read_ndjson -d "Read data using read_ndjson"
+complete -c reader -f -n __fish_use_subcommand -a read_parquet -d "Read data using read_parquet"
+complete -c reader -f -n __fish_use_subcommand -a read_xlsx -d "Read data using read_xlsx"
+complete -c reader -f -n __fish_use_subcommand -a read_lance -d "Read data using read_lance"
+complete -c reader -f -n __fish_use_subcommand -a read_vortex -d "Read data using read_vortex"
+complete -c reader -f -n __fish_use_subcommand -a fish_completion -d "Generate Fish shell completion script"
+complete -c reader -f -n __fish_use_subcommand -a list_extensions -d "List functions that auto-load extensions"
 complete -c reader -f -n "__fish_seen_subcommand_from read_csv" -l all-varchar -d "Skip type detection and assume all columns are of type VARCHAR"
 complete -c reader -f -n "__fish_seen_subcommand_from read_csv" -l allow-quoted-nulls -d "Allow the conversion of quoted values to NULL values"
 complete -c reader -f -n "__fish_seen_subcommand_from read_csv" -l auto-detect -d "Auto detect CSV parameters"
@@ -361,6 +361,7 @@ complete -c reader -f -k -n "not commandline -opc | string match -rq -- '--to|--
 complete -c reader -f -k -n "not commandline -opc | string match -rq -- '--to|--format'" -l having -d "Filter groups with a HAVING clause" -r -a "(__fish_reader_complete_columns)"
 complete -c reader -f -k -n "not commandline -opc | string match -rq -- '--to|--format'" -l count-by -d "Count rows grouped by column" -r -a "(__fish_reader_complete_columns)"
 complete -c reader -f -n "not commandline -opc | string match -rq -- '--to|--format'" -l summarize -d "Show summary statistics of the result"
+complete -c reader -f -n "not commandline -opc | string match -rq -- '--to|--format'" -l analyze -d analyze
 complete -c reader -f -n "not commandline -opc | string match -rq -- '--to|--format'" -l sample-size -d "Number of lines to scan for auto-detection" -r
 complete -c reader -f -n "not commandline -opc | string match -rq -- '--to|--format'" -l limit -s l -d "Limit the number of rows returned" -r
 complete -c reader -f -n "not commandline -opc | string match -rq -- '--to|--format'" -l union-by-name -d "Whether to union files by name"

@@ -77,6 +77,7 @@ complete --command bunx --wraps command
 complete --command uvx --wraps command
 complete --command duckdb@1.4 --wraps duckdb
 complete -c bun -n "__fish_seen_subcommand_from run" --force-files
+complete -c bun -n __fish_no_subcommands -x -a '(complete -C "npm run " )'
 complete -c run --force-files
 complete -c bak --force-files
 complete -c '*' -n __cursor_token_match_file_path --force-files
