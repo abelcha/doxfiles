@@ -20,6 +20,18 @@ function __scp_remote_path_prefix
     and echo $path_prefix[2]
 end
 
+function __scp_ssh_completion_args
+    # Reuse a control socket so repeated completion lookups avoid a full SSH
+    # handshake. Also override the global `RequestTTY force` setting because
+    # these lookups are noninteractive.
+    printf '%s\n' \
+        -T \
+        -o RequestTTY=no \
+        -o ControlMaster=auto \
+        -o ControlPersist=10m \
+        -o ControlPath=~/.ssh/cm-%C
+end
+
 function __fish_no_scp_remote_specified
     set -l tokens (commandline -t)
     # can't use `for token in tokens[1..-2]` due to https://github.com/fish-shell/fish-shell/issues/4897
@@ -59,15 +71,15 @@ complete -c scp -d "Remote Path" -f -n "commandline -ct | string match -e ':'" -
             end
         end
         if $__fish_scp_sftp
-            echo "yess sftp" >> /tmp/scp.logs
-            echo command ssh -p(__scp2ssh_port_number) -o "BatchMode yes" (__scp_remote_target) command\ ls\ -dp\ (__scp_remote_path_prefix)\* 2>/dev/null >> /tmp/scp.logs
+            echo "yexxxxxss sftp" >> /tmp/scp.logs
+             esc command ssh (__scp_ssh_completion_args) -p(__scp2ssh_port_number) -o "BatchMode yes" (__scp_remote_target) command\ ls\ -dp\ (__scp_remote_path_prefix)\*  >> /tmp/scp.logs
             
-            command ssh -p(__scp2ssh_port_number) -o "BatchMode yes" (__scp_remote_target) command\ ls\ -dp\ (__scp_remote_path_prefix | string unescape)\* 2>/dev/null | 
+            command ssh (__scp_ssh_completion_args) -p(__scp2ssh_port_number) -o "BatchMode yes" (__scp_remote_target) command\ ls\ -dp\ (__scp_remote_path_prefix)\* 2>/dev/null | 
             string replace \\r ""
         else
             echo "not sftp" >> /tmp/scp.logs
 
-            command ssh -p(__scp2ssh_port_number) -o "BatchMode yes" (__scp_remote_target) command\ ls\ -dp\ (__scp_remote_path_prefix | string unescape)\* 2>/dev/null |
+            command ssh (__scp_ssh_completion_args) -p(__scp2ssh_port_number) -o "BatchMode yes" (__scp_remote_target) command\ ls\ -dp\ (__scp_remote_path_prefix | string unescape)\* 2>/dev/null |
             string escape -n
         end
     )
