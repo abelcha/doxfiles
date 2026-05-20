@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 
-import { $, Glob } from "bun";
+import { $ } from "bun";
 import { existsSync } from "node:fs";
 import { launchTablens } from "/me/dev/tablens";
 import { DuckDBInstance } from "@duckdb/node-api";
@@ -191,6 +191,25 @@ export const smartAtToStar = (input: string): string => {
   return result;
 };
 
+/**
+ * Parse file:alias pattern, returning [path, alias] or [path, undefined]
+ * Alias is extracted from suffix like 'file.parquet:x' or 'file.csv:alias'
+ */
+export const parseFileAlias = (input: string): [string, string | undefined] => {
+  // Check if the last colon-separated part looks like an alias (short identifier, not a path)
+  const parts = input.split(":");
+  if (parts.length < 2) return [input, undefined];
+
+  const lastPart = parts[parts.length - 1];
+  // If last part is short (likely alias), treat as alias; otherwise it's part of the path
+  const isAlias = lastPart.length <= 20 && !/[./\\]/.test(lastPart);
+  if (isAlias) {
+    const path = parts.slice(0, -1).join(":");
+    return [path, lastPart];
+  }
+  return [input, undefined];
+};
+
 export const highlightSql = (sql: string): string => {
   const ANSI_RESET = "\x1b[0m";
   const ANSI_BOLD = "\x1b[1m";
@@ -290,9 +309,11 @@ export const isExpressionSource = (src: string): boolean => {
   if (src.includes("(") || src.includes("{")) return true;
   if (src.includes("*") || src.includes("?") || src.includes("@")) return false; // Wildcards = files
 
+  // Strip :alias suffix before checking extension
+  const [pathWithoutAlias] = parseFileAlias(src);
   // Check for extension
-  const hasExtension = /\.[a-z0-9]+$/i.test(src);
-  if (!hasExtension && !existsSync(src)) return true;
+  const hasExtension = /\.[a-z0-9]+$/i.test(pathWithoutAlias);
+  if (!hasExtension && !existsSync(pathWithoutAlias)) return true;
 
   return false;
 };
@@ -1884,10 +1905,10 @@ async function runAnalyze(query: string): Promise<void> {
         const cntPadded = pad(tc(PALETTE.number, cntStr), ENUM_CNT_W, "r");
         console.log(
           detailIndent +
-            pad(tc(PALETTE.value, valStr), ENUM_VAL_W) + "  " +
-            propBar(pct, ENUM_BAR_W) + "  " +
-            pad(tc(PALETTE.label, `${(pct * 100).toFixed(1)}%`), PCT_SLOT, "r") + "  " +
-            cntPadded,
+          pad(tc(PALETTE.value, valStr), ENUM_VAL_W) + "  " +
+          propBar(pct, ENUM_BAR_W) + "  " +
+          pad(tc(PALETTE.label, `${(pct * 100).toFixed(1)}%`), PCT_SLOT, "r") + "  " +
+          cntPadded,
         );
       }
     } else if (NUMERIC_TYPES.test(type)) {
@@ -1909,9 +1930,9 @@ async function runAnalyze(query: string): Promise<void> {
       const mx = String(st.mx ?? "·");
       console.log(
         detailIndent +
-          `${tc(PALETTE.label, "min")} ${tc(PALETTE.value, mn)}` +
-          tc(PALETTE.rule, "  →  ") +
-          `${tc(PALETTE.label, "max")} ${tc(PALETTE.value, mx)}`,
+        `${tc(PALETTE.label, "min")} ${tc(PALETTE.value, mn)}` +
+        tc(PALETTE.rule, "  →  ") +
+        `${tc(PALETTE.label, "max")} ${tc(PALETTE.value, mx)}`,
       );
     } else {
       const mn = st.mn == null ? "·" : String(st.mn);
@@ -1930,8 +1951,8 @@ async function runAnalyze(query: string): Promise<void> {
       const mxS = clip(mx, half);
       console.log(
         detailIndent +
-          `${tc(PALETTE.label, "min")} ${tc(PALETTE.value, mnS)}` + sep +
-          `${tc(PALETTE.label, "max")} ${tc(PALETTE.value, mxS)}` + rightExtras,
+        `${tc(PALETTE.label, "min")} ${tc(PALETTE.value, mnS)}` + sep +
+        `${tc(PALETTE.label, "max")} ${tc(PALETTE.value, mxS)}` + rightExtras,
       );
     }
   }
@@ -1987,9 +2008,14 @@ export function buildQuery(parsed: ParsedArgs): string {
   const fileArg = files.length === 1 ? files[0] : files;
   let callStr = "";
   let magicDbAlias = "";
+  let fileAlias: string | undefined = undefined;
 
   if (files.length === 1 && typeof fileArg === "string") {
-    const parts = fileArg.split(".");
+    // Parse file:alias pattern first
+    const [filePath, parsedAlias] = parseFileAlias(fileArg);
+    if (parsedAlias) fileAlias = parsedAlias;
+
+    const parts = filePath.split(".");
     // Detect magic source extension (e.g., soccer.db or spotify.sqlite3.artists)
     const dbExtIdx = parts.findIndex((p) =>
       /^(db|ddb|duckdb|vscdb|sqlite3|sqlite)$/i.test(p),
@@ -2009,13 +2035,18 @@ export function buildQuery(parsed: ParsedArgs): string {
       } else {
         callStr = `(FROM duckdb_tables() SELECT table_name, sql WHERE database_name = '${alias}')`;
       }
-    } else if (isExpressionSource(fileArg)) {
-      callStr = smartAtToStar(smartBraceToParen(fileArg));
+    } else if (isExpressionSource(filePath)) {
+      callStr = smartAtToStar(smartBraceToParen(filePath));
     } else {
-      callStr = fnSerial(command, fileArg, options);
+      callStr = fnSerial(command, filePath, options);
     }
   } else {
     callStr = fnSerial(command, fileArg, options);
+  }
+
+  // Append alias if provided (e.g., file.parquet:alias)
+  if (fileAlias && !callStr.includes(" AS ")) {
+    callStr += ` AS ${fileAlias}`;
   }
 
   const sqlTail = smartAtToStar(
@@ -2041,8 +2072,13 @@ export function buildQuery(parsed: ParsedArgs): string {
   const detectExtensions = (sql: string): void => {
     const calledFns = [...sql.matchAll(/\b([a-zA-Z_]\w*)\s*\(/g)].map((m) => m[1].toLowerCase());
     for (const [pattern, extInfo] of Object.entries(FN_TO_EXTENSION)) {
-      const glob = new Glob(pattern.toLowerCase());
-      if (calledFns.some((fn) => glob.match(fn))) {
+      const pat = pattern.toLowerCase();
+      if (calledFns.some((fn) => {
+        if (!pat.includes('*')) return fn === pat;
+        // Convert glob * to regex: st_* → /^st_.*$/
+        const regex = new RegExp('^' + pat.replace(/\*/g, '.*') + '$');
+        return regex.test(fn);
+      })) {
         extensionsToLoad.add(extInfo.extension);
       }
     }
@@ -2059,6 +2095,8 @@ export function buildQuery(parsed: ParsedArgs): string {
   if (sqlOptions.having) detectExtensions(sqlOptions.having);
   if (sqlOptions.sort) detectExtensions(sqlOptions.sort);
   for (const cte of ctes) detectExtensions(cte);
+  if (sqlOptions.on) detectExtensions(sqlOptions.on);
+  if (sqlOptions.using) detectExtensions(sqlOptions.using);
   // console.log({ format });
   if (format?.toLowerCase() === "lance") extensionsToLoad.add("lance");
   if (format?.toLowerCase() === "vortex") extensionsToLoad.add("vortex");
@@ -2132,11 +2170,21 @@ export function buildQuery(parsed: ParsedArgs): string {
     const upperJ = j.trim().toUpperCase();
     const hasJoinKeyword = /^(JOIN|LEFT|RIGHT|INNER|OUTER|CROSS|NATURAL|LATERAL|FULL|ANTI|SEMI|POSITIONAL)\b/.test(upperJ);
 
+    // Parse file:alias pattern for join sources
+    const [joinPath, joinAlias] = parseFileAlias(j);
+    let processed = smartBraceToParen(joinPath);
+
     // Wrap file paths inside the join expression — use bare quoted path (DuckDB auto-detects format)
-    const processed = smartBraceToParen(j).replace(
+    processed = processed.replace(
       /(?<=^|\bJOIN\s+)(\S+\.(?:csv|tsv|txt|json|jsonl|ndjson|parquet|xlsx|lance|vortex))\b/i,
       (_, path) => `'${smartAtToStar(path)}'`,
     );
+
+    // Append alias if provided
+    if (joinAlias && !processed.includes(" AS ")) {
+      processed += ` AS ${joinAlias}`;
+    }
+
     const transformed = smartAtToStar(processed);
     // Append USING/ON clause if set and this join doesn't already have one
     const upperTransformed = transformed.toUpperCase();
@@ -2205,9 +2253,8 @@ export function buildQuery(parsed: ParsedArgs): string {
       selectQuery = `${selectClause} FROM ${callStr}${joinClauses}${modifiers}`;
     }
   } else {
-    selectQuery = `${baseSelect} ${
-      callStr ? `FROM ${callStr}` : ""
-    }${joinClauses}${modifiers}${sqlTail ? " " + sqlTail : ""}`;
+    selectQuery = `${baseSelect} ${callStr ? `FROM ${callStr}` : ""
+      }${joinClauses}${modifiers}${sqlTail ? " " + sqlTail : ""}`;
   }
 
   // Add SUMMARIZE prefix if requested
@@ -2369,6 +2416,7 @@ async function main() {
     return;
   }
 
+
   const parsed = parseArgs(args);
   let {
     command,
@@ -2384,6 +2432,10 @@ async function main() {
     format,
   } = parsed;
 
+  if (parsed.tui && args.length === 2) {
+    await launchTablens({ file: files[0] });
+    return;
+  }
   // If piped into another process, default to CSV format
   if (!isTTY && !format && !toPath && !parsed.sqlOptions.analyze) {
     format = "csv";
@@ -2488,7 +2540,7 @@ async function main() {
     } else if (toPath || format) {
       // Stream live so the progress bar renders in real time.
       // Parent ignores SIGINT so the child gets it cleanly and we can observe its exit.
-      const onSigint = () => {};
+      const onSigint = () => { };
       process.on("SIGINT", onSigint);
       const spawnLive = (initArg: string[]) =>
         Bun.spawn(["script", "-q", "/dev/null", "duckdb", ...initArg, ...cmdArgs], {
@@ -2589,10 +2641,10 @@ async function main() {
             if (countResult) {
               const total = parseInt(countResult.trim(), 10);
               if (total > parseInt(rows)) {
-                totalStr = total >= 1e6 ? `${(total/1e6).toFixed(1)}M` : total >= 1e3 ? `${(total/1e3).toFixed(1)}k` : String(total);
+                totalStr = total >= 1e6 ? `${(total / 1e6).toFixed(1)}M` : total >= 1e3 ? `${(total / 1e3).toFixed(1)}k` : String(total);
               }
             }
-          } catch {}
+          } catch { }
         }
         const rowLabel = totalStr
           ? `${c("cyan", rows)}${dim("/")}${c("yellow", totalStr)} ${dim("rows")}`
