@@ -39,16 +39,17 @@ abbr -a -- \.5 awk '{ print \$5 }'
 abbr -a -- dr 'dx -s=live'
 abbr -a -- sqb sqlitebiter
 # abbr -a -- pi 'pip install -r requirements.txt'
+abbr -a -- pp "pi -p"
 abbr -a -- ss 'set -S'
 abbr -a -- bs 'brew search --eval-all --desc'
 abbr -a -- bi 'bun install'
 abbr -a -- do doctl
 abbr -a -- bn 'brew install'
-
-abbr -a -- abr "$EDITOR $__fish_config_dir/conf.d/abbr.fish && _reload_fish"
-abbr -a -- als "$EDITOR $__fish_config_dir/conf.d/aliases.fish && _reload_fish"
-abbr -a -- kb "$EDITOR $__fish_config_dir/functions/fish_user_key_bindings.fish && _reload_fish"
-abbr -a -- cad "$EDITOR $__fish_config_dir/../Caddyfile && caddy validate --config /me/config/Caddyfile && brew services restart caddy"
+set -l EDITOR (coalesce $EDITOR 'mi')
+abbr -a -- abr "$EDITOR /me/config/fish/conf.d/abbr.fish && _reload_fish"
+abbr -a -- als "$EDITOR /me/config/fish/conf.d/aliases.fish && _reload_fish"
+abbr -a -- kb "$EDITOR /me/config/fish/functions/fish_user_key_bindings.fish && _reload_fish"
+abbr -a -- cad "$EDITOR /me/config/Caddyfile && caddy validate --config /me/config/Caddyfile && brew services restart caddy"
 
 abbr -a -- pipi 'uv pip install -r requirements.txt'
 abbr -a -- fc 'mi /fish/config.fish && _reload_fish'
