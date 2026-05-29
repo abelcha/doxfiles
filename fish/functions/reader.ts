@@ -329,6 +329,7 @@ export const EXT_TO_CMD: Record<string, string> = {
   lance: "read_lance",
   vortex: "read_vortex",
   pbf: "osmium_read",
+  geojson: "st_read",
 };
 
 /**
