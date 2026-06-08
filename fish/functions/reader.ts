@@ -2570,7 +2570,7 @@ async function main() {
       const output: string[] = [];
       for (const line of lines) {
         const stripped = line.replace(/\x1b\[[0-9;]*m/g, "").replace(/\x1b\][^\x07]*\x07?/g, "").replace(/\r/g, "").trim();
-        const rowMatch = stripped.match(/^(\d+)\s+rows?\s*(?:\((\d+)\s+shown\))?.*?(\d+)\s+columns?/);
+        const rowMatch = stripped.match(/^(\d+)\s+rows?(?:\s+\((\d+)\s+shown\))?(?:\s+(\d+)\s+columns?)?$/);
         const timeMatch = stripped.match(/^Run Time.*?real\s+([\d.]+)/);
         if (rowMatch) {
           rows = rowMatch[1]; shown = rowMatch[2] || rows; cols = rowMatch[3];
