@@ -2217,6 +2217,8 @@ export function buildQuery(parsed: ParsedArgs): string {
         // col~=val → col ~ '.*val.*'  (contains regex shorthand)
         const containsMatch = trimmed.match(/^(\w+)\s*~=\s*(.+)$/);
         if (containsMatch) return `${containsMatch[1]} ~ '.*${containsMatch[2]}.*'`;
+        const containsIlike = trimmed.match(/^(\w+)\s*%=\s*(.+)$/);
+        if (containsIlike) return `${containsIlike[1]} ILIKE '%${containsIlike[2]}%'`;
         return smartAtToStar(autoQuoteWhere(smartBraceToParen(w)));
       })
       .join(" AND ")}`;
