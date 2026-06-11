@@ -648,17 +648,13 @@ export const COMMANDS_DOCS: Record<string, Record<string, string>> = {
       "Allow the conversion of quoted values to NULL values. @default true",
     auto_detect: "Auto detect CSV parameters. @default true",
     auto_type_candidates:
-      "Types that the sniffer uses when detecting column types. @default ['VARCHAR', 'BIGINT', 'DOUBLE', 'DATE', 'TIME', 'TIMESTAMP']",
+      "Types that the sniffer uses when detecting column types. @default ['NULL', 'BOOLEAN', 'BIGINT', 'DOUBLE', 'TIME', 'DATE', 'TIMESTAMP', 'VARCHAR']",
     buffer_size:
       "Size of the buffers used to read files, in bytes. @default 16 * max_line_size",
-    column_names: "Alias for names. Column names, as a list. @default []",
-    column_types:
-      "Alias for types. Column types, as either a list (by position) or a struct (by name). @default {} or []",
     columns:
-      "Column names and types, as a struct. Using this option disables auto detection. @default {}",
+      "Column names and types, as a struct (e.g., {'col1': 'INTEGER', 'col2': 'VARCHAR'}). Using this option disables auto detection. @default {}",
     comment: "Character used to initiate comments. @default ''",
-    compression: "Method used to compress CSV files. @default 'auto'",
-    dateformat: "Date format used when parsing and writing dates. @default ''",
+    dateformat: "Date format used when parsing dates. @default 'iso'",
     decimal_separator: "Decimal separator for numbers. @default '.'",
     delim:
       "Delimiter character used to separate columns. Alias for sep. @default ','",
@@ -669,16 +665,12 @@ export const COMMANDS_DOCS: Record<string, Record<string, string>> = {
     escape:
       "String used to escape the quote character within quoted values. @default '\"'",
     filename:
-      "Add path of the containing file to each row to a column named 'filename'. @default false",
-    files_to_sniff:
-      "Number of lines at the top of the file to scan for auto-detection. @default 20480",
+      "Add path of the containing file to each row to a column named 'filename'. Since v1.3.0 this is added automatically as a virtual column. @default false",
     force_not_null:
       "Do not match values in the specified columns against the NULL string. @default []",
     header: "First line of each file contains the column names. @default false",
     hive_partitioning:
-      "Interpret the path as a Hive partitioned path. @default false",
-    hive_types: "Hive types. @default -",
-    hive_types_autocast: "Hive types autocast. @default true",
+      "Whether or not to interpret the path as a Hive partitioned path. @default (auto-detected)",
     ignore_errors: "Ignore any parsing errors encountered. @default false",
     max_line_size:
       "Maximum line size, in bytes. Alias: maximum_line_size. @default 2000000",
@@ -695,66 +687,88 @@ export const COMMANDS_DOCS: Record<string, Record<string, string>> = {
     parallel: "Use the parallel CSV reader. @default true",
     quote: "String used to quote values. @default '\"'",
     rejects_limit:
-      "Upper limit on the number of faulty lines per file that are recorded. @default 0",
+      "Upper limit on the number of faulty lines per file that are recorded in the rejects table. @default 0",
     rejects_scan:
       "Name of the temporary table where information on faulty scans is stored. @default 'reject_scans'",
     rejects_table:
       "Name of the temporary table where information on faulty lines is stored. @default 'reject_errors'",
-    sample_size: "Number of sample lines for auto detection. @default -1",
+    sample_size: "Number of sample lines for auto detection of parameters. @default 20480",
     sep: "Delimiter character used to separate columns. Alias for delim. @default ','",
     skip: "Number of lines to skip at the start of each file. @default 0",
     store_rejects:
       "Skip any lines with errors and store them in the rejects table. @default false",
     strict_mode:
       "Enforces the strictness level of the CSV Reader. @default true",
-    thousands: "The thousands separator. @default ''",
+    thousands: "Character used to identify thousands separators in numeric values. @default ''",
     timestampformat:
-      "Timestamp format used when parsing and writing timestamps. @default ''",
+      "Timestamp format used when parsing timestamps. @default 'iso'",
     types:
       "Column types, as either a list (by position) or a struct (by name). @default {} or []",
     union_by_name:
-      "Whether the columns of multiple files should be combined by name. @default false (but true in reader if multiple files)",
+      "Align columns from different files by column name instead of position. @default false",
   },
   read_json: {
     auto_detect:
       "Whether to auto-detect the names of the keys and data types. @default true",
-    compression: "Compression method (gzip, zstd, etc.). @default 'auto'",
-    convert_strings_to_integers: "Convert strings to integers. @default false",
+    columns:
+      "A struct that specifies the key names and value types (e.g., {key1: 'INTEGER', key2: 'VARCHAR'}). If auto_detect is enabled these will be inferred. @default (empty)",
+    convert_strings_to_integers: "Convert strings representing integer values to numerical type. @default false",
+    dateformat: "Date format used when parsing dates. @default 'iso'",
+    field_appearance_threshold:
+      "Threshold for field appearance ratio. If average over fields is less than this, defaults to MAP type. @default 0.1",
     format:
-      "JSON format ('auto', 'newline_delimited', 'array'). @default 'auto'",
-    ignore_errors: "Ignore parse errors. @default false",
-    maximum_object_size: "Maximum object size in bytes. @default 16777216",
-    sample_size: "Number of sample objects for detection. @default -1",
+      "JSON format ('auto', 'unstructured', 'newline_delimited', 'array'). @default 'auto'",
+    ignore_errors: "Ignore parse errors (only possible when format is 'newline_delimited'). @default false",
+    map_inference_threshold:
+      "Threshold for number of columns before inferring MAP type instead of STRUCT. Set to -1 to disable MAP inference. @default 200",
+    maximum_depth: "Maximum nesting depth for automatic schema detection. Set to -1 for full detection. @default -1",
+    maximum_object_size: "Maximum size of a JSON object (in bytes). @default 16777216",
+    maximum_sample_files: "Maximum number of JSON files sampled for auto-detection. @default 32",
+    records: "Whether JSON contains records that should be unpacked into columns ('auto', 'true', 'false'). @default 'auto'",
+    sample_size: "Number of sample objects for automatic type detection. Set to -1 to scan entire file. @default 20480",
+    timestampformat: "Timestamp format used when parsing timestamps. @default 'iso'",
     union_by_name:
-      "Whether the columns of multiple files should be combined by name. @default false (but true in reader if multiple files)",
+      "Whether the schemas of multiple JSON files should be unified. @default false",
   },
   read_ndjson: {
     auto_detect:
       "Whether to auto-detect the names of the keys and data types. @default true",
-    compression: "Compression method (gzip, zstd, etc.). @default 'auto'",
-    convert_strings_to_integers: "Convert strings to integers. @default false",
+    columns:
+      "A struct that specifies the key names and value types (e.g., {key1: 'INTEGER', key2: 'VARCHAR'}). @default (empty)",
+    convert_strings_to_integers: "Convert strings representing integer values to numerical type. @default false",
+    dateformat: "Date format used when parsing dates. @default 'iso'",
+    field_appearance_threshold:
+      "Threshold for field appearance ratio. @default 0.1",
     format:
-      "JSON format ('auto', 'newline_delimited', 'array'). @default 'auto'",
+      "JSON format ('auto', 'unstructured', 'newline_delimited', 'array'). @default 'newline_delimited'",
     ignore_errors: "Ignore parse errors. @default false",
-    maximum_object_size: "Maximum object size in bytes. @default 16777216",
-    sample_size: "Number of sample objects for detection. @default -1",
+    map_inference_threshold:
+      "Threshold for number of columns before inferring MAP type. Set to -1 to disable. @default 200",
+    maximum_depth: "Maximum nesting depth for schema detection. Set to -1 for full detection. @default -1",
+    maximum_object_size: "Maximum size of a JSON object (in bytes). @default 16777216",
+    maximum_sample_files: "Maximum number of JSON files sampled for auto-detection. @default 32",
+    records: "Whether JSON contains records ('auto', 'true', 'false'). @default 'auto'",
+    sample_size: "Number of sample objects for detection. Set to -1 to scan entire file. @default 20480",
+    timestampformat: "Timestamp format used when parsing timestamps. @default 'iso'",
     union_by_name:
-      "Whether the columns of multiple files should be combined by name. @default false (but true in reader if multiple files)",
+      "Whether the schemas of multiple JSON files should be unified. @default false",
   },
   read_parquet: {
-    binary_as_string: "Load binary columns as strings. @default false",
-    can_have_nan:
-      "Whether or not to include the can_have_nan column. @default false",
-    compression: "Compression method (snappy, zstd, etc.). @default 'snappy'",
-    filename: "Include filename column. @default false",
-    hive_partitioning: "Interpret path as Hive partitioned path. @default true",
+    binary_as_string: "Load binary columns as strings (for legacy Parquet files). @default false",
+    encryption_config: "Configuration for Parquet encryption. @default -",
+    file_row_number: "Whether to include the file_row_number column. @default false",
+    filename:
+      "Whether to include filename column. Since v1.3.0 this is added automatically as a virtual column. @default false",
+    hive_partitioning: "Whether or not to interpret the path as a Hive partitioned path. @default (auto-detected)",
+    schema:
+      "Read Parquet file with supplied schema (requires field IDs). Cannot be combined with union_by_name. @default NULL",
     union_by_name: "Union multiple schemas by name. @default false",
   },
   read_xlsx: {
-    header: "Treat first row as column names. @default true",
-    sheet: "Name of the sheet to read. @default first sheet",
     all_varchar: "Read all cells as VARCHARs. @default false",
+    header: "Treat first row as column names. @default true",
     range: "Range of cells to read (e.g., 'A1:B2').",
+    sheet: "Name of the sheet to read. @default first sheet",
   },
   read_lance: {},
   read_vortex: {},
@@ -1147,13 +1161,14 @@ function generateFishCompletion() {
         `complete -c ${bin} -f -n "__fish_seen_subcommand_from ${cmd}" -l ${opt.replace(
           /_/g,
           "-",
-        )}${suggestions} -d "${description}"`,
+        )}${suggestions} -d "[${cmd}] ${description}"`,
       );
     }
   }
 
   // Auto-detection: allow flags for file extensions
   for (const [ext, cmd] of Object.entries(EXT_TO_CMD)) {
+    if (!COMMANDS_DOCS[cmd]) continue; // Skip if no docs available
     for (const [opt, doc] of Object.entries(COMMANDS_DOCS[cmd])) {
       const description = doc.split(".")[0].replace(/"/g, '\\"');
       const suggestions = FLAG_SUGGESTIONS[opt]
@@ -1164,7 +1179,7 @@ function generateFishCompletion() {
         `complete -c ${bin} -f -n "commandline -opc | string match -rg '\\\\.${ext}\\$'" -l ${opt.replace(
           /_/g,
           "-",
-        )}${suggestions} -d "${description}"`,
+        )}${suggestions} -d "[${cmd}] ${description}"`,
       );
     }
   }
