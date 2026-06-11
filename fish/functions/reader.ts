@@ -646,14 +646,14 @@ export type ParsedArgs = {
 export const COMMANDS_DOCS: Record<string, Record<string, string>> = {
   read_csv: {
     all_varchar:
-      "Skip type detection and assume all columns are of type VARCHAR. @default false",
+      "Skip type detection and assume all columns are of type VARCHAR. @type boolean @default false",
     allow_quoted_nulls:
-      "Allow the conversion of quoted values to NULL values. @default true",
-    auto_detect: "Auto detect CSV parameters. @default true",
+      "Allow the conversion of quoted values to NULL values. @type boolean @default true",
+    auto_detect: "Auto detect CSV parameters. @type boolean @default true",
     auto_type_candidates:
       "Types that the sniffer uses when detecting column types. @default ['NULL', 'BOOLEAN', 'BIGINT', 'DOUBLE', 'TIME', 'DATE', 'TIMESTAMP', 'VARCHAR']",
     buffer_size:
-      "Size of the buffers used to read files, in bytes. @default 16 * max_line_size",
+      "Size of the buffers used to read files, in bytes. @type number @default 16 * max_line_size",
     columns:
       "Column names and types, as a struct (e.g., {'col1': 'INTEGER', 'col2': 'VARCHAR'}). Using this option disables auto detection. @default {}",
     comment: "Character used to initiate comments. @default ''",
@@ -668,114 +668,122 @@ export const COMMANDS_DOCS: Record<string, Record<string, string>> = {
     escape:
       "String used to escape the quote character within quoted values. @default '\"'",
     filename:
-      "Add path of the containing file to each row to a column named 'filename'. Since v1.3.0 this is added automatically as a virtual column. @default false",
+      "Add path of the containing file to each row to a column named 'filename'. Since v1.3.0 this is added automatically as a virtual column. @type boolean @default false",
     force_not_null:
       "Do not match values in the specified columns against the NULL string. @default []",
-    header: "First line of each file contains the column names. @default false",
+    header: "First line of each file contains the column names. @type boolean @default false",
     hive_partitioning:
-      "Whether or not to interpret the path as a Hive partitioned path. @default (auto-detected)",
-    ignore_errors: "Ignore any parsing errors encountered. @default false",
+      "Whether or not to interpret the path as a Hive partitioned path. @type boolean @default (auto-detected)",
+    ignore_errors: "Ignore any parsing errors encountered. @type boolean @default false",
     max_line_size:
-      "Maximum line size, in bytes. Alias: maximum_line_size. @default 2000000",
+      "Maximum line size, in bytes. Alias: maximum_line_size. @type number @default 2000000",
     maximum_line_size:
-      "Alias for max_line_size. Maximum line size, in bytes. @default 2000000",
+      "Alias for max_line_size. Maximum line size, in bytes. @type number @default 2000000",
     names: "Column names, as a list. Alias: column_names. @default []",
     new_line:
       "New line character(s). Options are '\\r', '\\n', or '\\r\\n'. @default ''",
     normalize_names:
-      "Normalize column names. This removes any non-alphanumeric characters. @default false",
+      "Normalize column names. This removes any non-alphanumeric characters. @type boolean @default false",
     null_padding:
-      "Pad the remaining columns on the right with NULL values when a line lacks columns. @default false",
+      "Pad the remaining columns on the right with NULL values when a line lacks columns. @type boolean @default false",
     nullstr: "Strings that represent a NULL value. Alias: null. @default ''",
-    parallel: "Use the parallel CSV reader. @default true",
+    parallel: "Use the parallel CSV reader. @type boolean @default true",
     quote: "String used to quote values. @default '\"'",
     rejects_limit:
-      "Upper limit on the number of faulty lines per file that are recorded in the rejects table. @default 0",
+      "Upper limit on the number of faulty lines per file that are recorded in the rejects table. @type number @default 0",
     rejects_scan:
       "Name of the temporary table where information on faulty scans is stored. @default 'reject_scans'",
     rejects_table:
       "Name of the temporary table where information on faulty lines is stored. @default 'reject_errors'",
-    sample_size: "Number of sample lines for auto detection of parameters. @default 20480",
+    sample_size: "Number of sample lines for auto detection of parameters. @type number @default 20480",
     sep: "Delimiter character used to separate columns. Alias for delim. @default ','",
-    skip: "Number of lines to skip at the start of each file. @default 0",
+    skip: "Number of lines to skip at the start of each file. @type number @default 0",
     store_rejects:
-      "Skip any lines with errors and store them in the rejects table. @default false",
+      "Skip any lines with errors and store them in the rejects table. @type boolean @default false",
     strict_mode:
-      "Enforces the strictness level of the CSV Reader. @default true",
+      "Enforces the strictness level of the CSV Reader. @type boolean @default true",
     thousands: "Character used to identify thousands separators in numeric values. @default ''",
     timestampformat:
       "Timestamp format used when parsing timestamps. @default 'iso'",
     types:
       "Column types, as either a list (by position) or a struct (by name). @default {} or []",
     union_by_name:
-      "Align columns from different files by column name instead of position. @default false",
+      "Align columns from different files by column name instead of position. @type boolean @default false",
   },
   read_json: {
     auto_detect:
-      "Whether to auto-detect the names of the keys and data types. @default true",
+      "Whether to auto-detect the names of the keys and data types. @type boolean @default true",
     columns:
       "A struct that specifies the key names and value types (e.g., {key1: 'INTEGER', key2: 'VARCHAR'}). If auto_detect is enabled these will be inferred. @default (empty)",
-    convert_strings_to_integers: "Convert strings representing integer values to numerical type. @default false",
+    convert_strings_to_integers: "Convert strings representing integer values to numerical type. @type boolean @default false",
     dateformat: "Date format used when parsing dates. @default 'iso'",
     field_appearance_threshold:
-      "Threshold for field appearance ratio. If average over fields is less than this, defaults to MAP type. @default 0.1",
+      "Threshold for field appearance ratio. If average over fields is less than this, defaults to MAP type. @type number @default 0.1",
     format:
       "JSON format ('auto', 'unstructured', 'newline_delimited', 'array'). @default 'auto'",
-    ignore_errors: "Ignore parse errors (only possible when format is 'newline_delimited'). @default false",
+    ignore_errors: "Ignore parse errors (only possible when format is 'newline_delimited'). @type boolean @default false",
     map_inference_threshold:
-      "Threshold for number of columns before inferring MAP type instead of STRUCT. Set to -1 to disable MAP inference. @default 200",
-    maximum_depth: "Maximum nesting depth for automatic schema detection. Set to -1 for full detection. @default -1",
-    maximum_object_size: "Maximum size of a JSON object (in bytes). @default 16777216",
-    maximum_sample_files: "Maximum number of JSON files sampled for auto-detection. @default 32",
+      "Threshold for number of columns before inferring MAP type instead of STRUCT. Set to -1 to disable MAP inference. @type number @default 200",
+    maximum_depth: "Maximum nesting depth for automatic schema detection. Set to -1 for full detection. @type number @default -1",
+    maximum_object_size: "Maximum size of a JSON object (in bytes). @type number @default 16777216",
+    maximum_sample_files: "Maximum number of JSON files sampled for auto-detection. @type number @default 32",
     records: "Whether JSON contains records that should be unpacked into columns ('auto', 'true', 'false'). @default 'auto'",
-    sample_size: "Number of sample objects for automatic type detection. Set to -1 to scan entire file. @default 20480",
+    sample_size: "Number of sample objects for automatic type detection. Set to -1 to scan entire file. @type number @default 20480",
     timestampformat: "Timestamp format used when parsing timestamps. @default 'iso'",
     union_by_name:
-      "Whether the schemas of multiple JSON files should be unified. @default false",
+      "Whether the schemas of multiple JSON files should be unified. @type boolean @default false",
   },
   read_ndjson: {
     auto_detect:
-      "Whether to auto-detect the names of the keys and data types. @default true",
+      "Whether to auto-detect the names of the keys and data types. @type boolean @default true",
     columns:
       "A struct that specifies the key names and value types (e.g., {key1: 'INTEGER', key2: 'VARCHAR'}). @default (empty)",
-    convert_strings_to_integers: "Convert strings representing integer values to numerical type. @default false",
+    convert_strings_to_integers: "Convert strings representing integer values to numerical type. @type boolean @default false",
     dateformat: "Date format used when parsing dates. @default 'iso'",
     field_appearance_threshold:
-      "Threshold for field appearance ratio. @default 0.1",
+      "Threshold for field appearance ratio. @type number @default 0.1",
     format:
       "JSON format ('auto', 'unstructured', 'newline_delimited', 'array'). @default 'newline_delimited'",
-    ignore_errors: "Ignore parse errors. @default false",
+    ignore_errors: "Ignore parse errors. @type boolean @default false",
     map_inference_threshold:
-      "Threshold for number of columns before inferring MAP type. Set to -1 to disable. @default 200",
-    maximum_depth: "Maximum nesting depth for schema detection. Set to -1 for full detection. @default -1",
-    maximum_object_size: "Maximum size of a JSON object (in bytes). @default 16777216",
-    maximum_sample_files: "Maximum number of JSON files sampled for auto-detection. @default 32",
+      "Threshold for number of columns before inferring MAP type. Set to -1 to disable. @type number @default 200",
+    maximum_depth: "Maximum nesting depth for schema detection. Set to -1 for full detection. @type number @default -1",
+    maximum_object_size: "Maximum size of a JSON object (in bytes). @type number @default 16777216",
+    maximum_sample_files: "Maximum number of JSON files sampled for auto-detection. @type number @default 32",
     records: "Whether JSON contains records ('auto', 'true', 'false'). @default 'auto'",
-    sample_size: "Number of sample objects for detection. Set to -1 to scan entire file. @default 20480",
+    sample_size: "Number of sample objects for detection. Set to -1 to scan entire file. @type number @default 20480",
     timestampformat: "Timestamp format used when parsing timestamps. @default 'iso'",
     union_by_name:
-      "Whether the schemas of multiple JSON files should be unified. @default false",
+      "Whether the schemas of multiple JSON files should be unified. @type boolean @default false",
   },
   read_parquet: {
-    binary_as_string: "Load binary columns as strings (for legacy Parquet files). @default false",
+    binary_as_string: "Load binary columns as strings (for legacy Parquet files). @type boolean @default false",
     encryption_config: "Configuration for Parquet encryption. @default -",
-    file_row_number: "Whether to include the file_row_number column. @default false",
+    file_row_number: "Whether to include the file_row_number column. @type boolean @default false",
     filename:
-      "Whether to include filename column. Since v1.3.0 this is added automatically as a virtual column. @default false",
-    hive_partitioning: "Whether or not to interpret the path as a Hive partitioned path. @default (auto-detected)",
+      "Whether to include filename column. Since v1.3.0 this is added automatically as a virtual column. @type boolean @default false",
+    hive_partitioning: "Whether or not to interpret the path as a Hive partitioned path. @type boolean @default (auto-detected)",
     schema:
       "Read Parquet file with supplied schema (requires field IDs). Cannot be combined with union_by_name. @default NULL",
-    union_by_name: "Union multiple schemas by name. @default false",
+    union_by_name: "Union multiple schemas by name. @type boolean @default false",
   },
   read_xlsx: {
-    all_varchar: "Read all cells as VARCHARs. @default false",
-    header: "Treat first row as column names. @default true",
+    all_varchar: "Read all cells as VARCHARs. @type boolean @default false",
+    header: "Treat first row as column names. @type boolean @default true",
     range: "Range of cells to read (e.g., 'A1:B2').",
     sheet: "Name of the sheet to read. @default first sheet",
   },
   read_lance: {},
   read_vortex: {},
   osmium_read: {},
+};
+
+// Helper to extract type from description tags
+type OptionType = "boolean" | "number" | "string";
+const getOptionType = (description: string): OptionType => {
+  if (description.includes("@type boolean")) return "boolean";
+  if (description.includes("@type number")) return "number";
+  return "string";
 };
 
 function showHelp(command?: string) {
@@ -1559,25 +1567,67 @@ export function parseArgs(args: string[]): ParsedArgs {
       }
 
       let value: any = rawValue;
+
+      // Try to get the type from documentation for the current or likely command
+      let paramDoc = COMMANDS_DOCS[command]?.[key];
+      let optionType = paramDoc ? getOptionType(paramDoc) : "string";
+
+      // If no command yet, try to infer from files we've seen so far
+      if (!optionType || optionType === "string") {
+        for (const cmd of Object.keys(COMMANDS_DOCS)) {
+          if (COMMANDS_DOCS[cmd][key]) {
+            const cmdOptionType = getOptionType(COMMANDS_DOCS[cmd][key]);
+            if (cmdOptionType !== "string") {
+              optionType = cmdOptionType;
+              break;
+            }
+          }
+        }
+      }
+
       if (rawValue === undefined) {
-        // Flags that default to specific values when used without a value
-        if (key === "sample_size") value = -1;
-        else value = true;
-      } else if (rawValue === "true") value = true;
-      else if (rawValue === "false") value = false;
-      else if (!isNaN(Number(rawValue)) && rawValue !== "")
-        value = Number(rawValue);
-      else if (rawValue?.startsWith("[") && rawValue?.endsWith("]")) {
-        value = rawValue
-          .slice(1, -1)
-          .split(",")
-          .map((s) => s.trim());
-      } else if (
-        (key === "column_names" || key === "names") &&
-        rawValue?.includes(",")
-      ) {
-        // Handle comma-separated column names
-        value = rawValue.split(",");
+        // No value provided via = - handle based on type
+        if (optionType === "boolean") {
+          value = true;
+        } else if (key === "sample_size") {
+          // Special case: sample_size defaults to -1 when no value provided
+          value = -1;
+        } else {
+          // For non-boolean params without value, consume next argument and coerce it
+          const nextArg = args[++i];
+          if (optionType === "number" && !isNaN(Number(nextArg)) && nextArg !== "") {
+            value = Number(nextArg);
+          } else if (nextArg === "true") {
+            value = true;
+          } else if (nextArg === "false") {
+            value = false;
+          } else {
+            value = nextArg;
+          }
+        }
+      } else {
+        // Value provided via = - coerce based on type
+        if (optionType === "boolean") {
+          value = rawValue === "true" ? true : rawValue === "false" ? false : rawValue;
+        } else if (optionType === "number") {
+          value = !isNaN(Number(rawValue)) && rawValue !== "" ? Number(rawValue) : rawValue;
+        } else {
+          // String type - handle special cases
+          if (rawValue === "true") value = true;
+          else if (rawValue === "false") value = false;
+          else if (!isNaN(Number(rawValue)) && rawValue !== "")
+            value = Number(rawValue);
+          else if (rawValue?.startsWith("[") && rawValue?.endsWith("]")) {
+            value = rawValue.slice(1, -1).split(",").map((s) => s.trim());
+          } else if (
+            (key === "column_names" || key === "names") &&
+            rawValue?.includes(",")
+          ) {
+            value = rawValue.split(",");
+          } else {
+            value = rawValue;
+          }
+        }
       }
 
       options[key] = value;
