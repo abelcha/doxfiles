@@ -609,6 +609,7 @@ export const COPY_OPTIONS_DOCS: Record<string, string> = Object.fromEntries(
 
 export type SqlOptions = {
   select?: string;
+  exclude?: string;
   where: string[];
   join: string[];
   using?: string;
@@ -638,6 +639,8 @@ export type ParsedArgs = {
   sqlOptions: SqlOptions;
   copyOptions: Record<string, any>;
   format?: string;
+  init?: string;
+  pre: string[];
 };
 
 export const COMMANDS_DOCS: Record<string, Record<string, string>> = {
@@ -1383,6 +1386,8 @@ export function parseArgs(args: string[]): ParsedArgs {
   const sqlOptions: SqlOptions = { where: [], join: [], with: [], pipe: [] };
   const copyOptions: Record<string, any> = {};
   let format: string | undefined = undefined;
+  let init: string | undefined = undefined;
+  let pre: string[] = [];
   let isCopyTargetSeen = false;
 
   for (let i = 0; i < args.length; i++) {
@@ -1422,6 +1427,16 @@ export function parseArgs(args: string[]): ParsedArgs {
 
       if (key === "no_truncate") {
         truncate = false;
+        continue;
+      }
+
+      if (key === "init") {
+        init = rawValue || args[++i];
+        continue;
+      }
+
+      if (key === "pre") {
+        pre.push(rawValue || args[++i]);
         continue;
       }
 
@@ -1609,6 +1624,8 @@ export function parseArgs(args: string[]): ParsedArgs {
     sqlOptions,
     copyOptions,
     format,
+    init,
+    pre,
   };
 }
 
@@ -2519,12 +2536,27 @@ async function main() {
 
   try {
     const query = buildQuery(parsed);
+    let countOptions = { ...parsed.options };
+    if (parsed.command === 'read_csv') {
+      countOptions.ignore_errors = true;
+    }
+    // Build the inner query without LIMIT for counting
+    const countParsed = { ...parsed, sqlOptions: { ...parsed.sqlOptions, limit: undefined }, options: countOptions };
+    const countQueryInner = buildQuery(countParsed);
+    // Strip setup SQL (INSTALL/LOAD/ATTACH/USE) from count query - extensions already loaded
+    const countQuerySelect = countQueryInner.replace(/^(INSTALL\s+[^;]*;\s*|LOAD\s+[^;]*;\s*|ATTACH\s+[^;]*;\s*|USE\s+[^;]*;\s*)+/gi, '');
     const countQuery = autoLimited
-      ? `SELECT count(*)::int as total FROM (${buildQuery({ ...parsed, sqlOptions: { ...parsed.sqlOptions, limit: undefined } })})`
+      ? `SELECT count(*) FROM (${countQuerySelect})`
       : "";
 
     // Construct command arguments
     const cmdArgs: string[] = [];
+    if (parsed.init) {
+      cmdArgs.push("-init", parsed.init);
+    }
+    for (const preQuery of parsed.pre) {
+      cmdArgs.push("-cmd", preQuery);
+    }
     if (mode) {
       cmdArgs.push("-" + mode);
     }
@@ -2543,7 +2575,13 @@ async function main() {
       const args = [...extraArgs, ...cmdArgs];
       let out = await $`script -q /dev/null duckdb ${args}`.nothrow().text();
       if (/Encountered errors while executing init file/i.test(out)) {
-        out = await $`script -q /dev/null duckdb -init /dev/null ${cmdArgs}`.nothrow().text();
+        // Strip out -init and its value, then use /dev/null
+        const filteredArgs = cmdArgs.filter((_, i) => {
+          if (cmdArgs[i - 1] === "-init") return false;
+          if (cmdArgs[i] === "-init") return false;
+          return true;
+        });
+        out = await $`script -q /dev/null duckdb -init /dev/null ${filteredArgs}`.nothrow().text();
       }
       return out;
     };
@@ -2569,7 +2607,13 @@ async function main() {
       let proc = spawnLive([]);
       let code = await proc.exited;
       if (code !== 0 && code !== 130) {
-        proc = spawnLive(["-init", "/dev/null"]);
+        // Strip out -init and its value from cmdArgs, then use /dev/null
+        const filteredArgs = cmdArgs.filter((_, i) => {
+          if (cmdArgs[i - 1] === "-init") return false;
+          if (cmdArgs[i] === "-init") return false;
+          return true;
+        });
+        proc = spawnLive(["-init", "/dev/null", ...filteredArgs]);
         code = await proc.exited;
       }
       process.off("SIGINT", onSigint);
@@ -2585,7 +2629,7 @@ async function main() {
       const output: string[] = [];
       for (const line of lines) {
         const stripped = line.replace(/\x1b\[[0-9;]*m/g, "").replace(/\x1b\][^\x07]*\x07?/g, "").replace(/\r/g, "").trim();
-        const rowMatch = stripped.match(/^(\d+)\s+rows?(?:\s+\((\d+)\s+shown\))?(?:\s+(\d+)\s+columns?)?$/);
+        const rowMatch = stripped.match(/(\d+)\s+rows(?:\s+\((\d+)\s+shown\))?(?:.*?(\d+)\s+columns(?:\s+\((\d+)\s+shown\))?)?$/);
         const timeMatch = stripped.match(/^Run Time.*?real\s+([\d.]+)/);
         if (rowMatch) {
           rows = rowMatch[1]; shown = rowMatch[2] || rows; cols = rowMatch[3];
@@ -2652,17 +2696,17 @@ async function main() {
         let totalStr = "";
         if (countQuery) {
           try {
+            // Don't use -init /dev/null for count query - we need .duckdbrc macros
             let countResult = await $`duckdb -noheader -csv -c ${countQuery}`.nothrow().text();
-            if (/Encountered errors while executing init file/i.test(countResult)) {
-              countResult = await $`duckdb -init /dev/null -noheader -csv -c ${countQuery}`.nothrow().text();
-            }
-            if (countResult) {
+            if (countResult && !/Error/i.test(countResult)) {
               const total = parseInt(countResult.trim(), 10);
-              if (total > parseInt(rows)) {
+              if (!isNaN(total) && total > parseInt(rows)) {
                 totalStr = total >= 1e6 ? `${(total / 1e6).toFixed(1)}M` : total >= 1e3 ? `${(total / 1e3).toFixed(1)}k` : String(total);
               }
             }
-          } catch { }
+          } catch (e) {
+            await Bun.write(Bun.stderr, `count error: ${e}\n`);
+          }
         }
         const rowLabel = totalStr
           ? `${c("cyan", rows)}${dim("/")}${c("yellow", totalStr)} ${dim("rows")}`
