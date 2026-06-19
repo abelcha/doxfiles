@@ -1,6 +1,6 @@
-function mv --wraps='advmv -gi' --wraps=umv
+function mv --wraps=uu-mv
     #echo ppp
-    if not type -q umv
+    if not type -q uu-mv
         command mv $argv
     end
     if test (count $argv) -eq 1; and test -e "$argv[1]"
@@ -11,8 +11,8 @@ function mv --wraps='advmv -gi' --wraps=umv
         set destname (string trim -c '' "$destraw")
         set destpath (path resolve "$destdir/$destname")
         dryrun mv \"$argv[1]\" \"$destpath\"
-    else if type -q umv
-        umv --interactive --progress --verbose $argv
+    else if type -q uu-mv
+        uu-mv --interactive --progress --verbose $argv
     else
         command mv $argv
     end
