@@ -20,6 +20,13 @@ function cat --wraps=bat
         imgcat $filepath
         return 0
     end
+    if string match -rq md -- $extension
+        bun $filepath | $PAGER
+        return 0
+    end
+    if not test -z "$argv[2]"
+        bat $argv
+    end
     #fset language
     switch ( echo $extension )
         case png jpeg jpg gif mp4 webp svg ico heif pdf
@@ -65,7 +72,7 @@ function cat --wraps=bat
         command cat $filepath
         return 0
     end
-    if not string match -rq cargo ( type -p  bat)
+    if not string match -rq cargo ( type -fp  bat)
         command bat $filepath
         return 0
     end
