@@ -32,6 +32,20 @@ function __scp_ssh_completion_args
         -o ControlPath=~/.ssh/cm-%C
 end
 
+function __scp_append_slash_to_dirs
+    # Append / to paths that look like directories (no extension, no trailing /)
+    # This handles symlinks to directories that ls -dp lists without /
+    while read -l line
+        set -l base (string replace -r '.*/' '' -- $line)
+        if not string match -q '*.*' -- $base
+            and not string match -q '*/' -- $line
+            echo $line/
+        else
+            echo $line
+        end
+    end
+end
+
 function __fish_no_scp_remote_specified
     set -l tokens (commandline -t)
     # can't use `for token in tokens[1..-2]` due to https://github.com/fish-shell/fish-shell/issues/4897
@@ -75,11 +89,13 @@ complete -c scp -d "Remote Path" -f -n "commandline -ct | string match -e ':'" -
              esc command ssh (__scp_ssh_completion_args) -p(__scp2ssh_port_number) -o "BatchMode yes" (__scp_remote_target) command\ ls\ -dp\ (__scp_remote_path_prefix)\*  >> /tmp/scp.logs
             
             command ssh (__scp_ssh_completion_args) -p(__scp2ssh_port_number) -o "BatchMode yes" (__scp_remote_target) command\ ls\ -dp\ (__scp_remote_path_prefix)\* 2>/dev/null | 
-            string replace \\r ""
+            string replace \\r "" |
+            __scp_append_slash_to_dirs
         else
             echo "not sftp" >> /tmp/scp.logs
 
             command ssh (__scp_ssh_completion_args) -p(__scp2ssh_port_number) -o "BatchMode yes" (__scp_remote_target) command\ ls\ -dp\ (__scp_remote_path_prefix | string unescape)\* 2>/dev/null |
+            __scp_append_slash_to_dirs |
             string escape -n
         end
     )

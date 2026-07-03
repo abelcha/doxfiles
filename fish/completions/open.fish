@@ -1,4 +1,4 @@
-complete -c open -s a -d 'Opens with the specified application.'
+complete -c open -s a -d 'Opens with the specified application.' -x -a '(_fish_complete_apps)'
 complete -c open -l arch -d 'ARCH Open with the given cpu architecture type and subtype.'
 complete -c open -s b -d 'Opens with the specified application bundle identifier.'
 complete -c open -s e -d 'Opens with TextEdit.'
