@@ -1,4 +1,11 @@
 function _fzf_search_git_status --description 'Search the output of git status. Replace the current token with the selected file paths.'
+    set -l include_untracked 0
+    for arg in $argv
+        if test $arg = --include-untracked
+            set include_untracked 1
+        end
+    end
+
     if not git rev-parse --git-dir >/dev/null 2>&1
         echo '_fzf_search_git_status: Not in a git repository.' >&2
     else
@@ -6,10 +13,14 @@ function _fzf_search_git_status --description 'Search the output of git status. 
         if set --query fzf_diff_highlighter
             set preview_cmd "$preview_cmd | $fzf_diff_highlighter"
         end
-        
+
+        set -f status_cmd git -c color.status=always status --short .
+        if test $include_untracked -eq 1
+            set status_cmd git -c color.status=always status --short --untracked-files=all
+        end
+
         set -f selected_paths (
-                        # Pass configuration color.status=always to force status to use colors even though output is sent to a pipe
-                        git -c color.status=always status --short . |
+                        $status_cmd |
                             _fzf_wrapper --ansi \
                                     --multi \
                                     --prompt="Git Status> " \
