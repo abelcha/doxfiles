@@ -419,6 +419,8 @@ export const FN_TO_EXTENSION: Record<
 
   // glob keys — match any function matching the pattern
   "st_*": { extension: "spatial" },
+
+  "h3_*": { extension: "h3"},
   "annofox_*": { extension: "annofox", repo: "community" },
 
   // osmium extension (community) — for .osm.pbf files
@@ -647,6 +649,7 @@ export type SqlOptions = {
   groupBy?: string;
   having?: string;
   countBy?: string;
+  count?: boolean;
   pipe: string[];
 };
 
@@ -912,6 +915,7 @@ function showHelp(command?: string) {
   console.log(
     "  --count-by=<col>   Count rows grouped by column (shortcut for select+group+sort)",
   );
+  console.log("  --count            Show total row count only");
   console.log("  --summarize        Show summary statistics of the result");
   console.log("  --analyze          Pretty per-column analysis: enums show value counts, numerics show bars");
   console.log(
@@ -1372,6 +1376,9 @@ end`);
     `complete -c ${bin} -f -k -n "${notHasToFlag}" -l count-by -d "Count rows grouped by column" -r -a "(__fish_reader_complete_columns)"`,
   );
   console.log(
+    `complete -c ${bin} -f -n "${notHasToFlag}" -l count -d "Show total row count only"`,
+  );
+  console.log(
     `complete -c ${bin} -f -n "${notHasToFlag}" -l summarize -d "Show summary statistics of the result"`,
   );
   console.log(
@@ -1543,6 +1550,10 @@ export function parseArgs(args: string[]): ParsedArgs {
       }
       if (key === "count_by") {
         sqlOptions.countBy = rawValue || args[++i];
+        continue;
+      }
+      if (key === "count") {
+        sqlOptions.count = true;
         continue;
       }
       if (key === "using") {
@@ -2252,6 +2263,14 @@ export function buildQuery(parsed: ParsedArgs): string {
   const useSql = magicDbAlias ? `USE ${magicDbAlias}; ` : "";
   const finalSetupSql = `${setupSql}${fullAttachSql}${useSql}`;
 
+  // --count: show total row count only
+  if (sqlOptions.count) {
+    sqlOptions.select = "count(*)::BIGINT AS count";
+    sqlOptions.limit = undefined;
+    sqlOptions.sort = undefined;
+    sqlOptions.sample = undefined;
+  }
+
   // --count-by sugar: override select, groupBy, sort
   if (sqlOptions.countBy) {
     const field = smartAtToStar(smartBraceToParen(sqlOptions.countBy));
@@ -2337,9 +2356,9 @@ export function buildQuery(parsed: ParsedArgs): string {
       .map((w) => {
         const trimmed = w.trim();
         // !col → col IS NULL
-        if (/^!\w+$/.test(trimmed)) return `${trimmed.slice(1)} IS NULL`;
+        if (/^![\w\.]+$/.test(trimmed)) return `${trimmed.slice(1)} IS NULL`;
         // bare col → col IS NOT NULL
-        if (/^\w+$/.test(trimmed)) return `${trimmed} IS NOT NULL`;
+        if (/^[\w\.]+$/.test(trimmed)) return `${trimmed} IS NOT NULL`;
         // col~=val → col ~ '.*val.*'  (contains regex shorthand)
         const containsMatch = trimmed.match(/^(\w+)\s*~=\s*(.+)$/);
         if (containsMatch) return `${containsMatch[1]} ~ '.*${containsMatch[2]}.*'`;
