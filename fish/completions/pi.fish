@@ -1,5 +1,6 @@
 function __pi_complete_models
-    bun ~/.config/fish/pi-models.mjs 2>/dev/null
+    __fish_list_ai_models
+    # ~/.config/fish/pi-models.mjs    bun ~/.config/fish/pi-models.mjs 2>/dev/null
 end
 
 function __pi_thinking_levels
@@ -16,7 +17,6 @@ complete -c pi -l model -d '<pattern> Model pattern or ID (supports "provider/id
 complete -c pi -l api-key -d '<key> API key (defaults to env vars)'
 complete -c pi -l system-prompt -d '<text> System prompt (default: coding assistant prompt)'
 complete -c pi -l append-system-prompt -d '<text> Append text or file contents to the system prompt (can be used multiple times)'
-complete -c pi -l mode -d '<mode> Output mode: text (default), json, or rpc'
 complete -c pi -s p -l print -d 'Non-interactive mode: process prompt and exit'
 complete -c pi -s c -l continue -d 'Continue previous session'
 complete -c pi -s r -l resume -d 'Select a session to resume'
@@ -26,7 +26,6 @@ complete -c pi -l fork -d '<path|id> Fork specific session file or partial UUID 
 complete -c pi -l session-dir -d '<dir> Directory for session storage and lookup'
 complete -c pi -l no-session -d "Don't save session (ephemeral)"
 complete -c pi -s n -l name -d '<name> Set session display name'
-complete -c pi -l models -d '<patterns> Comma-separated model patterns for Ctrl+P cycling'
 complete -c pi -s t -l tools -d '<tools> Comma-separated allowlist of tool names to enable'
 complete -c pi -l thinking -d '<level> Set thinking level' -r -f -a "(__pi_thinking_levels)"
 complete -c pi -s e -l extension -d '<path> Load an extension file (can be used multiple times)'
