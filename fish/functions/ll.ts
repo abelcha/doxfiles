@@ -840,10 +840,10 @@ async function* processEntries(
             return { entry, fullPath, size, ts, duration };
         });
     if (flags.sort === true) {
-        flags.sort = 'name'    
+        flags.sort = 'name'
     }
     if (flags.sort) {
-        
+
         const results = await Promise.all(tasks);
 
         if (flags.sort.startsWith("-")) {
@@ -871,6 +871,22 @@ async function* processEntries(
             yield item;
         }
     }
+}
+
+// Collect all entries from multiple dirs for global sorting
+async function collectAllEntries(
+    dirs: string[],
+    flags: any,
+    deadline: number,
+    verbose?: VerboseCtx
+): Promise<Array<EntryData & { originalTargetDir: string }>> {
+    const allEntries: Array<EntryData & { originalTargetDir: string }> = [];
+    for (const targetDir of dirs) {
+        for await (const entry of processEntries(targetDir, dirs, flags, deadline, verbose)) {
+            allEntries.push({ ...entry, originalTargetDir: targetDir });
+        }
+    }
+    return allEntries;
 }
 
 if (import.meta.main) {
@@ -975,97 +991,135 @@ if (import.meta.main) {
         console.log(paint(dim, `[verbose] sizing: files<10MB → Bun.file().size; files≥10MB → lstat st_blocks*512; dirs → apfs.util -S; mounted volumes → getattrlist ATTR_VOL_SPACEUSED`));
     }
 
+    // When sorting, collect all entries first for global sort
+    let allEntries: EntryData[] | null = null;
     let spawnedWarming = false;
-    for (const targetDir of dirs) {
-        for await (const { entry, fullPath, size, ts, duration } of processEntries(
-            targetDir,
-            dirs,
-            flags,
-            deadline,
-            verbose
-        )) {
-            if (!flags.all && entry.name.startsWith(".") && !positionnals[0]?.startsWith('.')) {
-                continue;
+
+    if (flags.sort) {
+        allEntries = await collectAllEntries(dirs, flags, deadline, verbose);
+        // Apply global sort
+        let sortKey = flags.sort === true ? "name" : flags.sort;
+        if (sortKey.startsWith("-")) {
+            sortKey = sortKey.slice(1);
+            flags.reverse = !flags.reverse;
+        }
+        allEntries.sort((b, a) => {
+            if (sortKey === "size") {
+                return b.size - a.size;
             }
-
-            if (size === -2 && !spawnedWarming) {
-                spawnedWarming = true;
-                // Background cache warming: spawn the same command once with a huge timeout
-                Bun.spawn(
-                    [
-                        Bun.argv[0],
-                        Bun.argv[1],
-                        ...Bun.argv.slice(2),
-                        "--timeout",
-                        "999999999",
-                    ],
-                    {
-                        stdio: ["ignore", "ignore", "ignore"],
-                        detached: true,
-                    }
-                ).unref();
+            if (sortKey === "time" || sortKey === "date") {
+                return b.ts - a.ts;
             }
+            return a.entry.name.localeCompare(b.entry.name);
+        });
+        if (flags.reverse) {
+            allEntries.reverse();
+        }
+    }
 
-            const formatted = formatFilename(entry);
+    const processEntry = (entry: EntryData & { originalTargetDir?: string }, targetDir: string) => {
+        const { entry: ent, fullPath, size, ts, duration } = entry;
+        if (!flags.all && ent.name.startsWith(".") && !positionnals[0]?.startsWith('.')) {
+            return;
+        }
 
-            const emitVerbose = () => {
-                if (!verbose) return;
-                const dim = makeStyle({ fg: FG.grey, dim: true });
-                const notes = verbose.notes.get(fullPath) ?? [];
-                const rawSize =
-                    size === -1 ? "ERR" : size === -2 ? "TIMEOUT" : `${size} bytes`;
-                console.log(paint(dim, `    path:     ${fullPath}`));
-                console.log(paint(dim, `    raw size: ${rawSize}   duration: ${duration.toFixed(2)}ms   mtime: ${new Date(ts).toISOString()}`));
-                for (const n of notes) {
-                    console.log(paint(dim, `    • ${n}`));
+        if (size === -2 && !spawnedWarming) {
+            spawnedWarming = true;
+            // Background cache warming: spawn the same command once with a huge timeout
+            Bun.spawn(
+                [
+                    Bun.argv[0],
+                    Bun.argv[1],
+                    ...Bun.argv.slice(2),
+                    "--timeout",
+                    "999999999",
+                ],
+                {
+                    stdio: ["ignore", "ignore", "ignore"],
+                    detached: true,
                 }
-            };
+            ).unref();
+        }
 
-            if (flags.one) {
-                console.log(formatted);
-                emitVerbose();
-                continue;
+        const formatted = formatFilename(ent);
+
+        const emitVerbose = () => {
+            if (!verbose) return;
+            const dim = makeStyle({ fg: FG.grey, dim: true });
+            const notes = verbose.notes.get(fullPath) ?? [];
+            const rawSize =
+                size === -1 ? "ERR" : size === -2 ? "TIMEOUT" : `${size} bytes`;
+            console.log(paint(dim, `    path:     ${fullPath}`));
+            console.log(paint(dim, `    raw size: ${rawSize}   duration: ${duration.toFixed(2)}ms   mtime: ${new Date(ts).toISOString()}`));
+            for (const n of notes) {
+                console.log(paint(dim, `    • ${n}`));
             }
-            const datef = formatDate(new Date(ts));
+        };
 
-            // Re-derive prefix logic
-            const s = lstatSync(targetDir as string);
-            const targetIsDir = (() => {
-                if (s.isSymbolicLink()) {
-                    const realTargetDir =
-                        existsSync(targetDir as string) &&
-                        realpathSync(targetDir as string);
-                    return (
-                        realTargetDir &&
-                        existsSync(realTargetDir) &&
-                        lstatSync(realTargetDir)?.isDirectory()
-                    );
-                }
-                return s.isDirectory();
-            })();
-
-            // "pre" is only non-empty if we are listing the CONTENT of a directory (not just the dir itself via -d)
-            // AND we want to show the full path context?
-            // Original code: `isDir` (of target) ? '' : paint(...)
-            // If target is a file, we prepend directory.
-            const pre =
-                targetIsDir && !flags.dir
-                    ? ""
-                    : paint(
-                        themeStyles.basepath,
-                        path.dirname(targetDir as string) + "/"
-                    );
-
-            const timingStr = flags.timing
-                ? paint(
-                    makeStyle({ fg: FG.grey, dim: true }),
-                    ` (${duration < 100 ? duration.toFixed(1) : Math.round(duration)
-                    }ms)`
-                )
-                : "";
-
-            console.log("", formatSize(size), datef, timingStr, "–", pre + formatted);
+        if (flags.one) {
+            console.log(formatted);
             emitVerbose();
+            return;
+        }
+        const datef = formatDate(new Date(ts));
+
+        // Re-derive prefix logic
+        const s = lstatSync(targetDir as string);
+        const targetIsDir = (() => {
+            if (s.isSymbolicLink()) {
+                const realTargetDir =
+                    existsSync(targetDir as string) &&
+                    realpathSync(targetDir as string);
+                return (
+                    realTargetDir &&
+                    existsSync(realTargetDir) &&
+                    lstatSync(realTargetDir)?.isDirectory()
+                );
+            }
+            return s.isDirectory();
+        })();
+
+        // "pre" is only non-empty if we are listing the CONTENT of a directory (not just the dir itself via -d)
+        // AND we want to show the full path context?
+        // Original code: `isDir` (of target) ? '' : paint(...)
+        // If target is a file, we prepend directory.
+        const pre =
+            targetIsDir && !flags.dir
+                ? ""
+                : paint(
+                    themeStyles.basepath,
+                    path.dirname(targetDir as string) + "/"
+                );
+
+        const timingStr = flags.timing
+            ? paint(
+                makeStyle({ fg: FG.grey, dim: true }),
+                ` (${duration < 100 ? duration.toFixed(1) : Math.round(duration)
+                }ms)`
+            )
+            : "";
+
+        console.log("", formatSize(size), datef, timingStr, "–", pre + formatted);
+        emitVerbose();
+    };
+
+    if (allEntries !== null) {
+        // Sorted mode: iterate over globally sorted entries
+        for (const entry of allEntries) {
+            processEntry(entry, entry.originalTargetDir!);
+        }
+    } else {
+        // Unsorted mode: stream per directory
+        for (const targetDir of dirs) {
+            for await (const entry of processEntries(
+                targetDir,
+                dirs,
+                flags,
+                deadline,
+                verbose
+            )) {
+                processEntry(entry, targetDir);
+            }
         }
     }
 }
