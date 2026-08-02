@@ -599,6 +599,29 @@ const optionMatchesFormat = (opt: CopyOptionDef, format: string): boolean => {
   return opt.formats.includes("all") || opt.formats.includes(format);
 };
 
+/** COPY options that are boolean flags (bare `--flag` means true). Others consume the next arg. */
+const BOOLEAN_COPY_OPTS = new Set([
+  "header",
+  "array",
+  "overwrite_or_ignore",
+  "overwrite",
+  "append",
+  "per_thread_output",
+  "return_files",
+  "write_partition_columns",
+  "use_tmp_file",
+]);
+
+/** Coerce a raw COPY-option string into true/false/number/list/string. */
+const coerceCopyValue = (v: string): any => {
+  if (v === "true") return true;
+  if (v === "false") return false;
+  if (!isNaN(Number(v)) && v !== "") return Number(v);
+  if (v.startsWith("[") && v.endsWith("]"))
+    return v.slice(1, -1).split(",").map((s) => s.trim());
+  return v;
+};
+
 /** Legacy flat format for help display and option parsing */
 export const COPY_OPTIONS_DOCS: Record<string, string> = Object.fromEntries(
   Object.entries(COPY_OPTIONS).map(([k, v]) => [
@@ -632,6 +655,7 @@ export type ParsedArgs = {
   files: string[];
   options: Record<string, any>;
   toPath?: string;
+  exportDir?: string;
   mode?: string;
   truncate: boolean;
   tui: boolean;
@@ -850,6 +874,9 @@ function showHelp(command?: string) {
   console.log("\nGeneral Options:");
   console.log(
     "  --to=<path>        Export result to a file (CSV, JSON, Parquet)",
+  );
+  console.log(
+    "  --export=<dir>     Export entire database to a directory (FORMAT parquet)",
   );
   console.log(
     "  --format=<fmt>     Output format (csv, tsv, json, jsonl, parquet) to stdout",
@@ -1196,7 +1223,7 @@ function generateFishCompletion() {
   }
 
   // Helper: condition for "has --to or --format"
-  const hasToFlag = `commandline -opc | string match -rq -- '--to|--format'`;
+  const hasToFlag = `commandline -opc | string match -rq -- '--to|--format|--export'`;
   const notHasToFlag = `not ${hasToFlag}`;
 
   // COPY options - filtered by extension in --to=file.ext
@@ -1223,7 +1250,11 @@ function generateFishCompletion() {
       // Format-specific options: show only when --to matches the extension
       for (const fmt of def.formats) {
         const extPattern = formatExtPatterns[fmt];
-        if (extPattern) {
+        if (fmt === "parquet") {
+          console.log(
+            `complete -c ${bin} -f -n "commandline -opc | string match -rq -- '--to=.*?(${extPattern})|--export'" -l ${optFlag}${suggestions} -d "COPY [parquet] ${description}"`,
+          );
+        } else if (extPattern) {
           console.log(
             `complete -c ${bin} -f -n "commandline -opc | string match -rq -- '--to=.*?(${extPattern})'" -l ${optFlag}${suggestions} -d "COPY [${fmt}] ${description}"`,
           );
@@ -1235,6 +1266,9 @@ function generateFishCompletion() {
   // Global flags - only show when --to is NOT present
   console.log(
     `complete -c ${bin} -F -l to -d "Export result to a file (CSV, JSON, Parquet)" -r`,
+  );
+  console.log(
+    `complete -c ${bin} -F -l export -d "Export entire database to a directory (Parquet)" -r`,
   );
   console.log(
     `complete -c ${bin} -f -l format -d "Output format (csv, tsv, json, jsonl, parquet) to stdout" -r -a "csv tsv json jsonl parquet"`,
@@ -1387,6 +1421,7 @@ export function parseArgs(args: string[]): ParsedArgs {
   let files: string[] = [];
   const options: any = {};
   let toPath: string | undefined = undefined;
+  let exportDir: string | undefined = undefined;
   let mode: string | undefined = undefined;
   let truncate = true;
   let tui = false;
@@ -1414,6 +1449,12 @@ export function parseArgs(args: string[]): ParsedArgs {
         if ((toExt === "vortex" || toExt === "lance") && !format) {
           format = toExt;
         }
+        continue;
+      }
+
+      if (key === "export") {
+        exportDir = rawValue || args[++i];
+        isCopyTargetSeen = true;
         continue;
       }
 
@@ -1533,17 +1574,18 @@ export function parseArgs(args: string[]): ParsedArgs {
 
       // Check if this is a COPY option
       if (COPY_OPTIONS_DOCS[key]) {
-        let value: any = rawValue;
-        if (rawValue === undefined) value = true;
-        else if (rawValue === "true") value = true;
-        else if (rawValue === "false") value = false;
-        else if (!isNaN(Number(rawValue)) && rawValue !== "")
-          value = Number(rawValue);
-        else if (rawValue?.startsWith("[") && rawValue?.endsWith("]")) {
-          value = rawValue
-            .slice(1, -1)
-            .split(",")
-            .map((s) => s.trim());
+        let value: any;
+        if (rawValue === undefined) {
+          // Boolean flags default to true when bare; value-taking options consume the next arg
+          const next = args[i + 1];
+          if (BOOLEAN_COPY_OPTS.has(key) || next === undefined || next.startsWith("-")) {
+            value = true;
+          } else {
+            value = coerceCopyValue(next);
+            i++;
+          }
+        } else {
+          value = coerceCopyValue(rawValue);
         }
         copyOptions[key] = value;
 
@@ -1667,6 +1709,7 @@ export function parseArgs(args: string[]): ParsedArgs {
     files,
     options,
     toPath,
+    exportDir,
     mode,
     truncate,
     tui,
@@ -2049,6 +2092,7 @@ export function buildQuery(parsed: ParsedArgs): string {
     files,
     options,
     toPath,
+    exportDir,
     queryParts,
     sqlOptions,
     copyOptions,
@@ -2376,6 +2420,34 @@ export function buildQuery(parsed: ParsedArgs): string {
     }
   }
 
+  if (exportDir) {
+    const targetFmt = format?.toLowerCase() || "parquet";
+    const exportOptsArray: string[] = [`FORMAT ${targetFmt.toUpperCase()}`];
+    for (const [key, value] of Object.entries(copyOptions)) {
+      // partition_by is not meaningful for a whole-database export
+      if (key === "partition_by") continue;
+      const optDef = COPY_OPTIONS[key];
+      if (optDef && !optionMatchesFormat(optDef, targetFmt)) continue;
+      const keyUpper = key.toUpperCase();
+      if (key === "format") {
+        exportOptsArray[0] = `FORMAT ${String(value).toUpperCase()}`;
+      } else if (key === "compression") {
+        exportOptsArray.push(`COMPRESSION ${String(value).toUpperCase()}`);
+      } else if (Array.isArray(value)) {
+        exportOptsArray.push(`${keyUpper} [${value.map((v) => `'${v}'`).join(", ")}]`);
+      } else if (typeof value === "string") {
+        exportOptsArray.push(`${keyUpper} '${value}'`);
+      } else if (typeof value === "boolean") {
+        exportOptsArray.push(`${keyUpper} ${value ? "TRUE" : "FALSE"}`);
+      } else if (typeof value === "number") {
+        exportOptsArray.push(`${keyUpper} ${value}`);
+      }
+    }
+    return `${finalSetupSql}EXPORT DATABASE '${exportDir}' (${exportOptsArray.join(
+      ", ",
+    )})`;
+  }
+
   if (toPath || format) {
     const targetPath = toPath || "/dev/stdout";
     const ext = targetPath.split(".").pop()?.toLowerCase() || "";
@@ -2508,6 +2580,7 @@ async function main() {
     files,
     options,
     toPath,
+    exportDir,
     mode,
     truncate,
     tui,
@@ -2522,7 +2595,7 @@ async function main() {
     return;
   }
   // If piped into another process, default to CSV format
-  if (!isTTY && !format && !toPath && !parsed.sqlOptions.analyze) {
+  if (!isTTY && !format && !toPath && !exportDir && !parsed.sqlOptions.analyze) {
     format = "csv";
     parsed.format = "csv";
   }
@@ -2537,7 +2610,7 @@ async function main() {
   // Auto-limit for TTY stdout — suppressed if limit/sample/summarize/to/format is set
   // "none" sentinel means user explicitly passed bare --limit to disable auto-limit
   let autoLimited = false;
-  if (isTTY && !tui && !toPath && !format && !parsed.sqlOptions.limit && !parsed.sqlOptions.sample && !parsed.sqlOptions.summarize && !parsed.sqlOptions.analyze) {
+  if (isTTY && !tui && !toPath && !exportDir && !format && !parsed.sqlOptions.limit && !parsed.sqlOptions.sample && !parsed.sqlOptions.summarize && !parsed.sqlOptions.analyze) {
     parsed.sqlOptions.limit = DEFAULT_LIMIT;
     autoLimited = true;
   }
@@ -2643,7 +2716,7 @@ async function main() {
 
     if (tui) {
       await launchTablens({ query });
-    } else if (toPath || format) {
+    } else if (toPath || format || exportDir) {
       // Stream live so the progress bar renders in real time.
       // Parent ignores SIGINT so the child gets it cleanly and we can observe its exit.
       const onSigint = () => { };
@@ -2669,6 +2742,8 @@ async function main() {
       process.off("SIGINT", onSigint);
       if (code === 0 && toPath) {
         console.log(`Successfully exported to ${toPath}`);
+      } else if (code === 0 && exportDir) {
+        console.log(`Successfully exported database to ${exportDir}`);
       }
       process.exit(code ?? 0);
     } else if (isTTY) {
