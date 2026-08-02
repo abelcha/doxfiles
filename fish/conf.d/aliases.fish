@@ -1,11 +1,12 @@
 # alias brew zb
-
+alias prisma prisma-cli
+alias baml baml-cli
 alias apfsm 'apfs.util -M '
 alias ffds "fds  -I -H"
 alias ducklean "duckdb -init /dev/null"
 alias pm "bun pm"
 # alias u url-to-md
-alias codex "/Applications/Codex.app/Contents/Resources/codex"
+alias codex "/Applications/ChatGPT.app/Contents/Resources/codex"
 alias sc scw
 alias sl scw
 alias code code-insiders
@@ -16,6 +17,7 @@ alias b zb
 alias chme "chown -R abel:staff"
 alias rgphone 'rrg -w "$regphonefr"'
 alias from reader
+alias from2 'bun run /me/dev/v2-tablens/index.ts'
 # alias dev "bun run dev"
 alias pv "/opt/homebrew/bin/pv --average-rate --progress --bits"
 alias ass applesauce
@@ -72,7 +74,6 @@ alias 7z 7zz
 alias npx bunx
 alias diskattach 'diskimage attach'
 # alias c cursor
-alias speedtest cfspeedtest
 if not type -q mi; and test -n "$EDITOR"
     alias mi "$EDITOR"
 end

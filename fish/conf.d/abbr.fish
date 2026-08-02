@@ -4,7 +4,10 @@
 
 # abbr -a -- act 'source .venv/bin/activate.fish'
 abbr -a -- dev "bun run dev"
-abbr -a -- ndev "bun run --hot index.ts --no-auth"
+# abbr -a -- m "ssh mba"
+abbr -a -- m "ssh m@mba"
+abbr -a -- ndev "bun run --hot index.ts"
+abbr -a -- po portkill
 
 # abbr -a -p pk anywhere packages/
 abbr -p anywhere pk --set-cursor 'packages/%'
@@ -306,12 +309,13 @@ dict dmap set fa "/me/config/fish/conf.d/aliases.fish"
 dict dmap set fb "/me/config/fish/conf.d/abbr.fish"
 dict dmap set fs /me/config/.secrets
 dict dmap set ch /me/config/hammerspoon
-dict dmap set a /work/ai-way/
-dict dmap set ax /work/ai-next/
-dict dmap set af /work/ai-feat/
-dict dmap set ap /work/ai-plan/
-dict dmap set mp /work/ai-map/
-dict dmap set av /work/ai-visual/
+dict dmap set as /me/Library/ApplicationSupport/
+# dict dmap set a /work/ai-way/
+# dict dmap set ax /work/ai-next/
+# dict dmap set af /work/ai-feat/
+# dict dmap set ap /work/ai-plan/
+# dict dmap set mp /work/ai-map/
+# dict dmap set av /work/ai-visual/
 
 dict dmap set at /work/ai-tmp/
 dict dmap set am /work/ai-map/
