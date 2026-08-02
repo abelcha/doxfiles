@@ -134,6 +134,12 @@ function _atuin_search
     commandline -f repaint
 end
 
+function _atuhist_search
+    set -l h (ATUHIST_QUERY=(commandline -b) atuhist | string collect)
+    test -n "$h"; and commandline -r -- $h
+    commandline -f repaint
+end
+
 function _atuin_bind_up
     # Fallback to fish's builtin up-or-search if we're in search or paging mode
     if commandline --search-mode; or commandline --paging-mode
@@ -153,19 +159,19 @@ function _atuin_bind_up
 end
 
 if string match -q '4.*' $version
-    bind ctrl-r _atuin_search
+    bind ctrl-r _atuhist_search
     # bind alt-up _atuin_bind_up
     if bind -M insert >/dev/null 2>&1
-        bind -M insert ctrl-r _atuin_search
+        bind -M insert ctrl-r _atuhist_search
         # bind -M insert alt-up _atuin_bind_up
     end
 else
-    bind \cr _atuin_search
+    bind \cr _atuhist_search
     bind -k up _atuin_bind_up
     bind \eOA _atuin_bind_up
     bind \e\[A _atuin_bind_up
     if bind -M insert >/dev/null 2>&1
-        bind -M insert \cr _atuin_search
+        bind -M insert \cr _atuhist_search
         bind -M insert -k up _atuin_bind_up
         bind -M insert \eOA _atuin_bind_up
         bind -M insert \e\[A _atuin_bind_up
@@ -212,4 +218,4 @@ function _atuin_ai_question_mark
 end
 
 # Set up keybindings
-bind "?" _atuin_ai_question_mark
+# bind "?" _atuin_ai_question_mark
