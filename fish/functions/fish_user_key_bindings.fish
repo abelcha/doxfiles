@@ -237,17 +237,15 @@ function fish_user_key_bindings
     bind alt-j which_auto
     bind alt-k alt_k
     bind alt-s _fzf_search_git_status
+    bind alt-shift-s '_fzf_search_git_status --include-untracked'
     bind alt-l alt_l
-
-    bind alt-s _fzf_search_git_status
     bind alt-w 'geninline w'
     bind alt-W 'geninline ww'
     bind alt-t tldr_auto
     bindump alt-T tldr_manex
     bindump alt-@ __actual_fullcmd_token
-    bind alt-S 'genfn sm csv'
     bind alt-\$ transpose-words
-    bind ctrl-r _atuin_search
+    bind ctrl-r _atuhist_search
     bind ctrl-R _atuin_hist
     bind alt-ß 'commandline --insert /me/'
     bind alt-B '_fish_xxx_current_dir br'
@@ -268,7 +266,7 @@ function fish_user_key_bindings
     bind alt-D dump_commandline_test
     # bind alt-r run_preview
     bind alt-r 'run_preview --current-job'
-    bind alt-tab run_compgen
+    # bind alt-tab run_compgen
     bind alt-R 'run_preview --current-buffer --cut-at-cursor'
     # bind alt-c 'genfn cheat ash'
     bind alt-c 'echo -n (commandline)|copy'

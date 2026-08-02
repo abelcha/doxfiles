@@ -80,7 +80,7 @@ function _fzf_preview_changed_file --argument-names path_status --description "S
         # Unmerged statuses are mutually exclusive with other statuses, so if we see
         # these, then safe to assume the path is unmerged
         _fzf_report_diff_type Unmerged
-        git -c diff.external= diff $diff_opts -- $path
+        git -c diff.external= diff $diff_opts -- $path | _fzf_highlight_diff $path
     else
         if test $index_status != ' '
             _fzf_report_diff_type Staged
@@ -90,18 +90,28 @@ function _fzf_preview_changed_file --argument-names path_status --description "S
             if test $index_status = R
                 # diff the post-rename path with the original path, otherwise the diff will show the entire file as being added
                 set -f orig_and_new_path (string split --max 1 -- ' -> ' $path)
-                git diff --staged $diff_opts -- $orig_and_new_path[1] $orig_and_new_path[2]
+                git diff --staged $diff_opts -- $orig_and_new_path[1] $orig_and_new_path[2] | _fzf_highlight_diff $orig_and_new_path[2]
                 # path currently has the form of "original -> current", so we need to correct it before it's used below
                 set path $orig_and_new_path[2]
             else
-                git diff --staged $diff_opts -- $path
+                git diff --staged $diff_opts -- $path | _fzf_highlight_diff $path
             end
         end
 
         if test $working_tree_status != ' '
             _fzf_report_diff_type Unstaged
-            git diff $diff_opts -- $path
+            git diff $diff_opts -- $path | _fzf_highlight_diff $path
         end
+    end
+end
+# helper function for _fzf_preview_changed_file
+function _fzf_highlight_diff --argument-names path --description "Highlight a git diff for its file type."
+    if string match --quiet -- '*.astro' $path
+        delta --color-only --paging=never --default-language Astro
+    else if set --query fzf_diff_highlighter
+        eval "$fzf_diff_highlighter"
+    else
+        command cat
     end
 end
 # helper function for _fzf_search_directory and _fzf_search_git_status
@@ -240,17 +250,25 @@ function _fzf_search_git_log --description "Search the output of git log and pre
     commandline --function repaint
 end
 function _fzf_search_git_status --description 'Search the output of git status. Replace the current token with the selected file paths.'
+    set -l include_untracked 0
+    for arg in $argv
+        if test $arg = --include-untracked
+            set include_untracked 1
+        end
+    end
+
     if not git rev-parse --git-dir >/dev/null 2>&1
         echo '_fzf_search_git_status: Not in a git repository.' >&2
     else
         set -f preview_cmd '_fzf_preview_changed_file {}'
-        if set --query fzf_diff_highlighter
-            set preview_cmd "$preview_cmd | $fzf_diff_highlighter"
+
+        set -f status_cmd git -c color.status=always status --short .
+        if test $include_untracked -eq 1
+            set status_cmd git -c color.status=always status --short --untracked-files=all
         end
 
         set -f selected_paths (
-                        # Pass configuration color.status=always to force status to use colors even though output is sent to a pipe
-                        git -c color.status=always status --short . |
+                        $status_cmd |
                             _fzf_wrapper --ansi \
                                     --multi \
                                     --prompt="Git Status> " \
@@ -260,17 +278,15 @@ function _fzf_search_git_status --description 'Search the output of git status. 
                                     $fzf_git_status_opts
                     )
         if test $status -eq 0
-            # git status --short automatically escapes the paths of most files for us so not going to bother trying to handle
-            # the few edges cases of weird file names that should be extremely rare (e.g. "this;needs;escaping")
             set -f cleaned_paths
 
             for path in $selected_paths
                 if test (string sub --length 1 $path) = R
                     # path has been renamed and looks like "R LICENSE -> LICENSE.md"
                     # extract the path to use from after the arrow
-                    set --append cleaned_paths (string split -- "-> " $path)[-1]
+                    set --append cleaned_paths (string escape -- (string split -- "-> " $path)[-1])
                 else
-                    set --append cleaned_paths (string sub --start=4 $path)
+                    set --append cleaned_paths (string escape -- (string sub --start=4 $path))
                 end
             end
 
