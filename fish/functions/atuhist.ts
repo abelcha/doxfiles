@@ -1,6 +1,6 @@
 #!/usr/bin/env -S bun run --install=force
 import { Database } from "bun:sqlite"
-import { realpathSync } from "node:fs"
+import { realpathSync, readdirSync, lstatSync } from "node:fs"
 import { resolve } from "node:path"
 import { homedir } from "node:os"
 import {
@@ -37,7 +37,14 @@ const COLS = "timestamp, duration, command, cwd"
 
 const trunc = (s: string, n: number) => (s.length <= n ? s : "…" + s.slice(-(n - 1)))
 const fill = (s: string, w: number, pad: string) => (s.length >= w ? s.slice(0, w) : s + pad.repeat(w - s.length))
-const isoNoMs = (tsNs: number) => new Date(tsNs / 1e6).toISOString().slice(0, 19)
+// local time, not toISOString(): parseDate reads input as local, so a UTC
+// display would shift every timestamp by the tz offset and drift again on
+// round-trip through the anchor modal
+const isoNoMs = (tsNs: number) => {
+  const d = new Date(tsNs / 1e6)
+  const p = (n: number) => String(n).padStart(2, "0")
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`
+}
 
 // ── query state ─────────────────────────────────────────────────────────
 // The search box is the single source of truth; `anchor:` / `cwd:` tokens are
@@ -75,13 +82,42 @@ const parseMode = (q: string): Mode => {
 }
 let mode: Mode = parseMode("")
 
-const resolveCwd = (v: string) => {
-  const p = resolve(v.trim().replace(/^~(?=$|\/|\\)/, homedir()))
+const resolveCwd = (v: string) => resolve(v.trim().replace(/^~(?=$|\/|\\)/, homedir()))
+
+// History stores whatever path the shell was in, which may be a symlink
+// (/work/x) while realpath gives the physical one (/Volumes/work/x). Matching a
+// single form silently returns nothing, so collect both directions: resolve the
+// input, and scan / for symlinked roots that map back onto it.
+let linkRoots: [string, string][] | null = null // [link, target], e.g. /work -> /Volumes/work
+const rootLinks = () => {
+  if (linkRoots) return linkRoots
+  linkRoots = []
   try {
-    return realpathSync(p)
+    for (const name of readdirSync("/")) {
+      const link = "/" + name
+      try {
+        if (!lstatSync(link).isSymbolicLink()) continue
+        const target = realpathSync(link)
+        if (target !== link) linkRoots.push([link, target])
+      } catch {}
+    }
+  } catch {}
+  return linkRoots
+}
+
+const cwdVariants = (p: string) => {
+  const out = new Set([p])
+  try {
+    out.add(realpathSync(p))
   } catch {
-    return p // historical dirs may no longer exist — keep the literal
+    /* historical dirs may no longer exist — the literal is all we have */
   }
+  for (const [link, target] of rootLinks()) {
+    for (const v of [...out]) {
+      if (v === target || v.startsWith(target + "/")) out.add(link + v.slice(target.length))
+    }
+  }
+  return [...out]
 }
 
 // date-only strings anchor to local midnight; anything else goes through Date
@@ -125,8 +161,9 @@ const where = () => {
     }
   }
   if (cwdFilter) {
-    cl.push("(cwd = ? OR cwd LIKE ? || '/%')")
-    p.push(cwdFilter, cwdFilter)
+    const vs = cwdVariants(cwdFilter)
+    cl.push("(" + vs.map(() => "cwd = ? OR cwd LIKE ? || '/%'").join(" OR ") + ")")
+    for (const v of vs) p.push(v, v)
   }
   return { sql: cl.length ? " WHERE " + cl.join(" AND ") : "", params: p }
 }
@@ -550,10 +587,16 @@ const openAnchor = () => {
   openPrompt({
     title: "anchor — jump to date",
     hint: "yyyy-mm-dd  or  yyyy-mm-ddThh:mm[:ss]   ⏎ apply   esc cancel",
-    value: isoNoMs(cur ? cur.timestamp : Date.now() * 1e6),
+    // with no rows (over-narrow filter) keep the current anchor rather than
+    // silently jumping to now
+    value: isoNoMs(cur ? cur.timestamp : (anchorTs ?? Date.now() * 1e6)),
     validate: (s) => (parseDate(s) == null ? "invalid date — use yyyy-mm-dd or yyyy-mm-ddThh:mm[:ss]" : null),
     apply: (v) => {
-      query = setToken(input.value, "anchor", v)
+      // drop the text query: you anchor to see what surrounded a command, and
+      // keeping the search that found it would hide exactly that context.
+      // cwd: survives — it's a scope, not a search.
+      const keep = input.value.match(/(?:^|\s)cwd:\S+/)?.[0].trim() ?? ""
+      query = setToken(keep, "anchor", v)
       input.value = query
       search()
     },
@@ -565,7 +608,7 @@ const openCwd = () => {
   openPrompt({
     title: "cwd filter — dir + subdirectories",
     hint: "path   ( ~ and ./.. resolved, symlinks followed )   ⏎ apply   esc cancel",
-    value: cur ? cur.cwd : process.cwd(),
+    value: cur ? cur.cwd : (cwdFilter ?? process.cwd()),
     validate: (s) => (s.trim() === "" ? "enter a path" : null),
     apply: (v) => {
       query = setToken(input.value, "cwd", resolveCwd(v))
