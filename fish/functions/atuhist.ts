@@ -244,7 +244,18 @@ const unit = (ms: number) => {
   return `${Math.round(s / 86400)}d`
 }
 const fmtDuration = (ns: number) => unit(ns / 1e6)
-const fmtAgo = (tsNs: number) => unit(Date.now() - tsNs / 1e6)
+
+// ago gets coarser units than duration: at this scale "412d" is harder to read
+// than "14mo", and a command's runtime never wants months.
+const fmtAgo = (tsNs: number) => {
+  const d = (Date.now() - tsNs / 1e6) / 86400000
+  if (d < 1) return unit(Date.now() - tsNs / 1e6)
+  if (d < 7) return `${Math.round(d)}d`
+  if (d < 60) return `${Math.round(d / 7)}w`
+  if (d < 365) return `${Math.round(d / 30.44)}mo`
+  const y = d / 365.25
+  return y < 10 ? `${y.toFixed(1)}y` : `${Math.round(y)}y`
+}
 
 const matchRanges = (s: string) => {
   const out: [number, number][] = []
@@ -310,8 +321,22 @@ const input = new InputRenderable(renderer, {
 })
 const preview = new TextRenderable(renderer, { id: "preview", position: "absolute", left: 1, bottom: 0 })
 
-const HELP_WIDTH = 24
-const HELP_ROWS = 11
+// derived, not hardcoded: a stale width lets list rows paint over the border
+const HELP_LINES = [
+  "╭─ search ──────────────╮",
+  "│ foo bar   words (AND) │",
+  "│ ^foo      prefix      │",
+  "│ /rege?x/  regexp      │",
+  "│ anchor:d  go to date  │",
+  "│ cwd:path  dir filter  │",
+  "╰───────────────────────╯",
+  "╭─ keys ────────────────╮",
+  "│ alt-a     anchor here │",
+  "│ alt-c     cwd filter  │",
+  "╰───────────────────────╯",
+]
+const HELP_WIDTH = Math.max(...HELP_LINES.map((l) => l.length))
+const HELP_ROWS = HELP_LINES.length
 const helpLeft = () => renderer.width - 1 - HELP_WIDTH
 const help = new TextRenderable(renderer, {
   id: "help",
@@ -321,19 +346,7 @@ const help = new TextRenderable(renderer, {
   zIndex: 10,
   fg: C.dim,
   backgroundColor: "#0d1117",
-  content: [
-    "╭─ search ──────────────╮",
-    "│ foo bar   words (AND) │",
-    "│ ^foo      prefix      │",
-    "│ /rege?x/  regexp      │",
-    "│ anchor:d  go to date  │",
-    "│ cwd:path  dir filter  │",
-    "╰───────────────────────╯",
-    "╭─ keys ────────────────╮",
-    "│ alt-a     anchor here │",
-    "│ alt-c     cwd filter  │",
-    "╰───────────────────────╯",
-  ].join("\n"),
+  content: HELP_LINES.join("\n"),
 })
 
 // the hint list is dropped a tier at a time as the right-hand badges grow, so
@@ -415,8 +428,12 @@ const render = () => {
   if (sel < top) top = sel
   if (sel >= top + h) top = sel - h + 1
 
-  const globalW = renderer.width - 22
-  const helpW = Math.max(10, helpLeft() - 21)
+  // anchor mode shows absolute timestamps — the point is to read the context
+  // around a moment, and "204d ago" on every row doesn't tell you that.
+  const anchored = anchorTs != null
+  const stampW = anchored ? 20 : 10 // " yyyy-mm-ddThh:mm:ss" vs "  204d ago"
+  const globalW = renderer.width - 12 - stampW
+  const helpW = Math.max(10, helpLeft() - 11 - stampW)
   for (let i = 0; i < h; i++) {
     const idx = top + (h - 1 - i) // newest at the bottom
     const row = listRows[i]
@@ -430,11 +447,11 @@ const render = () => {
     const w = i < HELP_ROWS ? helpW : globalW
     const base = selected ? (s: string) => bold(fg(C.sel)(s)) : isAnchor ? (s: string) => fg(C.anchor)(s) : fg(C.cmd)
     const marker = isAnchor ? " ◆" : selected ? "  >" : idx > sel && idx <= sel + 9 ? String(idx - sel).padStart(3) : "   "
-    const pad = Math.max(0, renderer.width - 20 - w)
+    const pad = Math.max(0, renderer.width - 10 - stampW - w)
     row.content = new StyledText([
       isAnchor ? fg(C.anchor)(marker) : selected ? bold(fg(C.sel)(marker)) : fg(C.cmd)(marker),
       fg(C.dur)(" " + fmtDuration(item.duration).padStart(5)),
-      fg(C.ago)(" " + fmtAgo(item.timestamp).padStart(5) + " ago"),
+      fg(C.ago)(anchored ? " " + isoNoMs(item.timestamp) : " " + fmtAgo(item.timestamp).padStart(5) + " ago"),
       fg(C.cmd)(" "),
       ...cmdChunks(item.command, w, base),
       fg(C.cmd)(" ".repeat(pad)),
