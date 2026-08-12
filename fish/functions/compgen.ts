@@ -1,29 +1,61 @@
-#!/usr/bin/env bun
-
-require("dotenv").config({
-  quiet: true,
-  path: "~/.config/.secrets",
-});
+#!/usr/bin/env bun run --cwd=/me/.config
 
 import parseArgs from "mri";
-import { generateObject } from "ai";
-import { z } from "zod";
 import { Database } from "bun:sqlite";
+import { BamlRuntime, ClientRegistry } from "@boundaryml/baml/native";
 
-const MODEL = "grok-4.20-beta-0309-non-reasoning";
-import { createXai } from "@ai-sdk/xai";
-import { createOpenRouter } from "@openrouter/ai-sdk-provider";
-const xai = createXai({
-  apiKey: process.env.XAI_API_KEY,
-});
-// const openrouter = createOpenRouter({
-//   apiKey: process.env.OPENROUTER_API_KEY,
+const AI_DIR = `${import.meta.dir}/../../ai`;
+const SRC_DIR = `${AI_DIR}/baml_src`;
+await Bun.$`ln -sfn . baml_src`.cwd(AI_DIR).quiet();
 
-// });
-// import { openai} from '@ai-sdk/openai';
-// const openai = createOpenai({
-// apiKey: process.env.OPENAI_API_KEY,
-// });
+// Default-quiet: the runtime dumps the full prompt/reply at INFO. Via env
+// (not setLogLevel, which prints to stdout). -v/--verbose opts back in.
+const VERBOSE = process.argv.some((a) => a === "--verbose" || a === "-v");
+process.env.BAML_LOG ||= VERBOSE ? "INFO" : "WARN";
+
+const rt = BamlRuntime.fromDirectory(SRC_DIR, process.env as Record<string, string>);
+
+// All models go through OpenRouter so any slug just works.
+function buildRegistry(model?: string) {
+  if (!model) return { cr: null, label: "google/gemini-3.1-flash-lite (baml default)" };
+  const cr = new ClientRegistry();
+  cr.addLlmClient("__compgen_override", "openai-generic", {
+    model,
+    base_url: "https://openrouter.ai/api/v1",
+    api_key: process.env.OPENROUTER_API_KEY,
+  });
+  cr.setPrimary("__compgen_override");
+  return { cr, label: model };
+}
+
+// ---- OpenRouter catalog (for --list-models + fish completion) ----
+const MODELS_CACHE = "/tmp/openrouter-models.json";
+const MODELS_TTL = 24 * 60 * 60 * 1000; // 1 day
+
+async function fetchModelCatalog(force = false): Promise<string[]> {
+  const f = Bun.file(MODELS_CACHE);
+  if (!force && await f.exists()) {
+    const age = Date.now() - (await f.stat()).mtimeMs;
+    if (age < MODELS_TTL) {
+      return JSON.parse(await f.text());
+    }
+  }
+  const res = await fetch("https://openrouter.ai/api/v1/models");
+  const { data } = await res.json() as any;
+  const rows = data
+    .filter((m: any) => {
+      const mods = m.architecture?.input_modalities || [];
+      const isText = mods.includes("text");
+      const bad = /whisper|tts|embed|audio|suno|deepfake|image|flux|stable|midjourney|dall|playground|lyria|clip|vl\b|vision|voxtral|ui-tars/i.test(m.id);
+      const in$ = parseFloat(m.pricing?.prompt || "0") * 1e6;
+      const out$ = parseFloat(m.pricing?.completion || "0") * 1e6;
+      return isText && !bad && in$ >= 0 && in$ < 8 && out$ < 40 && (m.context_length || 0) >= 32000;
+    })
+    .map((m: any) => m.id as string)
+    .sort();
+  await Bun.write(MODELS_CACHE, JSON.stringify(rows));
+  return rows;
+}
 
 if (process.argv.length < 2) {
   console.error("Please provide a command to generate completions for");
@@ -35,87 +67,52 @@ const Args = parseArgs(process.argv.slice(2), {
     p: "prompt",
     U: "use",
     m: "model",
+    j: "concurrency",
+    v: "verbose",
     maxDepth: "max-depth",
   },
   default: {
-    model: MODEL,
     force: false,
     subcommands: null,
     maxDepth: 1,
+    concurrency: 8,
+    verbose: VERBOSE,
   },
-  boolean: ["force"],
-  string: ["subcommands", "prompt", "max-depth", "model"],
+  boolean: ["force", "no-cache", "list-models", "verbose"],
+  string: ["subcommands", "prompt", "max-depth", "model", "concurrency"],
 });
+// Everything that's just progress noise — gated behind --verbose.
+const log = (...a: any[]) => Args.verbose && console.info(...a);
+const table = (a: any) => Args.verbose && console.table(a);
+if (Args["list-models"]) {
+  for (const id of await fetchModelCatalog(Args["no-cache"])) console.log(id);
+  process.exit(0);
+}
 if (Args.help || !Args._.length) {
   console.log("Usage: compgen [options] <command>");
   console.log("Options:");
   console.log("  -h, --help        Show this help message");
   console.log("  -p, --prompt      Prompt to use for completion");
-  console.log("  -m, --model       Model to use for completion");
   console.log("  -S, --subcommands Subcommands to use for completion");
   console.log("  -U, --use         Use cached response for prompt");
-  console.log("  -m, --max-depth   Maximum depth to search for subcommands");
+  console.log("  -m, --model       Model to use for completion (e.g. google/gemini-3.1-flash-lite)");
+  console.log("      --max-depth   Maximum depth to search for subcommands");
+  console.log("  -j, --concurrency Parallel subcommand crawls (default 8)");
+  console.log("  -v, --verbose     Show BAML logs + per-step tables");
+  console.log("      --no-cache    Skip cache for this run");
+  console.log("      --list-models Print available OpenRouter models (for -m)");
   console.table(Args);
   process.exit(0);
 }
-// flags.S = flags.subcommands
-console.table(Args);
-// process.exit()
-// // console.log('==>', flags.subcommands)
 const forcedSubs =
   Args.subcommands === null
     ? null
     : Args.subcommands.split(" ").filter(Boolean);
-// // console.log({forcedSubs});
 const inputPath = Args._[0];
 const isScript = inputPath.includes("/") || inputPath.endsWith(".ts") || inputPath.endsWith(".js");
 const cmd = isScript
   ? inputPath.replace(/\.(ts|js)$/, "").split("/").pop()!
   : inputPath;
-
-// Define schemas for structured output
-const CliCommandSchema = z.object({
-  command: z.string().catch(""),
-  description: z.string().catch(""),
-  subcommands: z
-    .array(
-      z.object({
-        name: z.string().catch(""),
-        description: z.string().catch(""),
-      }),
-    )
-    .catch([]),
-  flags: z
-    .array(
-      z.object({
-        short: z.string().optional().catch(undefined),
-        long: z.string().optional().catch(undefined),
-        old: z.string().optional().catch(undefined),
-        description: z.string().optional().catch(""),
-        argument: z
-          .object({
-            required: z.boolean().optional().catch(false),
-            description: z.string().optional().catch(""),
-            values: z
-              .array(
-                z.union([
-                  z.string(),
-                  z.object({
-                    value: z.string(),
-                    description: z.string().optional().catch(""),
-                  }),
-                ]),
-              )
-              .optional()
-              .catch(undefined),
-            command: z.string().optional().catch(undefined),
-          })
-          .optional()
-          .catch(undefined),
-      }),
-    )
-    .catch([]),
-});
 
 const db = new Database("/tmp/ai.db");
 db.prepare(
@@ -149,14 +146,13 @@ async function getHelp(cmdParts: string[]) {
   try {
     if (Args.use) {
       const tmpl = Args.use.replace("{}", cmdParts.join(" "));
-      console.log({ tmpl });
+      Args.verbose && console.log({ tmpl });
       return await Bun.$`${tmpl.split(" ")} 2>&1`.nothrow().text();
     }
-    // For scripts, replace the cmd name with the actual script path
     const execCmd = isScript
       ? [inputPath, ...cmdParts.slice(1)]
       : cmdParts;
-    return await Bun.$`fish -c "${execCmd} --help 2>&1"`.nothrow().text();
+    return await Bun.$`fish -c "timeout 10s ${execCmd} --help 2>&1"`.nothrow().text();
   } catch (e) {
     if (cmdParts.length > 1) {
       console.error("retrying", "failed", { cmd: cmdParts });
@@ -171,7 +167,7 @@ const formatPrePrompt = (prompt: string) => {
     ? ""
     : `
     ### CRITICAL INSTRUCTIONS ###
-    
+
     Important: The following prompt requires careful attention to:
 	------------------------------------------
     ${prompt}
@@ -179,58 +175,67 @@ const formatPrePrompt = (prompt: string) => {
     ### END CONTEXT ###
     `;
 };
+
 async function parseHelp(
   helpText: string,
   fullCommand: string,
-): Promise<z.infer<typeof CliCommandSchema> | null> {
+): Promise<any | null> {
   if (!helpText?.trim()) {
     console.error(`Empty help text for command: ${fullCommand}`);
     return null;
   }
-  const prompt =
-    formatPrePrompt(Args.prompt) +
-    template.replace("#fullCommand", fullCommand) +
-    helpText;
-  await Bun.$`echo  ${prompt} >> /tmp/prompts.logs.txt`.quiet();
-  const h = Bun.hash(prompt).toString();
-  // Check cache first
-  const cached = getCachedResponse(h);
-  if (cached) {
-    console.info("cached", fullCommand);
+  const prePrompt = formatPrePrompt(Args.prompt);
+  const cacheKey = Bun.hash(prePrompt + fullCommand + helpText).toString();
+  const cached = getCachedResponse(cacheKey);
+  if (cached && Args['cache'] !== false) {
+    log("cached", fullCommand);
     return cached;
   }
-  // // console.log("parseHelp", arguments);
-  console.info("requesting", fullCommand);
+  const { cr, label } = buildRegistry(Args.model);
+  log("requesting", fullCommand, `[${label}]`);
 
-  const r = await generateObject({
-    model: xai(Args.model),
-    schema: CliCommandSchema,
-    prompt,
-  });
-  console.log({ r });
-  const { object } = r;
-  console.info("generated");
+  let object;
+  for (let attempt = 0; ; attempt++) {
+    try {
+      const res = await rt.callFunction(
+        "ParseCliHelp",
+        { fullCommand, helpText, prePrompt },
+        rt.createContextManager(),
+        null,
+        cr,
+        [],
+        {},
+        process.env as Record<string, string>,
+      );
+      object = res.parsed(false);
+      break;
+    } catch (e: any) {
+      if (!String(e?.message).includes("429") || attempt >= 4) throw e;
+      const wait = 2 ** attempt * 1000;
+      console.warn(`rate limited, retrying in ${wait}ms`, fullCommand);
+      await new Promise((r) => setTimeout(r, wait));
+    }
+  }
+  log("generated");
   object.subcommands = object.subcommands
-    .map((e) => ({ ...e, name: e.name.replaceAll(/[^\w\-\_]+/g, "") }))
-    .filter((e) => e.name);
-  console.info("OK", fullCommand);
-  console.table(object.flags);
-  console.table(object.subcommands);
-  // console.log('==========')
+    .map((e: any) => ({ ...e, name: e.name.replaceAll(/[^\w\-\_]+/g, "") }))
+    .filter((e: any) => e.name);
+  log("OK", fullCommand);
+  table(object.flags);
+  table(object.subcommands);
 
-  cachePromptResponse(h, object);
+  cachePromptResponse(cacheKey, object);
   return object;
 }
 const escapeFish = (v = "") =>
   JSON.stringify(v.replace(/^\-+/, "").replaceAll("$", "＄"));
 
-const getArgs = (...flags: z.infer<typeof CliCommandSchema>["flags"]) => {
+const getArgs = (...flags: any[]) => {
   const [flag] = flags;
   if (!flag?.argument) {
     return "";
   }
 
-  // flag.argument?.values.map(e => e.)
   if (flag.argument?.command) {
     return `'(${flag.argument.command})'`;
   }
@@ -238,11 +243,11 @@ const getArgs = (...flags: z.infer<typeof CliCommandSchema>["flags"]) => {
   if (!values) {
     return "";
   }
-  if (!values?.every((e) => e?.description)) {
-    return values.map((e) => e?.value || e).join(" ");
+  if (!values?.every((e: any) => e?.description)) {
+    return values.map((e: any) => e?.value || e).join(" ");
   }
   const aa = values
-    .map((e) => [e.value, e.description || ""].join("\\t"))
+    .map((e: any) => [e.value, e.description || ""].join("\\t"))
     .join(",");
   return `{${aa}}`;
 };
@@ -253,7 +258,7 @@ const getCommand = (op: Record<string, any>) => {
     "complete " +
     Object.entries(op)
       .filter(([k, v]) => v)
-      .map(([k, v]) => `-${k} ${k === "a" ? `"${v}"` : escapeFish(v)}`)
+      .map(([k, v]) => `-${k} ${k === "a" ? `"${v}"` : escapeFish(v as string)}`)
       .join(" ")
       .replace("-fc ", "-f -c ")
   );
@@ -262,12 +267,9 @@ async function generateFishFromJSON(
   commands: string[],
   parsed: any,
 ): Promise<string[]> {
-  // // console.log("generateFishFromJSON", arguments);
   const command = commands[0];
   const completions: string[] = [];
 
-  // Helper to escape fish strings
-  // Global options
   for (const flag of parsed.flags || []) {
     completions.push(
       getCommand({
@@ -275,9 +277,9 @@ async function generateFishFromJSON(
         n:
           commands.length > 1 &&
           `__fish_seen_subcommand_from '${commands.slice(1).join(" ")}'`,
-        s: flag.short,
+        s: flag.flagShort,
         o: flag.old,
-        l: flag.long,
+        l: flag.flagLong,
         d: flag.description,
         xa: getArgs(flag),
       }) + " # global",
@@ -285,7 +287,6 @@ async function generateFishFromJSON(
   }
 
   const prexx = commands.slice(1);
-  // Subcommands
   for (const sub of parsed.subcommands || []) {
     completions.push(
       getCommand({
@@ -300,17 +301,16 @@ async function generateFishFromJSON(
     );
   }
 
-  // Subcommand-specific flags
   for (const sub of parsed.subcommands || []) {
     for (const flag of parsed.flags || []) {
-      if (["help", "version"].includes(flag.long)) continue;
+      if (["help", "version"].includes(flag.flagLong)) continue;
       completions.push(
         getCommand({
           c: command,
           n: `__fish_seen_subcommand_from '${[...prexx, sub.name].join(" ")}'`,
-          s: flag.short,
+          s: flag.flagShort,
           o: flag.old,
-          l: flag.long,
+          l: flag.flagLong,
           d: flag.description,
           xa: getArgs(flag),
         }) + " # subcommands flags",
@@ -322,37 +322,45 @@ async function generateFishFromJSON(
 }
 
 const visited = new Set<string>();
+const concurrency = Math.max(1, parseInt(String(Args.concurrency)) || 8);
+
+// bounded concurrency pool — keeps `limit` fns in flight, preserves order.
+async function pool<T, R>(items: T[], limit: number, fn: (item: T) => Promise<R>): Promise<R[]> {
+  const results = new Array<R>(items.length);
+  let i = 0;
+  const run = Array.from({ length: Math.min(limit, items.length) }, async () => {
+    while (i < items.length) {
+      const idx = i++;
+      results[idx] = await fn(items[idx] as T);
+    }
+  });
+  await Promise.all(run);
+  return results;
+}
 
 async function crawlCommandTree(
   commandArray: Array<string>,
-  forcedSubs: string[] | undefined,
+  forcedSubs: string[] | null,
   depth = 0,
 ): Promise<string[]> {
-  // // console.log("crawlCommandTree", commandArray);
   const fullCmd = commandArray.join(" ");
-  console.warn("_crawlCommandTree", depth, commandArray);
+  log("crawl", depth, commandArray);
   if (visited.has(commandArray[commandArray.length - 1] as string)) {
     console.error(`Skipping duplicate command: ${fullCmd}`);
     return [];
   }
   visited.add(fullCmd);
   const help = await getHelp(commandArray);
-  // console.log('=========')
-  // console.log({ help })
-  // console.log('=========')
-
-  // .replaceAll(/^\s+(create|update|add|info|remove)\s+[^\s]+/g, '\n  $1\t @module/name');;
 
   const parsed = await parseHelp(help, fullCmd);
-  // // console.log({parsed})
   if (parsed === null) {
     return [];
   }
-  let { flags = [], subcommands = [], ...rest } = parsed;
+  let { flags = [], subcommands = [] } = parsed;
   if (forcedSubs !== null && Array.isArray(forcedSubs)) {
     const fsubs = new Set<string>(forcedSubs);
     subcommands = subcommands
-      .filter((e) => {
+      .filter((e: any) => {
         if (fsubs.has(e.name)) {
           fsubs.delete(e.name);
           return true;
@@ -362,112 +370,38 @@ async function crawlCommandTree(
         Array.from(fsubs).map((e) => ({ name: e, description: "desc: " + e })),
       );
   }
-  console.table(subcommands);
+  table(subcommands);
   const all = await generateFishFromJSON(commandArray, parsed);
-  // // console.log(all)
   if (
     commandArray.length <= Args.maxDepth &&
     subcommands.length > 0 &&
     commandArray[commandArray.length - 1] !== "help"
   ) {
-    const subPromises = subcommands.map(async (sub: any) => {
-      const subCmdArray = [...commandArray, sub.name];
-      return crawlCommandTree(subCmdArray, forcedSubs, depth + 1);
-    });
-    all.push(...(await Promise.all(subPromises)).flat());
+    const childResults = await pool(
+      subcommands,
+      concurrency,
+      (sub) => crawlCommandTree([...commandArray, sub.name], forcedSubs, depth + 1),
+    );
+    for (const r of childResults) all.push(...r);
   }
 
   return all;
 }
 
-const template = `
-Extract CLI command information from help text and return a structured JSON object that follows this schema:
-{preprompt}
-{
-  "command": "#fullCommand",
-  "description": "command description",
-  "subcommands": [
-    {
-      "name": "subcommand name",
-      "description": "subcommand description"
-    }
-  ],
-  "flags": [
-    {
-      "short": "a", // Short options, like -a. Short options are a single character long, are preceded by a single hyphen and can be grouped together (like -la, which is equivalent to -l -a). Option arguments may be specified by appending the option with the value (-w32), or, if --require-parameter is given, in the following parameter (-w 32).
-      "long": "colors",  // "GNU-style long options, like --colors. GNU-style long options can be more than one character long, are preceded by two hyphens, and can’t be grouped together. Option arguments may be specified after a = (--quoting-style=shell), or, if --require-parameter is given, in the following parameter (--quoting-style shell).", 
-      "old: "foo", // "Old-style options, long like -Wall or -name or even short like -a. Old-style options can be more than one character long, are preceded by a single hyphen and may not be grouped together. Option arguments are specified by default following a space (-foo null) or after = (-foo=null).",
-      "description": "description",
-      "argument": {
-        "required": true/false,
-        "description": "argument description (only if explicitly mentioned)",
-        "values": ["value1", "value2"] OR [{"value": "value1", "description": "description1"}, {"value": "value2", "description": "description2"}],
-        "command": "command to generate values"
-      }
-    }
-  ]
-}
-
-Rules:
-1. Extract all global flags (flags that work with any subcommand)
-2. Extract all subcommands and their descriptions (or [] if none)
-3. For flags with arguments, include argument information:
-   - If values are listed in help text (like "--browser <chrome|firefox|webkit>"), extract them as values array, and dont include it in description, 
-        EX: "--browser: browser to use, one of cr, chromium, ff" -> {"values": ["cr", "chromium", "ff"], "description": "browser to use"}
-   - If help mentions a command to list values (like "see 'playwright list-languages'"), set command field
-   - CRITICAL: Only use argument descriptions when they are EXPLICITLY written in the help text
-   - CRITICAL: Do NOT make up descriptions if its not provided
-   - CRITICAL: Only create objects with "value" and "description" when BOTH are explicitly provided in help text
-5. Set values as array of strings when only values are listed without descriptions
-6. Set values as array of objects with "value" and "description" properties only when both are explicitly available in help text
-8. Return null for missing optional fields
-9. dont include parent command in nested commands
-    ex:$ bun pm trust --help
-       bun pm pack # dont includes 'pack', parent command is not fully included
-       bun pm trust all # includes "all", cause it match 'pm trust'
-
-Examples:
-- For "--browser <chrome|firefox|webkit>": values: ["chrome", "firefox", "webkit"]
-- For "--theme (azura: dark and spicy, chevron: lighter greys)": values: [{"value": "azura", "description": "dark and spicy"}, {"value": "chevron", "description": "lighter greys"}]
-- For "--lang <lang> (see 'playwright list-languages')": command: "playwright list-languages"
-
-Return ONLY the JSON object, no additional text.
-
-Help text to parse:
-
-===============================================================
-`;
-
-// console.log({ forcedSubs })
 const allCompletions = await crawlCommandTree([cmd], forcedSubs);
 
-// For scripts, add wraps line so simulate-cli.ts wraps simulate-cli
 if (isScript) {
-  const filename = inputPath.split("/").pop()!;
   allCompletions.unshift(`complete -c "${inputPath}" --wraps ${cmd}`);
 }
 
-// // console.log(allCompletions.join("\n\n"));
 const filename = isScript ? inputPath.split("/").pop()! : cmd;
 const file = Bun.file(`/me/.config/fish/completions/${filename}.fish`);
 await Bun.$`cat < ${new Response(allCompletions.join("\n"))} | bat --style grid,header-filename  --language=fish --color=always`;
 if ((await file.exists()) && !Args.force) {
   await Bun.$`mv ${file.name} ${file.name}.${new Date().toISOString()}.txt`
-  // const answer = await prompt("Overwrite existing completion file? (y/n)");
-  // for await (const line of console) {
-    // console.log(`You typed: ${line}`);
-    // process.stdout.write(prompt);
-  // }
-  // console.log({answer})
-  // if (answer !== "y" && answer !== null) {
-    // console.log("Aborting");
-    // process.exit(0);
-  // }
 }
-// console.log("write");
 await file.write(allCompletions.join("\n"));
 
-// For scripts, also add to conf.d to ensure autoloading
 if (isScript) {
   const confDir = "/me/.config/fish/conf.d";
   const confFile = Bun.file(`${confDir}/compgen-scripts.fish`);
@@ -479,4 +413,4 @@ if (isScript) {
   }
 }
 
-process.exit()
+process.exit();
