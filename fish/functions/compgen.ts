@@ -2,60 +2,118 @@
 
 import parseArgs from "mri";
 import { Database } from "bun:sqlite";
-import { BamlRuntime, ClientRegistry } from "@boundaryml/baml/native";
+import { ModelRuntime } from "@earendil-works/pi-coding-agent";
+import { Type, getSupportedThinkingLevels, clampThinkingLevel } from "@earendil-works/pi-ai";
+import type { AssistantMessage, Tool, ThinkingLevel } from "@earendil-works/pi-ai";
 
-const AI_DIR = `${import.meta.dir}/../../ai`;
-const SRC_DIR = `${AI_DIR}/baml_src`;
-await Bun.$`ln -sfn . baml_src`.cwd(AI_DIR).quiet();
-
-// Default-quiet: the runtime dumps the full prompt/reply at INFO. Via env
-// (not setLogLevel, which prints to stdout). -v/--verbose opts back in.
 const VERBOSE = process.argv.some((a) => a === "--verbose" || a === "-v");
-process.env.BAML_LOG ||= VERBOSE ? "INFO" : "WARN";
 
-const rt = BamlRuntime.fromDirectory(SRC_DIR, process.env as Record<string, string>);
+// Same runtime + auth as the `pi` CLI: reads ~/.pi/agent/auth.json + models.json.
+const modelRuntime = await ModelRuntime.create();
+const DEFAULT_MODEL = "deepseek/deepseek-v4-flash"; // provider/modelId (pi-style)
 
-// All models go through OpenRouter so any slug just works.
-function buildRegistry(model?: string) {
-  if (!model) return { cr: null, label: "google/gemini-3.1-flash-lite (baml default)" };
-  const cr = new ClientRegistry();
-  cr.addLlmClient("__compgen_override", "openai-generic", {
-    model,
-    base_url: "https://openrouter.ai/api/v1",
-    api_key: process.env.OPENROUTER_API_KEY,
-  });
-  cr.setPrimary("__compgen_override");
-  return { cr, label: model };
+// ---- structured schema (replaces the BAML CliCommand definition) ----
+const CliCommandValue = Type.Object({
+  value: Type.String(),
+  description: Type.Optional(Type.String()),
+});
+const CliArgument = Type.Object({
+  required: Type.Optional(Type.Boolean()),
+  description: Type.Optional(Type.String()),
+  values: Type.Optional(Type.Array(Type.Union([Type.String(), CliCommandValue]))),
+  command: Type.Optional(Type.String()),
+});
+const CliFlag = Type.Object({
+  flagShort: Type.Optional(Type.String()),
+  flagLong: Type.Optional(Type.String()),
+  old: Type.Optional(Type.String()),
+  description: Type.Optional(Type.String()),
+  argument: Type.Optional(CliArgument),
+});
+const CliSubcommand = Type.Object({
+  name: Type.String(),
+  description: Type.String(),
+});
+const cliCommandSchema = Type.Object({
+  command: Type.String({ description: "the top-level command name" }),
+  description: Type.Optional(Type.String()),
+  subcommands: Type.Array(CliSubcommand),
+  flags: Type.Array(CliFlag),
+});
+const extractTool: Tool = {
+  name: "extract_cli_command",
+  description: "Extract CLI command structure from --help text.",
+  parameters: cliCommandSchema,
+};
+
+const SYSTEM_PROMPT = `You extract CLI command information from help text and return it via the extract_cli_command tool.
+
+Rules:
+1. Extract all global flags (flags that work with any subcommand).
+2. Extract all subcommands and their descriptions (or [] if none).
+3. For flags with arguments, include argument information:
+   - If values are listed in help text (like "--browser <chrome|firefox|webkit>"), extract them as a values array, and do NOT include them in the description.
+     Example: "--browser: browser to use, one of cr, chromium, ff" -> {"values": ["cr", "chromium", "ff"], "description": "browser to use"}
+   - If help mentions a command to list values (like "see 'playwright list-languages'"), set the command field.
+   - CRITICAL: Only use argument descriptions when they are EXPLICITLY written in the help text.
+   - CRITICAL: Do NOT make up descriptions if they are not provided.
+   - CRITICAL: Only create objects with "value" and "description" when BOTH are explicitly provided in the help text.
+5. Set values as an array of strings when only values are listed without descriptions.
+6. Set values as an array of objects with "value" and "description" only when both are explicitly available in the help text.
+8. Return null for missing optional fields.
+9. Do not include the parent command in nested commands.
+   Example:
+     $ bun pm trust --help
+       bun pm pack       # do NOT include "pack" — parent command is not fully present
+       bun pm trust all  # include "all" — matches "pm trust"
+Always respond by calling the extract_cli_command tool exactly once.`;
+
+function resolveModel(spec: string) {
+  const slash = spec.indexOf("/");
+  const provider = slash >= 0 ? spec.slice(0, slash) : "deepseek";
+  const id = slash >= 0 ? spec.slice(slash + 1) : spec;
+  const model = modelRuntime.getModel(provider, id);
+  if (!model) throw new Error(`Unknown model: ${spec} (use --list-models)`);
+  return model;
 }
 
-// ---- OpenRouter catalog (for --list-models + fish completion) ----
-const MODELS_CACHE = "/tmp/openrouter-models.json";
-const MODELS_TTL = 24 * 60 * 60 * 1000; // 1 day
-
-async function fetchModelCatalog(force = false): Promise<string[]> {
-  const f = Bun.file(MODELS_CACHE);
-  if (!force && await f.exists()) {
-    const age = Date.now() - (await f.stat()).mtimeMs;
-    if (age < MODELS_TTL) {
-      return JSON.parse(await f.text());
-    }
+function extractCliCommand(msg: AssistantMessage): any {
+  if (msg.stopReason === "error") {
+    throw new Error(msg.errorMessage || "model request failed");
   }
-  const res = await fetch("https://openrouter.ai/api/v1/models");
-  const { data } = await res.json() as any;
-  const rows = data
-    .filter((m: any) => {
-      const mods = m.architecture?.input_modalities || [];
-      const isText = mods.includes("text");
-      const bad = /whisper|tts|embed|audio|suno|deepfake|image|flux|stable|midjourney|dall|playground|lyria|clip|vl\b|vision|voxtral|ui-tars/i.test(m.id);
-      const in$ = parseFloat(m.pricing?.prompt || "0") * 1e6;
-      const out$ = parseFloat(m.pricing?.completion || "0") * 1e6;
-      return isText && !bad && in$ >= 0 && in$ < 8 && out$ < 40 && (m.context_length || 0) >= 32000;
-    })
-    .map((m: any) => m.id as string)
-    .sort();
-  await Bun.write(MODELS_CACHE, JSON.stringify(rows));
-  return rows;
+  const tc = msg.content.find((c) => c.type === "toolCall");
+  if (tc && tc.type === "toolCall") return tc.arguments;
+  // fallback: some models emit JSON as text
+  const text = msg.content
+    .filter((c) => c.type === "text")
+    .map((c: any) => c.text)
+    .join("");
+  const fence = text.match(/```(?:json)?\s*([\s\S]*?)```/);
+  const raw = (fence ? fence[1] : text.match(/\{[\s\S]*\}/)?.[0]) || "";
+  if (raw.trim()) {
+    try {
+      return JSON.parse(raw);
+    } catch {}
+  }
+  throw new Error(
+    "No structured tool call returned" + (text ? `: ${text.slice(0, 200)}` : ""),
+  );
 }
+
+// Prepended to every generated completion file so each is self-contained and
+// doesn't depend on the (historically buggy) global __fish_seen_subcommand_from.
+// Matches the ordered subcommand path, ignoring flags: `bun --env=x -w run`
+// matches the path `run`, and never re-offers a level once you go deeper.
+const SUBCOMMAND_PATH_FN = `# Ordered, flag-ignoring subcommand-path matcher.
+# True when the non-option tokens after the command equal the args in order.
+function __fish_seen_subcommand_path
+    set -l subs
+    for t in (commandline -pxc)[2..]
+        string match -q -- '-*' $t; and continue
+        set -a subs $t
+    end
+    test "$subs" = "$argv"
+end`;
 
 if (process.argv.length < 2) {
   console.error("Please provide a command to generate completions for");
@@ -69,6 +127,7 @@ const Args = parseArgs(process.argv.slice(2), {
     m: "model",
     j: "concurrency",
     v: "verbose",
+    t: "thinking",
     maxDepth: "max-depth",
   },
   default: {
@@ -77,15 +136,19 @@ const Args = parseArgs(process.argv.slice(2), {
     maxDepth: 1,
     concurrency: 8,
     verbose: VERBOSE,
+    thinking: "off",
   },
   boolean: ["force", "no-cache", "list-models", "verbose"],
-  string: ["subcommands", "prompt", "max-depth", "model", "concurrency"],
+  string: ["subcommands", "prompt", "max-depth", "model", "concurrency", "thinking"],
 });
-// Everything that's just progress noise — gated behind --verbose.
+// Verbose-only progress noise; request summaries are always printed.
 const log = (...a: any[]) => Args.verbose && console.info(...a);
 const table = (a: any) => Args.verbose && console.table(a);
+const summary = (...a: any[]) => console.info(...a);
 if (Args["list-models"]) {
-  for (const id of await fetchModelCatalog(Args["no-cache"])) console.log(id);
+  for (const m of await modelRuntime.getAvailable()) {
+    console.log(`${m.provider}/${m.id}`);
+  }
   process.exit(0);
 }
 if (Args.help || !Args._.length) {
@@ -95,12 +158,13 @@ if (Args.help || !Args._.length) {
   console.log("  -p, --prompt      Prompt to use for completion");
   console.log("  -S, --subcommands Subcommands to use for completion");
   console.log("  -U, --use         Use cached response for prompt");
-  console.log("  -m, --model       Model to use for completion (e.g. google/gemini-3.1-flash-lite)");
+  console.log("  -m, --model       Model to use (provider/modelId, e.g. deepseek/deepseek-v4-flash)");
+  console.log("  -t, --thinking    Thinking level (off|low|medium|high|xhigh|max; default off)");
   console.log("      --max-depth   Maximum depth to search for subcommands");
   console.log("  -j, --concurrency Parallel subcommand crawls (default 8)");
-  console.log("  -v, --verbose     Show BAML logs + per-step tables");
+  console.log("  -v, --verbose     Show model logs + per-step tables");
   console.log("      --no-cache    Skip cache for this run");
-  console.log("      --list-models Print available OpenRouter models (for -m)");
+  console.log("      --list-models Print available pi models (provider/modelId)");
   console.table(Args);
   process.exit(0);
 }
@@ -188,38 +252,89 @@ async function parseHelp(
   const cacheKey = Bun.hash(prePrompt + fullCommand + helpText).toString();
   const cached = getCachedResponse(cacheKey);
   if (cached && Args['cache'] !== false) {
-    log("cached", fullCommand);
+    summary("[cache] " + fullCommand);
     return cached;
   }
-  const { cr, label } = buildRegistry(Args.model);
-  log("requesting", fullCommand, `[${label}]`);
+  const spec = Args.model ? String(Args.model) : DEFAULT_MODEL;
+  const model = resolveModel(spec);
+  const requested = String(Args.thinking) as ThinkingLevel;
+  const thinking = clampThinkingLevel(model, requested);
+  if (thinking !== requested) {
+    log(
+      `thinking "${requested}" unsupported for ${spec}, using "${thinking}" (supported: ${getSupportedThinkingLevels(model).join(", ")})`,
+    );
+  }
+  log("requesting", fullCommand, `[${spec}]`, `thinking=${thinking}`);
+  const context = {
+    systemPrompt: SYSTEM_PROMPT,
+    tools: [extractTool],
+    messages: [
+      {
+        role: "user" as const,
+        timestamp: Date.now(),
+        content:
+          (prePrompt ? `${prePrompt}\n\n` : "") +
+          `Command: ${fullCommand}\n\nHelp text to parse:\n===============================================================\n${helpText}`,
+      },
+    ],
+  };
 
+  const t0 = performance.now();
   let object;
+  let msg: AssistantMessage;
+  let attempts = 0;
   for (let attempt = 0; ; attempt++) {
+    attempts = attempt + 1;
     try {
-      const res = await rt.callFunction(
-        "ParseCliHelp",
-        { fullCommand, helpText, prePrompt },
-        rt.createContextManager(),
-        null,
-        cr,
-        [],
-        {},
-        process.env as Record<string, string>,
-      );
-      object = res.parsed(false);
+      msg = await modelRuntime.completeSimple(model, context, {
+        reasoning: thinking,
+      });
+      object = extractCliCommand(msg);
       break;
     } catch (e: any) {
-      if (!String(e?.message).includes("429") || attempt >= 4) throw e;
+      const em = String(e?.message || e);
+      if ((!em.includes("429") && !/rate/i.test(em)) || attempt >= 4) throw e;
       const wait = 2 ** attempt * 1000;
       console.warn(`rate limited, retrying in ${wait}ms`, fullCommand);
       await new Promise((r) => setTimeout(r, wait));
     }
   }
+  const ms = (performance.now() - t0).toFixed(0);
+  const cost = msg.usage?.cost?.total;
+  summary(
+    `[${spec}] ${fullCommand} -> ${msg.model} (${msg.stopReason}) ${ms}ms/${attempts} attempts` +
+      (cost != null ? ` $${cost}` : ""),
+    {
+      provider: msg.provider,
+      model: msg.model,
+      responseModel: msg.responseModel,
+      responseId: msg.responseId,
+      stopReason: msg.stopReason,
+      rawStopReason: msg.rawStopReason,
+      attempts,
+      ms: `${ms}ms`,
+      cost: cost != null ? `$${cost}` : undefined,
+      usage: msg.usage
+        ? {
+            input: msg.usage.input,
+            output: msg.usage.output,
+            cacheRead: msg.usage.cacheRead,
+            cacheWrite: msg.usage.cacheWrite,
+            reasoning: msg.usage.reasoning,
+            totalTokens: msg.usage.totalTokens,
+            cost: msg.usage.cost,
+          }
+        : undefined,
+    },
+  );
   log("generated");
+  log("extracted JSON", JSON.stringify(object));
   object.subcommands = object.subcommands
     .map((e: any) => ({ ...e, name: e.name.replaceAll(/[^\w\-\_]+/g, "") }))
     .filter((e: any) => e.name);
+  summary(
+    `[${spec}] ${fullCommand} -> ${object.subcommands.length} subcommands, ${object.flags?.length ?? 0} flags`,
+  );
   log("OK", fullCommand);
   table(object.flags);
   table(object.subcommands);
@@ -287,14 +402,16 @@ async function generateFishFromJSON(
   }
 
   const prexx = commands.slice(1);
+  // Offer this level's subcommands only when the ordered subcommand path
+  // (ignoring flags) matches exactly. Top level falls back to __fish_use_subcommand.
+  const subCond = prexx.length
+    ? `__fish_seen_subcommand_path ${prexx.map((p) => `'${p}'`).join(" ")}`
+    : "__fish_use_subcommand";
   for (const sub of parsed.subcommands || []) {
     completions.push(
       getCommand({
         fc: command,
-        n:
-          commands.length >= 2
-            ? `__fish_seen_subcommand_from '${prexx.join(" ")}'`
-            : "__fish_use_subcommand",
+        n: subCond,
         a: sub.name,
         d: sub.description,
       }) + " # sub",
@@ -396,11 +513,12 @@ if (isScript) {
 
 const filename = isScript ? inputPath.split("/").pop()! : cmd;
 const file = Bun.file(`/me/.config/fish/completions/${filename}.fish`);
-await Bun.$`cat < ${new Response(allCompletions.join("\n"))} | bat --style grid,header-filename  --language=fish --color=always`;
+const output = [SUBCOMMAND_PATH_FN, ...allCompletions].join("\n") + "\n";
+await Bun.$`cat < ${new Response(output)} | bat --style grid,header-filename  --language=fish --color=always`;
 if ((await file.exists()) && !Args.force) {
   await Bun.$`mv ${file.name} ${file.name}.${new Date().toISOString()}.txt`
 }
-await file.write(allCompletions.join("\n"));
+await file.write(output);
 
 if (isScript) {
   const confDir = "/me/.config/fish/conf.d";
