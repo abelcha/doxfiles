@@ -6,6 +6,7 @@ alias ffds "fds  -I -H"
 alias ducklean "duckdb -init /dev/null"
 alias pm "bun pm"
 # alias u url-to-md
+alias code code-insiders
 alias codex "/Applications/ChatGPT.app/Contents/Resources/codex"
 alias sc scw
 alias sl scw
@@ -73,6 +74,9 @@ alias dus "du -sh"
 alias 7z 7zz
 alias npx bunx
 alias diskattach 'diskimage attach'
+alias zpi "pi --model glm-5.3"
+alias vpi "pi --model  deepseek-v4-flash"
+alias vpro "pi --model deepseek-v4-pro"
 # alias c cursor
 if not type -q mi; and test -n "$EDITOR"
     alias mi "$EDITOR"
