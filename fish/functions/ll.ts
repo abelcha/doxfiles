@@ -794,8 +794,10 @@ async function* processEntries(
         return -1;
     }
 
+    // Explicitly named targets (file operand, or -d) always show; -a only gates directory scans
+    const explicitTarget = !(isDir && !flags.dir);
     const tasks = entries
-        .filter((entry) => flags.all || !entry.name.startsWith("."))
+        .filter((entry) => explicitTarget || flags.all || !entry.name.startsWith("."))
         .map(async (entry) => {
             // Caution: logic for fullPath depends on where entry came from.
             // If entry came from readdir(targetDir), parentPath is targetDir.
@@ -1019,9 +1021,6 @@ if (import.meta.main) {
 
     const processEntry = (entry: EntryData & { originalTargetDir?: string }, targetDir: string) => {
         const { entry: ent, fullPath, size, ts, duration } = entry;
-        if (!flags.all && ent.name.startsWith(".") && !positionnals[0]?.startsWith('.')) {
-            return;
-        }
 
         if (size === -2 && !spawnedWarming) {
             spawnedWarming = true;
