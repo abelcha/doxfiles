@@ -1,186 +1,137 @@
 #!/usr/bin/env bun
-import { Database } from "bun:sqlite";
-import {
-    Dirent,
-    existsSync, lstatSync, readlinkSync,
-    realpathSync
-} from "fs";
+import { existsSync, lstatSync, readlinkSync, realpathSync } from "fs";
 import { readdir } from "fs/promises";
 import type { Stats } from "node:fs";
 import path, { join } from "path";
 import { parseArgs } from "util";
+import { dlopen, FFIType, ptr } from "bun:ffi";
 
 const ANSI_RESET = "\x1b[0m";
-
-type StatPredicate = () => boolean;
-// console.time("db");
-const db = new Database("/tmp/teza-cache.sqlite");
-db.run("PRAGMA journal_mode = WAL;");
-db.run("PRAGMA synchronous = NORMAL;");
-db.run("CREATE TABLE IF NOT EXISTS cache (key TEXT PRIMARY KEY, size INTEGER)");
-
-const getCacheStmt = db.prepare("SELECT size FROM cache WHERE key = ?");
-const setCacheStmt = db.prepare(
-    "INSERT OR REPLACE INTO cache (key, size) VALUES (?, ?)"
-);
-// console.timeEnd("db");
 const DISPLAY_COLORS = process.stdout.isTTY;
-const MIN_ENTRIES_CACHE = 100;
+const APFS_UTIL =
+    "/System/Library/Filesystems/apfs.fs/Contents/Resources/apfs.util";
 
-import { dlopen, FFIType, ptr } from "bun:ffi";
-const ST_SIZE_OFFSET = 96;
-const ST_BLOCKS_OFFSET = 104;
-
+// getattrlist is the only thing node:fs can't give us (ATTR_VOL_SPACEUSED).
+// Physical file size comes from Stats.blocks, which is already st_blocks.
 const libc = dlopen("libSystem.B.dylib", {
-    lstat: {
-        args: [FFIType.ptr, FFIType.ptr],
-        returns: FFIType.i32,
-    },
     getattrlist: {
         args: [FFIType.ptr, FFIType.ptr, FFIType.ptr, FFIType.usize, FFIType.u32],
         returns: FFIType.i32,
     },
-    statfs: {
-        args: [FFIType.ptr, FFIType.ptr],
-        returns: FFIType.i32,
+    getxattr: {
+        args: [FFIType.ptr, FFIType.ptr, FFIType.ptr, FFIType.usize, FFIType.u32, FFIType.i32],
+        returns: FFIType.isize,
     },
-    strerror: {
-        args: [FFIType.i32],
-        returns: FFIType.cstring,
-    },
-    __error: {
-        args: [],
-        returns: FFIType.ptr,
-    },
+    strerror: { args: [FFIType.i32], returns: FFIType.cstring },
+    __error: { args: [], returns: FFIType.ptr },
 });
-const encoder = new TextEncoder()
 
-function getPhysicalFileSize(fullPath: string) {
-    const pathBuf = encoder.encode(fullPath + "\0");
-    const localStatBuf = new Uint8Array(144);
-    const res = libc.symbols.lstat(pathBuf, localStatBuf);
-    if (res === 0) {
-        return Number(new BigUint64Array(localStatBuf.buffer, ST_BLOCKS_OFFSET, 1)[0]) * 512
-    }
-    return -1;
+const encoder = new TextEncoder();
+
+// Files small enough that their AFSC-compressed payload fits inline in the inode
+// record have st_blocks == 0, so blocks*512 reports nothing. The com.apple.decmpfs
+// xattr is where the bytes actually live. XATTR_SHOWCOMPRESSION (0x20) is required
+// or the xattr is hidden on compressed files.
+const XATTR_SHOWCOMPRESSION = 0x20;
+const DECMPFS_NAME = encoder.encode("com.apple.decmpfs\0");
+const RSRC_NAME = encoder.encode("com.apple.ResourceFork\0");
+
+function getXattrSize(filePath: string, name: Uint8Array): number {
+    const size = Number(
+        libc.symbols.getxattr(
+            ptr(encoder.encode(filePath + "\0")),
+            ptr(name),
+            null,
+            0,
+            0,
+            XATTR_SHOWCOMPRESSION
+        )
+    );
+    return size > 0 ? size : 0;
+}
+
+const getDecmpfsSize = (filePath: string) => getXattrSize(filePath, DECMPFS_NAME);
+
+/**
+ * Actual compressed byte count for an AFSC file, or 0 if it isn't compressed.
+ * Small payloads live inline in the decmpfs xattr; larger ones spill into the
+ * resource fork with only a header left in decmpfs. Deliberately not block-
+ * rounded — a 566-byte payload in a 4096-byte block is a 27% ratio, not 198%.
+ */
+function getCompressedBytes(filePath: string): number {
+    const decmpfs = getDecmpfsSize(filePath);
+    if (decmpfs === 0) return 0;
+    return decmpfs + getXattrSize(filePath, RSRC_NAME);
 }
 
 function getErrno(): number {
-    const errnoPtr = libc.symbols.__error();
-    return new Int32Array(Bun.toArrayBuffer(errnoPtr, 0, 4))[0];
+    return new Int32Array(Bun.toArrayBuffer(libc.symbols.__error(), 0, 4))[0];
 }
 
-function getVolumeSizePureBun(path: string): bigint {
-    //console.log("mounted volume", path);
-    const encoder = new TextEncoder();
-    const pathPtr = encoder.encode(path + "\0");
-
+function getVolumeSize(volumePath: string): number {
+    const pathPtr = encoder.encode(volumePath + "\0");
     const attrList = new Uint32Array([
-        5, // bitmapcount (5) + reserved (0)
+        5, // bitmapcount + reserved
         0, // commonattr
-        0x00800000, // volattr (ATTR_VOL_SPACEUSED)
+        0x00800000, // volattr: ATTR_VOL_SPACEUSED
         0, // dirattr
         0, // fileattr
         0, // forkattr
     ]);
+    const out = new Uint8Array(32);
 
-    // Output buffer: size needs to be large enough for potential padding
-    const outputBuf = new Uint8Array(32);
-
-    const res = libc.symbols.getattrlist(
-        ptr(pathPtr),
-        ptr(attrList),
-        ptr(outputBuf),
-        outputBuf.length,
-        0
-    );
-
-    if (res === 0) {
-        const view = new DataView(outputBuf.buffer);
-        const length = view.getUint32(0, true);
-        // On 64-bit systems, attributes that are 8-byte aligned (like off_t)
-        // will have 4 bytes of padding after the 4-byte length field.
-        // Length: bytes 0-3
-        // Padding: bytes 4-7
-        // Data: bytes 8-15
-        if (length >= 16) {
-            return view.getBigUint64(8, true);
-        } else if (length >= 12) {
-            // Just in case it's not padded
-            return view.getBigUint64(4, true);
-        }
-        return 0n;
-    }
-
-    const errno = getErrno();
-    console.error(
-        `getattrlist failed: ${libc.symbols.strerror(errno)} (errno: ${errno})`
-    );
-    return -1n;
-}
-function isMountedVolume(
-    filename: string,
-    stat?: ReturnType<typeof lstatSync>
-) {
-    stat = stat || lstatSync(filename);
-    return lstatSync(path.dirname(filename)).dev !== stat.dev;
-}
-type StatLike = Stats;
-// export interface StatLike {
-//     mode: number;
-//     isDirectory: StatPredicate;
-//     isFile: StatPredicate;
-//     isSymbolicLink?: StatPredicate;
-//     isSocket?: StatPredicate;
-//     isFIFO?: StatPredicate;
-//     isPipe?: StatPredicate;
-//     isBlockDevice?: StatPredicate;
-//     isCharacterDevice?: StatPredicate;
-//     isMountPoint?: StatPredicate;
-// }
-
-const FG = {
-    black: 30,
-    red: 31,
-    green: 32,
-    yellow: 33,
-    blue: 34,
-    magenta: 35,
-    cyan: 36,
-    white: 37,
-    default: 39,
-    grey: 90,
-} as const;
-
-const BG = {
-    yellow: 43,
-} as const;
-
-interface StyleSpec {
-    fg?: number;
-    bg?: number;
-    bold?: boolean;
-    underline?: boolean;
-    dim?: boolean;
-}
-
-// Helper for apfs.util -S
-async function getApfsFastSize(dirPath: string, verbose?: VerboseCtx): Promise<number> {
-    const t0 = performance.now();
-    try {
-        const proc = Bun.$`/System/Library/Filesystems/apfs.fs/Contents/Resources/apfs.util -S ${dirPath}`.quiet();
-        const out = await proc.text();
-        const match = out.match(/physical size: (\d+)/);
-        const size = match?.[1] ? parseInt(match[1], 10) : -1;
-        if (verbose) {
-            verbose.note(dirPath, `apfs.util -S → ${size} bytes in ${(performance.now() - t0).toFixed(1)}ms`);
-            if (!match) verbose.note(dirPath, `apfs.util output unparsed: ${out.trim().slice(0, 120)}`);
-        }
-        return size;
-    } catch (err: any) {
-        if (verbose) verbose.note(dirPath, `apfs.util failed: ${err?.message ?? err}`);
+    if (
+        libc.symbols.getattrlist(ptr(pathPtr), ptr(attrList), ptr(out), out.length, 0) !== 0
+    ) {
+        const errno = getErrno();
+        console.error(
+            `getattrlist failed: ${libc.symbols.strerror(errno)} (errno: ${errno})`
+        );
         return -1;
     }
+
+    const view = new DataView(out.buffer);
+    const length = view.getUint32(0, true);
+    // off_t is 8-byte aligned, so there are 4 bytes of padding after the length.
+    if (length >= 16) return Number(view.getBigUint64(8, true));
+    if (length >= 12) return Number(view.getBigUint64(4, true));
+    return 0;
+}
+
+// apfs.util -S reads APFS's maintained directory statistics, so it is O(1)
+// regardless of tree size, and counts cloned blocks once (unlike du).
+// It only accepts one path per invocation, hence the spawn cap.
+const MAX_SPAWNS = 12;
+let activeSpawns = 0;
+const spawnQueue: (() => void)[] = [];
+
+async function withSpawnSlot<T>(fn: () => Promise<T>): Promise<T> {
+    if (activeSpawns >= MAX_SPAWNS) {
+        await new Promise<void>((resolve) => spawnQueue.push(resolve));
+    }
+    activeSpawns++;
+    try {
+        return await fn();
+    } finally {
+        activeSpawns--;
+        spawnQueue.shift()?.();
+    }
+}
+
+async function getApfsDirSize(dirPath: string, verbose?: VerboseCtx): Promise<number> {
+    return withSpawnSlot(async () => {
+        try {
+            const out = await Bun.$`${APFS_UTIL} -S ${dirPath}`.quiet().text();
+            const size = Number(out.match(/physical size: (\d+)/)?.[1] ?? -1);
+            if (verbose && size === -1) {
+                verbose.note(dirPath, `apfs.util output unparsed: ${out.trim().slice(0, 120)}`);
+            }
+            return size;
+        } catch (err: any) {
+            verbose?.note(dirPath, `apfs.util failed: ${err?.message ?? err}`);
+            return -1;
+        }
+    });
 }
 
 interface VerboseCtx {
@@ -200,34 +151,38 @@ function makeVerboseCtx(): VerboseCtx {
     };
 }
 
+const FG = {
+    black: 30,
+    red: 31,
+    green: 32,
+    yellow: 33,
+    blue: 34,
+    magenta: 35,
+    cyan: 36,
+    white: 37,
+    default: 39,
+    grey: 90,
+} as const;
+
+const BG = { yellow: 43 } as const;
+
+interface StyleSpec {
+    fg?: number;
+    bg?: number;
+    bold?: boolean;
+    underline?: boolean;
+    dim?: boolean;
+}
+
 function makeStyle(spec?: StyleSpec): string {
-    if (!spec) {
-        return "";
-    }
-
+    if (!spec) return "";
     const codes: number[] = [];
-
-    if (spec.bold) {
-        codes.push(1);
-    }
-    if (spec.dim) {
-        codes.push(2);
-    }
-    if (spec.underline) {
-        codes.push(4);
-    }
-    if (spec.fg !== undefined) {
-        codes.push(spec.fg);
-    }
-    if (spec.bg !== undefined) {
-        codes.push(spec.bg);
-    }
-
-    if (codes.length === 0) {
-        return "";
-    }
-
-    return `\x1b[${codes.join(";")}m`;
+    if (spec.bold) codes.push(1);
+    if (spec.dim) codes.push(2);
+    if (spec.underline) codes.push(4);
+    if (spec.fg !== undefined) codes.push(spec.fg);
+    if (spec.bg !== undefined) codes.push(spec.bg);
+    return codes.length ? `\x1b[${codes.join(";")}m` : "";
 }
 
 const themeStyles = {
@@ -254,15 +209,13 @@ const themeStyles = {
     special: makeStyle({ fg: FG.yellow }),
     executable: makeStyle({ fg: FG.green, bold: true }),
     mountPoint: makeStyle({ fg: FG.cyan, bold: true, underline: true }),
-    multiLinkFile: makeStyle({ fg: FG.red, bg: BG.yellow }),
     controlChar: makeStyle({ fg: FG.red }),
     brokenSymlink: makeStyle({ fg: FG.red, underline: true }),
-    brokenFilename: makeStyle({ fg: FG.red }),
-    brokenControlChar: makeStyle({ fg: FG.red }),
     symlinkPath: makeStyle({ fg: FG.cyan }),
     linkArrow: makeStyle({ fg: FG.grey }),
     linkArrowBroken: makeStyle({ fg: FG.red }),
     basepath: makeStyle({ fg: FG.cyan }),
+    dim: makeStyle({ fg: FG.grey, dim: true }),
     sizeGB: makeStyle({ fg: FG.red }),
     sizeMB: makeStyle({ fg: FG.yellow }),
     sizeKB: makeStyle({ fg: FG.green, bold: true }),
@@ -282,16 +235,12 @@ type FileType =
     | "build"
     | "source";
 
-function mapValues(
-    type: FileType,
-    keys: readonly string[]
-): Record<string, FileType> {
+function mapValues(type: FileType, keys: readonly string[]) {
     const result: Record<string, FileType> = {};
-    for (const key of keys) {
-        result[key] = type;
-    }
+    for (const key of keys) result[key] = type;
     return result;
 }
+
 const FILENAME_TYPES: Record<string, FileType> = {
     ...mapValues(
         "build",
@@ -360,35 +309,21 @@ const EXTENSION_TYPES: Record<string, FileType> = {
 };
 
 const TEMP_FILENAME_PREFIX = "#";
-function getFilenameExtension(name: string): string | undefined {
+
+function getFilenameExtension(name: string) {
     const dotIndex = name.lastIndexOf(".");
-
-    if (dotIndex <= 0 || dotIndex === name.length - 1) {
-        return undefined;
-    }
-
+    if (dotIndex <= 0 || dotIndex === name.length - 1) return undefined;
     return name.slice(dotIndex + 1).toLowerCase();
 }
 
 function getFileType(filename: string): FileType | undefined {
-    const lower = filename.toLowerCase();
-
-    if (lower.startsWith("readme")) {
-        return "build";
-    }
+    if (filename.toLowerCase().startsWith("readme")) return "build";
 
     const specific = FILENAME_TYPES[filename];
-    if (specific) {
-        return specific;
-    }
+    if (specific) return specific;
 
     const ext = getFilenameExtension(filename);
-    if (ext) {
-        const extType = EXTENSION_TYPES[ext];
-        if (extType) {
-            return extType;
-        }
-    }
+    if (ext && EXTENSION_TYPES[ext]) return EXTENSION_TYPES[ext];
 
     if (
         filename.endsWith("~") ||
@@ -401,103 +336,47 @@ function getFileType(filename: string): FileType | undefined {
     return undefined;
 }
 
-function colourFile(filename: string): string {
-    const fileType = getFileType(filename);
-    if (!fileType) {
-        return themeStyles.normal;
-    }
-    return themeStyles.fileTypes[fileType] ?? themeStyles.normal;
-}
-
 function paint(style: string, text: string): string {
-    if (!style || !DISPLAY_COLORS) {
-        return text;
-    }
+    if (!style || !DISPLAY_COLORS) return text;
     return `${style}${text}${ANSI_RESET}`;
 }
 
-function isExecutable(stat: StatLike): boolean {
-    if (!stat.isFile()) {
-        return false;
-    }
-    return (stat.mode & 0o111) !== 0;
+function isExecutable(stat: Stats) {
+    return stat.isFile() && (stat.mode & 0o111) !== 0;
 }
 
-function styleForStat(filename: string, stat: StatLike | null): string {
-    if (!stat) {
-        return themeStyles.symlink;
-    }
-
-    // if (isMountedVolume(filename, stat)) {
-    //     return themeStyles.mountPoint;
-    // }
-
+function styleForStat(filename: string, stat: Stats | null, isMount: boolean): string {
+    if (!stat) return themeStyles.symlink;
     if (stat.isDirectory()) {
-        if (isMountedVolume(filename, stat)) {
-            return themeStyles.mountPoint;
-        }
-        return themeStyles.directory;
+        return isMount ? themeStyles.mountPoint : themeStyles.directory;
     }
+    if (isExecutable(stat)) return themeStyles.executable;
+    if (stat.isSymbolicLink()) return themeStyles.symlink;
+    if (stat.isFIFO()) return themeStyles.pipe;
+    if (stat.isBlockDevice()) return themeStyles.blockDevice;
+    if (stat.isCharacterDevice()) return themeStyles.charDevice;
+    if (stat.isSocket()) return themeStyles.socket;
+    if (!stat.isFile()) return themeStyles.special;
 
-    if (isExecutable(stat)) {
-        return themeStyles.executable;
-    }
-
-    if (stat.isSymbolicLink?.()) {
-        return themeStyles.symlink;
-    }
-
-    if (stat.isFIFO?.() || stat.isPipe?.()) {
-        return themeStyles.pipe;
-    }
-
-    if (stat.isBlockDevice?.()) {
-        return themeStyles.blockDevice;
-    }
-
-    if (stat.isCharacterDevice?.()) {
-        return themeStyles.charDevice;
-    }
-
-    if (stat.isSocket?.()) {
-        return themeStyles.socket;
-    }
-
-    if (!stat.isFile()) {
-        return themeStyles.special;
-    }
-
-    return colourFile(filename);
+    const fileType = getFileType(filename);
+    return fileType ? themeStyles.fileTypes[fileType] : themeStyles.normal;
 }
 
 function escapeControlChar(charCode: number): string {
     switch (charCode) {
-        case 0x07:
-            return "\\a";
-        case 0x08:
-            return "\\b";
-        case 0x09:
-            return "\\t";
-        case 0x0a:
-            return "\\n";
-        case 0x0b:
-            return "\\v";
-        case 0x0c:
-            return "\\f";
-        case 0x0d:
-            return "\\r";
-        case 0x1b:
-            return "\\e";
-        default:
-            return `\\x${charCode.toString(16).padStart(2, "0")}`;
+        case 0x07: return "\\a";
+        case 0x08: return "\\b";
+        case 0x09: return "\\t";
+        case 0x0a: return "\\n";
+        case 0x0b: return "\\v";
+        case 0x0c: return "\\f";
+        case 0x0d: return "\\r";
+        case 0x1b: return "\\e";
+        default: return `\\x${charCode.toString(16).padStart(2, "0")}`;
     }
 }
 
-function escapeFilename(
-    name: string,
-    textStyle: string,
-    controlStyle: string
-): string {
+function escapeFilename(name: string, textStyle: string, controlStyle: string): string {
     const segments: string[] = [];
     let currentPlain = "";
 
@@ -510,10 +389,7 @@ function escapeFilename(
 
     for (const char of name) {
         const codePoint = char.codePointAt(0);
-        if (codePoint === undefined) {
-            continue;
-        }
-
+        if (codePoint === undefined) continue;
         if (codePoint >= 0x20 && codePoint !== 0x7f) {
             currentPlain += char;
         } else {
@@ -526,174 +402,174 @@ function escapeFilename(
     return segments.join("");
 }
 
-function classifySuffix(stat: StatLike | null): string | undefined {
-    if (!stat) {
-        return "";
-    }
-    if (isExecutable(stat)) {
-        return "*";
-    }
-    if (stat.isDirectory()) {
-        return "/";
-    }
-    if (stat.isFIFO?.() || stat?.isPipe?.()) {
-        return "|";
-    }
-    if (stat.isSymbolicLink?.()) {
-        return "@";
-    }
-    if (stat.isSocket?.()) {
-        return "=";
-    }
+function classifySuffix(stat: Stats | null): string | undefined {
+    if (!stat) return "";
+    if (isExecutable(stat)) return "*";
+    if (stat.isDirectory()) return "/";
+    if (stat.isFIFO()) return "|";
+    if (stat.isSymbolicLink()) return "@";
+    if (stat.isSocket()) return "=";
     return undefined;
 }
 
 function formatDate(date: Date): string {
-    if (date.getFullYear() > 3000) {
-        return "     -      ";
-    }
-    const now = new Date();
-    const currentYear = now.getFullYear();
+    if (date.getFullYear() > 3000) return "     -      ";
+
     const day = date.getDate().toString().padStart(2, " ");
     const month = date.toLocaleDateString("en-US", { month: "short" });
 
-    if (date.getFullYear() === currentYear) {
-        // This year: day month HH:MM
+    if (date.getFullYear() === new Date().getFullYear()) {
         const hours = date.getHours().toString().padStart(2, "0");
         const minutes = date.getMinutes().toString().padStart(2, "0");
         return `${day} ${month} ${hours}:${minutes}`;
-    } else {
-        // Older: day month  year (two spaces before year)
-        const year = date.getFullYear();
-        return `${day} ${month}  ${year}`;
     }
+    return `${day} ${month}  ${date.getFullYear()}`;
 }
-function formatSize(size: number, padWidth: number = 4): string {
-    if (size === 0) {
-        const dashStr = "-";
-        const padding = " ".repeat(Math.max(0, padWidth - 1));
-        return paint(makeStyle({ fg: FG.grey }), `${padding}${dashStr}`);
-    }
-    if (size === -1) {
-        // Error sentinel
-        const str = "ERR";
-        const padding = " ".repeat(Math.max(0, padWidth - str.length));
-        return paint(makeStyle({ fg: FG.red, bold: true }), `${padding}${str}`);
-    }
-    if (size === -2) {
-        // Timeout sentinel
-        const str = "T/O";
-        const padding = " ".repeat(Math.max(0, padWidth - str.length));
-        return paint(makeStyle({ fg: FG.yellow, bold: true }), `${padding}${str}`);
-    }
+
+function formatSize(size: number, padWidth = 4): string {
+    const pad = (str: string, style: string) =>
+        paint(style, " ".repeat(Math.max(0, padWidth - str.length)) + str);
+
+    if (size === 0) return pad("-", themeStyles.dim);
+    if (size < 0) return pad("ERR", makeStyle({ fg: FG.red, bold: true }));
 
     const units = ["", "k", "M", "G", "T"];
     let unitIndex = 0;
     let sizeFloat = size;
-
     while (sizeFloat >= 1024 && unitIndex < units.length - 1) {
         sizeFloat /= 1024;
         unitIndex++;
     }
 
-    let sizeStr: string;
-    let colorCode: string;
+    const style =
+        size >= 1024 ** 3 ? themeStyles.sizeGB
+            : size >= 1024 ** 2 ? themeStyles.sizeMB
+                : size >= 1024 ? themeStyles.sizeKB
+                    : themeStyles.sizeBytes;
 
-    // Determine color based on size thresholds
-    if (size >= 1024 * 1024 * 1024) {
-        // > 1GB
-        colorCode = themeStyles.sizeGB;
-    } else if (size >= 1024 * 1024) {
-        // > 1MB
-        colorCode = themeStyles.sizeMB;
-    } else if (size >= 1024) {
-        colorCode = themeStyles.sizeKB;
-    } else {
-        colorCode = themeStyles.sizeBytes;
-    }
+    const sizeStr =
+        unitIndex === 0
+            ? size.toString()
+            : sizeFloat >= 10
+                ? Math.round(sizeFloat) + units[unitIndex]
+                : sizeFloat.toFixed(1) + units[unitIndex];
 
-    if (unitIndex === 0) {
-        // For bytes
-        sizeStr = size.toString();
-    } else {
-        // For larger sizes
-        if (sizeFloat >= 10) {
-            sizeStr = Math.round(sizeFloat).toString() + units[unitIndex];
-        } else {
-            sizeStr = sizeFloat.toFixed(1) + units[unitIndex];
-        }
-    }
-
-    // Calculate padding for the visible part (without ANSI codes)
-    const visibleLength = sizeStr.length;
-    const padding = " ".repeat(Math.max(0, padWidth - visibleLength));
-    return paint(colorCode, `${padding}${sizeStr}`);
+    return pad(sizeStr, style);
 }
 
-export function formatFilename(entry: Dirent): string {
-    const filename = entry.name;
-    const isSymlink = entry.isSymbolicLink?.();
-    const stat = isSymlink ? null : lstatSync(join(entry.parentPath, filename));
-
+export function formatFilename(
+    filename: string,
+    fullPath: string,
+    stat: Stats | null,
+    isMount: boolean
+): string {
+    const isSymlink = stat === null;
     const bits: string[] = [];
 
-    const primaryStyle = styleForStat(filename, stat);
-    const escapedName = escapeFilename(
-        filename,
-        primaryStyle,
-        themeStyles.controlChar
-    );
+    const primaryStyle = styleForStat(filename, stat, isMount);
+    const escapedName = escapeFilename(filename, primaryStyle, themeStyles.controlChar);
 
-    // Handle quoting for names with spaces
-    const needsQuotes = filename.includes(" ") || filename.includes("'");
-
-    if (needsQuotes) {
+    if (filename.includes(" ") || filename.includes("'")) {
         const quoteChar = filename.includes("'") ? '"' : "'";
-        const opening = paint(primaryStyle, quoteChar);
-        const closing = paint(primaryStyle, quoteChar);
-        bits.push(`${opening}${escapedName}${closing}`);
+        const quote = paint(primaryStyle, quoteChar);
+        bits.push(`${quote}${escapedName}${quote}`);
     } else {
         bits.push(escapedName);
     }
 
-    // Always classify files
-
     const suffix = classifySuffix(stat);
-    if (suffix) {
-        bits.push(suffix);
-    }
+    if (suffix) bits.push(suffix);
 
-    // Handle symlink targets
     if (isSymlink) {
-        bits.push(" ");
-        const linkTarget = readlinkSync(join(entry.parentPath, filename));
+        const linkTarget = readlinkSync(fullPath);
         const exists = existsSync(linkTarget);
-
-        bits.push(
-            paint(exists ? themeStyles.linkArrow : themeStyles.linkArrowBroken, "->")
-        );
         bits.push(" ");
-
-        const targetStyle = exists
-            ? themeStyles.symlinkPath
-            : themeStyles.brokenSymlink;
-        const escapedTarget = escapeFilename(
-            linkTarget,
-            targetStyle,
-            themeStyles.controlChar
+        bits.push(paint(exists ? themeStyles.linkArrow : themeStyles.linkArrowBroken, "->"));
+        bits.push(" ");
+        bits.push(
+            escapeFilename(
+                linkTarget,
+                exists ? themeStyles.symlinkPath : themeStyles.brokenSymlink,
+                themeStyles.controlChar
+            )
         );
-        bits.push(escapedTarget);
     }
 
     return bits.join("");
 }
 
-interface EntryData {
-    entry: Dirent;
+/**
+ * Physical (on-disk) bytes for any entry.
+ *   files        Stats.blocks * 512
+ *   directories  apfs.util -S      (O(1), clone-aware)
+ *   mount points getattrlist ATTR_VOL_SPACEUSED
+ *   symlinks     resolved, then sized as above
+ */
+async function getSize(
+    fullPath: string,
+    stat: Stats,
+    parentDev: number,
+    verbose?: VerboseCtx
+): Promise<number> {
+    if (stat.isSymbolicLink()) {
+        if (!existsSync(fullPath)) {
+            verbose?.note(fullPath, "symlink target missing");
+            return -1;
+        }
+        const target = realpathSync(fullPath);
+        verbose?.note(fullPath, `symlink → ${target}`);
+        const targetStat = lstatSync(target);
+        const targetParentDev = targetStat.isDirectory()
+            ? lstatSync(path.dirname(target)).dev
+            : parentDev;
+        return getSize(target, targetStat, targetParentDev, verbose);
+    }
+
+    if (stat.isDirectory()) {
+        if (stat.dev !== parentDev) {
+            const size = getVolumeSize(fullPath);
+            verbose?.note(fullPath, `mount point → ATTR_VOL_SPACEUSED=${size}`);
+            return size;
+        }
+        const size = await getApfsDirSize(fullPath, verbose);
+        verbose?.note(fullPath, `dir → apfs.util -S=${size}`);
+        return size;
+    }
+
+    const physical = stat.blocks * 512;
+    if (physical === 0 && stat.size > 0) {
+        const inline = getDecmpfsSize(fullPath);
+        verbose?.note(fullPath, `file → 0 blocks, decmpfs xattr=${inline}`);
+        return inline;
+    }
+
+    verbose?.note(fullPath, `file → blocks(${stat.blocks})*512=${physical}`);
+    return physical;
+}
+
+interface Row {
+    name: string;
     fullPath: string;
+    stat: Stats | null;
+    isMount: boolean;
     size: number;
+    /** compressed/logical as a fraction; 0 when uncompressed or not applicable */
+    ratio: number;
     ts: number;
     duration: number;
+    prefix: string;
+}
+
+function formatRatio(ratio: number, padWidth = 5): string {
+    if (ratio <= 0) return " ".repeat(padWidth);
+
+    const pct = Math.round(ratio * 100);
+    const style =
+        pct <= 40 ? themeStyles.sizeKB       // green: big win
+            : pct <= 70 ? themeStyles.sizeMB // yellow: decent
+                : themeStyles.dim;           // barely worth it
+    const str = `${pct}%`;
+    return paint(style, " ".repeat(Math.max(0, padWidth - str.length)) + str);
 }
 
 async function* streamResults<T>(tasks: Promise<T>[]): AsyncGenerator<T> {
@@ -713,182 +589,74 @@ async function* processEntries(
     targetDir: string,
     dirs: string[],
     flags: any,
-    deadline: number,
     verbose?: VerboseCtx
-): AsyncGenerator<EntryData> {
+): AsyncGenerator<Row> {
     if (!existsSync(targetDir)) {
         console.error(`"${targetDir}": No such file or directory`);
         return;
     }
 
-    const s = lstatSync(targetDir);
+    const targetStat = lstatSync(targetDir);
+    const targetIsDir = targetStat.isSymbolicLink()
+        ? lstatSync(realpathSync(targetDir)).isDirectory()
+        : targetStat.isDirectory();
 
-    const isDir = (() => {
-        if (s.isSymbolicLink()) {
-            const realTargetDir = existsSync(targetDir) && realpathSync(targetDir);
-            return (
-                realTargetDir &&
-                existsSync(realTargetDir) &&
-                lstatSync(realTargetDir)?.isDirectory()
-            );
-        }
-        return s.isDirectory();
-    })();
-    if (dirs.length > 1 && isDir && !flags.dir) {
-        console.log(targetDir + ":");
-    }
+    // Listing a directory's contents, vs. naming a file (or -d) directly.
+    const listContents = targetIsDir && !flags.dir;
 
-    // We need to handle the case where targetDir is a file!
-    // Original logic:
-    // if (isDir && !flags.dir) -> readdirSync(targetDir)
-    // else -> readdirSync(dirname(targetDir)).filter(name == basename)
+    let parentPath = listContents ? targetDir : path.dirname(targetDir);
+    try {
+        parentPath = realpathSync(parentPath);
+    } catch { }
 
-    let entries: Dirent[];
+    const parentDev = lstatSync(parentPath).dev;
 
-    // Need async readdir for consistency if possible, but readdirSync is fast enough for the top level usually.
-    // However, to keep it async:
-    if (isDir && !flags.dir) {
-        entries = await readdir(targetDir, { withFileTypes: true });
-    } else {
-        // If it's a file, we read the parent dir and filter
-        const parent = path.dirname(targetDir);
-        const base = path.basename(targetDir);
-        const all = await readdir(parent, { withFileTypes: true });
-        entries = all.filter((e) => e.name === base);
-    }
+    const all = await readdir(parentPath, { withFileTypes: true });
+    const entries = listContents
+        ? all.filter((e) => flags.all || !e.name.startsWith("."))
+        : all.filter((e) => e.name === path.basename(targetDir));
 
-    const cacheEnabled = !process.env.TOTALSIZE && !flags.nocache;
+    // Hoisted: identical for every row in this listing.
+    const prefix = listContents
+        ? dirs.length > 1 && flags.sort
+            ? paint(themeStyles.basepath, targetDir.replace(/\/?$/, "/"))
+            : ""
+        : paint(themeStyles.basepath, path.dirname(targetDir) + "/");
 
-    async function getSize(entry: any): Promise<number> {
-        const fullPath = entry.fullPath || entry.parentPath + "/" + entry.name;
-        if (entry.isFile()) {
-            const fsize = Bun.file(fullPath).size;
-            if (fsize > 10_000_000) {
-                const phys = getPhysicalFileSize(fullPath);
-                if (verbose) verbose.note(fullPath, `file >10MB: logical=${fsize}, physical(lstat st_blocks*512)=${phys}`);
-                return phys;
-            }
-            if (verbose) verbose.note(fullPath, `file: Bun.file().size=${fsize}`);
-            return fsize;
-        }
-        if (entry.isSymbolicLink()) {
-            const p = existsSync(fullPath) && realpathSync(fullPath);
-            if (!p) {
-                if (verbose) verbose.note(fullPath, `symlink target missing`);
-                return -1;
-            }
-            if (verbose) verbose.note(fullPath, `symlink → ${p}`);
-            const stat = lstatSync(p);
-            return getSize(Object.assign(stat, { fullPath: p }));
-        }
-        if (entry.isDirectory()) {
-            if (isMountedVolume(fullPath)) {
-                const vs = Number(getVolumeSizePureBun(fullPath));
-                if (verbose) verbose.note(fullPath, `dir is mounted volume → getattrlist ATTR_VOL_SPACEUSED=${vs}`);
-                return vs;
-            }
-            if (verbose) verbose.note(fullPath, `dir → apfs.util -S (APFS physical size of tree)`);
-            return await getApfsFastSize(fullPath, verbose);
-        }
-        if (verbose) verbose.note(fullPath, `unknown entry type, returning -1`);
-        return -1;
-    }
+    if (dirs.length > 1 && listContents && !flags.sort) console.log(targetDir + ":");
 
-    // Explicitly named targets (file operand, or -d) always show; -a only gates directory scans
-    const explicitTarget = !(isDir && !flags.dir);
-    const tasks = entries
-        .filter((entry) => explicitTarget || flags.all || !entry.name.startsWith("."))
-        .map(async (entry) => {
-            // Caution: logic for fullPath depends on where entry came from.
-            // If entry came from readdir(targetDir), parentPath is targetDir.
-            // If entry came from readdir(parent), parentPath is parent.
-            // entry.parentPath is available in Node 20+, Bun supports it?
-            // Original code used `join(realpathSync(entry.parentPath), entry.name)`.
-            // Let's assume entry.parentPath is compliant or re-derive it.
-            // Actually, to be safe, if we read from `targetDir`, then parent is `targetDir`.
-            // If we read from `dirname(targetDir)`, parent is `dirname(targetDir)`.
+    const tasks = entries.map(async (entry): Promise<Row> => {
+        const fullPath = join(parentPath, entry.name);
+        const stat = lstatSync(fullPath);
+        const isMount = stat.isDirectory() && stat.dev !== parentDev;
 
-            let parentPath: string;
-            if (isDir && !flags.dir) {
-                parentPath = targetDir;
-            } else {
-                parentPath = path.dirname(targetDir);
-            }
+        const start = performance.now();
+        const size = await getSize(fullPath, stat, parentDev, verbose);
+        const duration = performance.now() - start;
 
-            // Ensure realpath
-            try {
-                parentPath = realpathSync(parentPath);
-            } catch (e) {
-                // ignore if fails?
-            }
-
-            const fullPath = join(parentPath, entry.name);
-            if (Date.now() > deadline) {
-                return { entry, fullPath, size: -2, ts: Date.now(), duration: 0 };
-            }
-            const bf = Bun.file(fullPath);
-            //   console.log('->', , fullPath, entry.name)
-
-            const start = performance.now();
-            // Pin entry.fullPath so getSize keys verbose notes by the same absolute path we display.
-            const size = await getSize(Object.assign(entry, { fullPath }));
-            const duration = performance.now() - start;
-
-            const ts =
-                new Date(bf.lastModified).getFullYear() > 3000
-                    ? lstatSync(fullPath).mtimeMs
-                    : bf.lastModified;
-
-            return { entry, fullPath, size, ts, duration };
-        });
-    if (flags.sort === true) {
-        flags.sort = 'name'
-    }
-    if (flags.sort) {
-
-        const results = await Promise.all(tasks);
-
-        if (flags.sort.startsWith("-")) {
-            flags.sort = flags.sort.slice(1);
-            flags.reverse = !flags.reverse;
-        }
-        results.sort((b, a) => {
-            if (flags.sort === "size") {
-                return b.size - a.size;
-            }
-            if (flags.sort === "time" || flags.sort === "date") {
-                return b.ts - a.ts;
-            }
-            return a.entry.name.localeCompare(b.entry.name);
-        });
-        if (flags.reverse) {
-            results.reverse();
+        // Two extra getxattr calls, so only when the column is actually shown.
+        let ratio = 0;
+        if (flags.ratio && stat.isFile() && stat.size > 0) {
+            const compressed = getCompressedBytes(fullPath);
+            if (compressed > 0) ratio = compressed / stat.size;
+            verbose?.note(fullPath, `compressed=${compressed} logical=${stat.size}`);
         }
 
-        for (const item of results) {
-            yield item;
-        }
-    } else {
-        for await (const item of streamResults(tasks)) {
-            yield item;
-        }
-    }
-}
+        return {
+            name: entry.name,
+            fullPath,
+            // A symlink displays as a link; getSize already followed it for the size.
+            stat: stat.isSymbolicLink() ? null : stat,
+            isMount,
+            size,
+            ratio,
+            ts: stat.mtimeMs,
+            duration,
+            prefix,
+        };
+    });
 
-// Collect all entries from multiple dirs for global sorting
-async function collectAllEntries(
-    dirs: string[],
-    flags: any,
-    deadline: number,
-    verbose?: VerboseCtx
-): Promise<Array<EntryData & { originalTargetDir: string }>> {
-    const allEntries: Array<EntryData & { originalTargetDir: string }> = [];
-    for (const targetDir of dirs) {
-        for await (const entry of processEntries(targetDir, dirs, flags, deadline, verbose)) {
-            allEntries.push({ ...entry, originalTargetDir: targetDir });
-        }
-    }
-    return allEntries;
+    yield* streamResults(tasks);
 }
 
 if (import.meta.main) {
@@ -896,232 +664,128 @@ if (import.meta.main) {
         strict: false,
         args: Bun.argv.slice(2),
         options: {
-            all: {
-                short: "a",
-                type: "boolean",
-                default: false,
-            },
-            reverse: {
-                short: "r",
-                type: "boolean",
-                default: false,
-            },
-            sort: {
-                short: "s",
-                type: "string",
-            },
-            one: {
-                short: "1",
-                type: "boolean",
-            },
-            dir: {
-                short: "d",
-                type: "boolean",
-            },
-            nocache: {
-                type: "boolean",
-            },
-            timeout: {
-                type: "string", // parsed as int really
-            },
-            timing: {
-                type: "boolean",
-                default: false,
-            },
-            verbose: {
-                short: "v",
-                type: "boolean",
-                default: false,
-            },
-            help: {
-                short: "h",
-                type: "boolean",
-                default: false,
-            },
+            all: { short: "a", type: "boolean", default: false },
+            reverse: { short: "r", type: "boolean", default: false },
+            sort: { short: "s", type: "string" },
+            one: { short: "1", type: "boolean" },
+            dir: { short: "d", type: "boolean" },
+            ratio: { short: "c", type: "boolean", default: false },
+            timing: { type: "boolean", default: false },
+            verbose: { short: "v", type: "boolean", default: false },
+            help: { short: "h", type: "boolean", default: false },
         },
         allowPositionals: true,
-    }); // end parseArgs
+    });
 
     if (flags.help) {
         const b = makeStyle({ bold: true });
-        const dim = makeStyle({ fg: FG.grey, dim: true });
+        const dim = themeStyles.dim;
         const head = makeStyle({ fg: FG.yellow, bold: true });
         const opt = makeStyle({ fg: FG.green });
-        const lines = [
-            `${paint(head, "ll")} — colourful directory listing with APFS-aware sizing`,
-            ``,
-            `${paint(b, "USAGE")}`,
-            `  ll [options] [path...]`,
-            ``,
-            `${paint(b, "OPTIONS")}`,
-            `  ${paint(opt, "-a, --all")}          include dotfiles`,
-            `  ${paint(opt, "-r, --reverse")}      reverse sort order`,
-            `  ${paint(opt, "-s, --sort <key>")}   sort by name|size|time|date (prefix '-' to reverse)`,
-            `  ${paint(opt, "-1, --one")}          one entry per line, name only`,
-            `  ${paint(opt, "-d, --dir")}          list the directory itself, not its contents`,
-            `  ${paint(opt, "    --nocache")}      bypass the sqlite size cache`,
-            `  ${paint(opt, "    --timeout <ms>")} deadline for sizing (default 1000)`,
-            `  ${paint(opt, "    --timing")}       show per-entry measurement duration`,
-            `  ${paint(opt, "-v, --verbose")}      print sizing internals (method, raw bytes, notes)`,
-            `  ${paint(opt, "-h, --help")}         show this message`,
-            ``,
-            `${paint(b, "SIZING STRATEGY")}`,
-            `  ${paint(dim, "files < 10MB")}   Bun.file().size           (logical size)`,
-            `  ${paint(dim, "files ≥ 10MB")}   lstat st_blocks * 512     (physical / on-disk)`,
-            `  ${paint(dim, "directories")}    apfs.util -S              (APFS physical tree size)`,
-            `  ${paint(dim, "mounted vols")}   getattrlist ATTR_VOL_SPACEUSED`,
-            `  ${paint(dim, "symlinks")}       resolved, then sized as above`,
-            ``,
-            `${paint(b, "EXAMPLES")}`,
-            `  ll -s size -r ~/Downloads`,
-            `  ll --verbose --timeout 5000 /Volumes`,
-            `  ll -1 -a .`,
-        ];
-        console.log(lines.join("\n"));
+        console.log(
+            [
+                `${paint(head, "ll")} — colourful directory listing with APFS-aware sizing`,
+                ``,
+                `${paint(b, "USAGE")}`,
+                `  ll [options] [path...]`,
+                ``,
+                `${paint(b, "OPTIONS")}`,
+                `  ${paint(opt, "-a, --all")}          include dotfiles`,
+                `  ${paint(opt, "-r, --reverse")}      reverse sort order`,
+                `  ${paint(opt, "-s, --sort <key>")}   sort by name|size|time|date|ratio (prefix '-' to reverse)`,
+                `  ${paint(opt, "-1, --one")}          one entry per line, name only`,
+                `  ${paint(opt, "-d, --dir")}          list the directory itself, not its contents`,
+                `  ${paint(opt, "-c, --ratio")}        show AFSC compression ratio (compressed/logical)`,
+                `  ${paint(opt, "    --timing")}       show per-entry measurement duration`,
+                `  ${paint(opt, "-v, --verbose")}      print sizing internals`,
+                `  ${paint(opt, "-h, --help")}         show this message`,
+                ``,
+                `${paint(b, "SIZING")}  ${paint(dim, "physical (on-disk) bytes throughout")}`,
+                `  ${paint(dim, "files")}          Stats.blocks * 512`,
+                `  ${paint(dim, "directories")}    apfs.util -S    (O(1), counts clones once)`,
+                `  ${paint(dim, "mount points")}   getattrlist ATTR_VOL_SPACEUSED`,
+                `  ${paint(dim, "symlinks")}       resolved, then sized as above`,
+                ``,
+                `${paint(b, "EXAMPLES")}`,
+                `  ll -s size -r ~/Downloads`,
+                `  ll -1 -a .`,
+            ].join("\n")
+        );
         process.exit(0);
     }
 
     const dirs = positionals.length === 0 ? ["."] : (positionals as string[]);
-    const deadline = Date.now() + Number(flags.timeout || 1000);
     const verbose = flags.verbose ? makeVerboseCtx() : undefined;
 
-    if (verbose) {
-        const dim = makeStyle({ fg: FG.grey, dim: true });
-        console.log(paint(dim, `[verbose] flags=${JSON.stringify(flags)}`));
-        console.log(paint(dim, `[verbose] dirs=${JSON.stringify(dirs)} deadline=+${Number(flags.timeout || 1000)}ms`));
-        console.log(paint(dim, `[verbose] TTY=${DISPLAY_COLORS} TOTALSIZE=${process.env.TOTALSIZE ?? ""} platform=${process.platform}`));
-        console.log(paint(dim, `[verbose] sizing: files<10MB → Bun.file().size; files≥10MB → lstat st_blocks*512; dirs → apfs.util -S; mounted volumes → getattrlist ATTR_VOL_SPACEUSED`));
+    let sortKey = flags.sort === true ? "name" : (flags.sort as string | undefined);
+    if (sortKey?.startsWith("-")) {
+        sortKey = sortKey.slice(1);
+        flags.reverse = !flags.reverse;
     }
+    if (sortKey === "ratio") flags.ratio = true;
 
-    // When sorting, collect all entries first for global sort
-    let allEntries: EntryData[] | null = null;
-    let spawnedWarming = false;
-
-    if (flags.sort) {
-        allEntries = await collectAllEntries(dirs, flags, deadline, verbose);
-        // Apply global sort
-        let sortKey = flags.sort === true ? "name" : flags.sort;
-        if (sortKey.startsWith("-")) {
-            sortKey = sortKey.slice(1);
-            flags.reverse = !flags.reverse;
-        }
-        allEntries.sort((b, a) => {
-            if (sortKey === "size") {
-                return b.size - a.size;
-            }
-            if (sortKey === "time" || sortKey === "date") {
-                return b.ts - a.ts;
-            }
-            return a.entry.name.localeCompare(b.entry.name);
-        });
-        if (flags.reverse) {
-            allEntries.reverse();
-        }
-    }
-
-    const processEntry = (entry: EntryData & { originalTargetDir?: string }, targetDir: string) => {
-        const { entry: ent, fullPath, size, ts, duration } = entry;
-
-        if (size === -2 && !spawnedWarming) {
-            spawnedWarming = true;
-            // Background cache warming: spawn the same command once with a huge timeout
-            Bun.spawn(
-                [
-                    Bun.argv[0],
-                    Bun.argv[1],
-                    ...Bun.argv.slice(2),
-                    "--timeout",
-                    "999999999",
-                ],
-                {
-                    stdio: ["ignore", "ignore", "ignore"],
-                    detached: true,
-                }
-            ).unref();
-        }
-
-        const formatted = formatFilename(ent);
-
-        const emitVerbose = () => {
-            if (!verbose) return;
-            const dim = makeStyle({ fg: FG.grey, dim: true });
-            const notes = verbose.notes.get(fullPath) ?? [];
-            const rawSize =
-                size === -1 ? "ERR" : size === -2 ? "TIMEOUT" : `${size} bytes`;
-            console.log(paint(dim, `    path:     ${fullPath}`));
-            console.log(paint(dim, `    raw size: ${rawSize}   duration: ${duration.toFixed(2)}ms   mtime: ${new Date(ts).toISOString()}`));
-            for (const n of notes) {
-                console.log(paint(dim, `    • ${n}`));
-            }
-        };
+    const emit = (row: Row) => {
+        const name = formatFilename(row.name, row.fullPath, row.stat, row.isMount);
 
         if (flags.one) {
-            console.log(formatted);
-            emitVerbose();
-            return;
+            console.log(name);
+        } else {
+            const timing = flags.timing
+                ? paint(
+                    themeStyles.dim,
+                    ` (${row.duration < 100 ? row.duration.toFixed(1) : Math.round(row.duration)}ms)`
+                )
+                : "";
+            console.log(
+                "",
+                formatSize(row.size),
+                ...(flags.ratio ? [formatRatio(row.ratio)] : []),
+                formatDate(new Date(row.ts)),
+                timing,
+                "–",
+                row.prefix + name
+            );
         }
-        const datef = formatDate(new Date(ts));
 
-        // Re-derive prefix logic
-        const s = lstatSync(targetDir as string);
-        const targetIsDir = (() => {
-            if (s.isSymbolicLink()) {
-                const realTargetDir =
-                    existsSync(targetDir as string) &&
-                    realpathSync(targetDir as string);
-                return (
-                    realTargetDir &&
-                    existsSync(realTargetDir) &&
-                    lstatSync(realTargetDir)?.isDirectory()
-                );
+        if (verbose) {
+            console.log(paint(themeStyles.dim, `    path:     ${row.fullPath}`));
+            console.log(
+                paint(
+                    themeStyles.dim,
+                    `    raw size: ${row.size < 0 ? "ERR" : `${row.size} bytes`}   duration: ${row.duration.toFixed(2)}ms   mtime: ${new Date(row.ts).toISOString()}`
+                )
+            );
+            for (const note of verbose.notes.get(row.fullPath) ?? []) {
+                console.log(paint(themeStyles.dim, `    • ${note}`));
             }
-            return s.isDirectory();
-        })();
-
-        // "pre" is only non-empty if we are listing the CONTENT of a directory (not just the dir itself via -d)
-        // AND we want to show the full path context?
-        // Original code: `isDir` (of target) ? '' : paint(...)
-        // If target is a file, we prepend directory.
-        const pre =
-            targetIsDir && !flags.dir
-                ? ""
-                : paint(
-                    themeStyles.basepath,
-                    path.dirname(targetDir as string) + "/"
-                );
-
-        const timingStr = flags.timing
-            ? paint(
-                makeStyle({ fg: FG.grey, dim: true }),
-                ` (${duration < 100 ? duration.toFixed(1) : Math.round(duration)
-                }ms)`
-            )
-            : "";
-
-        console.log("", formatSize(size), datef, timingStr, "–", pre + formatted);
-        emitVerbose();
+        }
     };
 
-    if (allEntries !== null) {
-        // Sorted mode: iterate over globally sorted entries
-        for (const entry of allEntries) {
-            processEntry(entry, entry.originalTargetDir!);
-        }
-    } else {
-        // Unsorted mode: stream per directory
+    if (sortKey) {
+        const rows: Row[] = [];
         for (const targetDir of dirs) {
-            for await (const entry of processEntries(
-                targetDir,
-                dirs,
-                flags,
-                deadline,
-                verbose
-            )) {
-                processEntry(entry, targetDir);
+            for await (const row of processEntries(targetDir, dirs, flags, verbose)) {
+                rows.push(row);
+            }
+        }
+
+        rows.sort((b, a) =>
+            sortKey === "size" ? b.size - a.size
+                : sortKey === "time" || sortKey === "date" ? b.ts - a.ts
+                    // ascending like size, but uncompressed (0) sinks to the bottom
+                    : sortKey === "ratio" ? (b.ratio || Infinity) - (a.ratio || Infinity)
+                        : a.name.localeCompare(b.name)
+        );
+        if (flags.reverse) rows.reverse();
+
+        rows.forEach(emit);
+    } else {
+        for (const targetDir of dirs) {
+            for await (const row of processEntries(targetDir, dirs, flags, verbose)) {
+                emit(row);
             }
         }
     }
-}
 
-// console.log('after')
-process.exit()
+    process.exit();
+}
