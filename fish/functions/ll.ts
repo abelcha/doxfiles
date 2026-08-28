@@ -1,5 +1,5 @@
 #!/usr/bin/env bun
-import { existsSync, lstatSync, readdirSync, readlinkSync, realpathSync } from "fs";
+import { existsSync, lstatSync, readlinkSync, realpathSync } from "fs";
 import { readdir } from "fs/promises";
 import type { Stats } from "node:fs";
 import path, { join } from "path";
@@ -161,27 +161,17 @@ function maintainDirStats(dirPath: string, elapsed: number, verbose?: VerboseCtx
 }
 
 // apfs.util scores AFSC-compressed files as zero, so its totals run low wherever
-// applesauce has been. Small trees are cheap enough to just walk and get right.
-// ~155k entries/sec, so this caps a single directory's walk around 60ms.
+// applesauce has been. Small trees get walked instead. du rather than an
+// in-process walk because a sync walk cannot overlap: 365 dirs under /Volumes/dev
+// take 4.0s serially against 1.3s through the pool. The cost is that du also
+// reports inline-compressed payloads as zero, so totals run ~0.5% low on them.
 const WALK_MAX_DESCENDANTS = 10_000;
 
-function walkPhysical(dirPath: string): number {
-    let total = 0;
-    for (const entry of readdirSync(dirPath, { withFileTypes: true })) {
-        const p = join(dirPath, entry.name);
-        try {
-            if (entry.isDirectory()) {
-                total += lstatSync(p).blocks * 512 + walkPhysical(p);
-                continue;
-            }
-            const st = lstatSync(p);
-            // blocks already covers the resource fork; only inline payloads read 0.
-            total += st.blocks * 512 || (st.size > 0 ? getCompressedBytes(p) : 0);
-        } catch {
-            // unreadable entry — skip it rather than abort the whole total
-        }
-    }
-    return total;
+async function duSize(dirPath: string): Promise<number> {
+    return withSpawnSlot(async () => {
+        const out = await Bun.$`du -sk ${dirPath}`.quiet().nothrow().text();
+        return Number(out.trim().split(/\s+/)[0] || 0) * 1024;
+    });
 }
 
 interface VerboseCtx {
@@ -586,8 +576,8 @@ async function getSize(
         }
         const { size, descendants } = await getApfsDirStats(fullPath, verbose);
         if (descendants >= 0 && descendants < WALK_MAX_DESCENDANTS) {
-            const walked = walkPhysical(fullPath);
-            verbose?.note(fullPath, `dir → walked ${descendants} entries=${walked} (apfs.util said ${size})`);
+            const walked = await duSize(fullPath);
+            verbose?.note(fullPath, `dir → du ${descendants} entries=${walked} (apfs.util said ${size})`);
             return walked;
         }
         verbose?.note(fullPath, `dir → apfs.util -S=${size} (${descendants} descendants, too big to walk)`);
