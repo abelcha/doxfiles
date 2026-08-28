@@ -1,10 +1,10 @@
 #!/usr/bin/env bun
-import { existsSync, lstatSync, readlinkSync, realpathSync } from "fs";
+import { existsSync, lstatSync, readdirSync, readlinkSync, realpathSync } from "fs";
 import { readdir } from "fs/promises";
 import type { Stats } from "node:fs";
 import path, { join } from "path";
 import { parseArgs } from "util";
-import { dlopen, FFIType, ptr } from "bun:ffi";
+import { dlopen, FFIType, ptr, toArrayBuffer } from "bun:ffi";
 
 const ANSI_RESET = "\x1b[0m";
 const DISPLAY_COLORS = process.stdout.isTTY;
@@ -65,7 +65,7 @@ function getCompressedBytes(filePath: string): number {
 }
 
 function getErrno(): number {
-    return new Int32Array(Bun.toArrayBuffer(libc.symbols.__error(), 0, 4))[0];
+    return new Int32Array(toArrayBuffer(libc.symbols.__error(), 0, 4))[0];
 }
 
 function getVolumeSize(volumePath: string): number {
@@ -118,20 +118,70 @@ async function withSpawnSlot<T>(fn: () => Promise<T>): Promise<T> {
     }
 }
 
-async function getApfsDirSize(dirPath: string, verbose?: VerboseCtx): Promise<number> {
+async function getApfsDirStats(dirPath: string, verbose?: VerboseCtx) {
     return withSpawnSlot(async () => {
         try {
+            const started = performance.now();
             const out = await Bun.$`${APFS_UTIL} -S ${dirPath}`.quiet().text();
+            const elapsed = performance.now() - started;
             const size = Number(out.match(/physical size: (\d+)/)?.[1] ?? -1);
             if (verbose && size === -1) {
                 verbose.note(dirPath, `apfs.util output unparsed: ${out.trim().slice(0, 120)}`);
             }
-            return size;
+            // gen-count 0 means maintain-dir-stats is off, so that -S call just
+            // walked the whole tree. Flag it and every later call is O(1) — but
+            // only when the walk actually hurt, since -M cannot be undone.
+            if (out.includes("gen-count: 0") && elapsed > MAINTAIN_MIN_MS) {
+                maintainDirStats(dirPath, elapsed, verbose);
+            }
+            return { size, descendants: Number(out.match(/descendants: (\d+)/)?.[1] ?? -1) };
         } catch (err: any) {
             verbose?.note(dirPath, `apfs.util failed: ${err?.message ?? err}`);
-            return -1;
+            return { size: -1, descendants: -1 };
         }
     });
+}
+
+// -M backfills the stats, which costs one walk, so it is fired detached rather
+// than awaited — this run stays slow, every run after it is not.
+const MAINTAIN_MIN_MS = 50;
+const flagged = new Set<string>();
+
+function maintainDirStats(dirPath: string, elapsed: number, verbose?: VerboseCtx) {
+    if (flagged.has(dirPath)) return;
+    flagged.add(dirPath);
+    try {
+        Bun.spawn([APFS_UTIL, "-M", dirPath], {
+            stdio: ["ignore", "ignore", "ignore"],
+        }).unref();
+        verbose?.note(dirPath, `-S took ${elapsed.toFixed(0)}ms unmaintained → spawned apfs.util -M`);
+    } catch (err: any) {
+        verbose?.note(dirPath, `apfs.util -M failed: ${err?.message ?? err}`);
+    }
+}
+
+// apfs.util scores AFSC-compressed files as zero, so its totals run low wherever
+// applesauce has been. Small trees are cheap enough to just walk and get right.
+// ~155k entries/sec, so this caps a single directory's walk around 60ms.
+const WALK_MAX_DESCENDANTS = 10_000;
+
+function walkPhysical(dirPath: string): number {
+    let total = 0;
+    for (const entry of readdirSync(dirPath, { withFileTypes: true })) {
+        const p = join(dirPath, entry.name);
+        try {
+            if (entry.isDirectory()) {
+                total += lstatSync(p).blocks * 512 + walkPhysical(p);
+                continue;
+            }
+            const st = lstatSync(p);
+            // blocks already covers the resource fork; only inline payloads read 0.
+            total += st.blocks * 512 || (st.size > 0 ? getCompressedBytes(p) : 0);
+        } catch {
+            // unreadable entry — skip it rather than abort the whole total
+        }
+    }
+    return total;
 }
 
 interface VerboseCtx {
@@ -499,11 +549,14 @@ export function formatFilename(
 }
 
 /**
- * Physical (on-disk) bytes for any entry.
- *   files        Stats.blocks * 512
- *   directories  apfs.util -S      (O(1), clone-aware)
+ * Size in bytes for any entry.
+ *   files        logical (Stats.size) — on-disk would round 75% of them to 4k
+ *   directories  walked if under 100 descendants, else apfs.util -S
  *   mount points getattrlist ATTR_VOL_SPACEUSED
  *   symlinks     resolved, then sized as above
+ *
+ * Mixed units on purpose: a file's apparent size is what you want when browsing,
+ * a directory's on-disk total is what you want when hunting for space.
  */
 async function getSize(
     fullPath: string,
@@ -531,20 +584,18 @@ async function getSize(
             verbose?.note(fullPath, `mount point → ATTR_VOL_SPACEUSED=${size}`);
             return size;
         }
-        const size = await getApfsDirSize(fullPath, verbose);
-        verbose?.note(fullPath, `dir → apfs.util -S=${size}`);
+        const { size, descendants } = await getApfsDirStats(fullPath, verbose);
+        if (descendants >= 0 && descendants < WALK_MAX_DESCENDANTS) {
+            const walked = walkPhysical(fullPath);
+            verbose?.note(fullPath, `dir → walked ${descendants} entries=${walked} (apfs.util said ${size})`);
+            return walked;
+        }
+        verbose?.note(fullPath, `dir → apfs.util -S=${size} (${descendants} descendants, too big to walk)`);
         return size;
     }
 
-    const physical = stat.blocks * 512;
-    if (physical === 0 && stat.size > 0) {
-        const inline = getDecmpfsSize(fullPath);
-        verbose?.note(fullPath, `file → 0 blocks, decmpfs xattr=${inline}`);
-        return inline;
-    }
-
-    verbose?.note(fullPath, `file → blocks(${stat.blocks})*512=${physical}`);
-    return physical;
+    verbose?.note(fullPath, `file → logical ${stat.size} (on disk ${stat.blocks * 512})`);
+    return stat.size;
 }
 
 interface Row {
@@ -700,9 +751,9 @@ if (import.meta.main) {
                 `  ${paint(opt, "-v, --verbose")}      print sizing internals`,
                 `  ${paint(opt, "-h, --help")}         show this message`,
                 ``,
-                `${paint(b, "SIZING")}  ${paint(dim, "physical (on-disk) bytes throughout")}`,
-                `  ${paint(dim, "files")}          Stats.blocks * 512`,
-                `  ${paint(dim, "directories")}    apfs.util -S    (O(1), counts clones once)`,
+                `${paint(b, "SIZING")}`,
+                `  ${paint(dim, "files")}          logical size (Stats.size)`,
+                `  ${paint(dim, "directories")}    on-disk; walked under ${WALK_MAX_DESCENDANTS} descendants, else apfs.util -S`,
                 `  ${paint(dim, "mount points")}   getattrlist ATTR_VOL_SPACEUSED`,
                 `  ${paint(dim, "symlinks")}       resolved, then sized as above`,
                 ``,
