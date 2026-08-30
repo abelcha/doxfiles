@@ -60,18 +60,18 @@ set --append noscope_cmds mods interpreter
 #     end
 # end
 
-for ext in (string match -r 'fish_runtime_(.*)' -g (set -n))
-    set runtime fish_runtime_$ext
-    set runner $$runtime
-    for script in $fish_dir/functions/*.$ext
-        set fname (path basename $script --no-extension)
-        alias $fname $script
-    end
-    for script in $fish_dir/functions/*/index.$ext
-        set fname (path basename (path dirname $script))
-        alias $fname $script
-    end
-end
+# for ext in (string match -r 'fish_runtime_(.*)' -g (set -n))
+#     set runtime fish_runtime_$ext
+#     set runner $$runtime
+#     for script in $fish_dir/functions/*.$ext
+#         set fname (path basename $script --no-extension)
+#         alias $fname $script
+#     end
+#     for script in $fish_dir/functions/*/index.$ext
+#         set fname (path basename (path dirname $script))
+#         alias $fname $script
+#     end
+# end
 
 complete --command bunx --wraps command
 complete --command uvx --wraps command
