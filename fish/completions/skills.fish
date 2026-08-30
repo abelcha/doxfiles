@@ -80,3 +80,32 @@ complete -c "skills" -n "__fish_seen_subcommand_from 'remove'" -s "y" -l "yes" -
 complete -c "skills" -n "__fish_seen_subcommand_from 'remove'" -l "all" -d "Shorthand for --skill '*' --agent '*' -y" # global
 complete -c "skills" -n "__fish_seen_subcommand_from 'list'" -s "g" -d "list global skills" # global
 complete -c "skills" -n "__fish_seen_subcommand_from 'ls'" -s "g" -d "List global skills" # global
+# --- Live completions from `skills` CLI output ---
+
+# Extract installed skill names by running `skills list` (project + global)
+# and stripping the hardcoded ANSI color codes from its output.
+function __skills_skill_names
+    set -l scope
+    if contains -- --global $argv
+        set scope --global
+    else if type -q __fish_seen_argument; and __fish_seen_argument -s g -l global 2>/dev/null
+        set scope --global
+    end
+    command skills list $scope 2>/dev/null \
+        | string replace -ra -- '\e\[[0-9;]*m' '' \
+        | string match -r '^[^ ]+ +[.~]/' \
+        | string trim \
+        | string replace -r ' +.*' ''
+end
+
+# --skill / -s values: installed skill names plus '*'
+complete -f -c skills -n "__fish_seen_subcommand_from add remove list ls find check init" \
+    -s s -l skill -x -a "(__skills_skill_names '*')"
+
+# positional skill names for remove / update (update alias: upgrade)
+complete -f -c skills -n "__fish_seen_subcommand_from remove update upgrade" \
+    -x -a "(__skills_skill_names)"
+
+# --agent / -a values
+complete -f -c skills -n "__fish_seen_subcommand_from add remove list ls" \
+    -s a -l agent -x -a "*"
